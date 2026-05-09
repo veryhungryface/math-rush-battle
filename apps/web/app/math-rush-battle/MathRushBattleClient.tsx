@@ -922,6 +922,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       return lerp(0.72, 1.1, this.roadDepth(rect, y));
     }
 
+    pickupTravelProgress(progress: number) {
+      return clamp(progress * 1.55 + 0.08, 0, 1);
+    }
+
     projectilePerspectiveScale(rect: Rect, y: number) {
       return lerp(0.58, 1.08, this.roadDepth(rect, y));
     }
@@ -1097,12 +1101,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         this.updatePickupPosition(panel, progress);
         const pickup = panel.pickup;
         const team = this.teams[panel.teamId];
-        if (!pickup || pickup.collected || !team || this.resolvedTeams.has(team.id)) {
+        if (!pickup || pickup.collected || !team) {
           return;
         }
-        if (this.isPickupTouchingTeam(panel, team, pickup, progress)) {
-          this.collectPickup(panel, team, pickup);
-        }
+        this.tryCollectPickup(panel, team);
         if (progress >= 0.96 && !pickup.collected) {
           (pickup.root as any).setAlpha(0.35);
         }
@@ -1113,28 +1115,61 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       if (!panel.pickup || panel.pickup.collected) {
         return;
       }
-      const y = lerp(panel.rect.y + panel.rect.height * 0.42, panel.rect.y + panel.rect.height * 0.85, progress);
+      const travel = this.pickupTravelProgress(progress);
+      const y = lerp(panel.rect.y + panel.rect.height * 0.48, panel.rect.y + panel.rect.height * 0.88, travel);
       const team = this.teams[panel.teamId];
       const naturalX = this.roadX(panel.rect, panel.pickup.position, y);
-      const teamX = team && team.magnetPower > 0 && progress > 0.35 ? this.roadX(panel.rect, team.position, y) : naturalX;
-      const x = team && team.magnetPower > 0 && progress > 0.35 ? lerp(naturalX, teamX, 0.48) : naturalX;
+      const teamX = team && team.magnetPower > 0 && travel > 0.24 ? this.roadX(panel.rect, team.position, y) : naturalX;
+      const x = team && team.magnetPower > 0 && travel > 0.24 ? lerp(naturalX, teamX, 0.56) : naturalX;
       const root = panel.pickup.root as any;
       root.setPosition(x, y);
       root.setScale(this.pickupPerspectiveScale(panel.rect, y));
       root.setDepth(Math.floor(y) + 430);
     }
 
-    isPickupTouchingTeam(panel: PanelView, team: TeamStatus, pickup: PickupView, progress: number) {
-      if (progress < 0.42 || progress > 0.98) {
+    tryCollectPickup(panel: PanelView, team: TeamStatus) {
+      const pickup = panel.pickup;
+      if (!pickup || pickup.collected) {
+        return;
+      }
+      if (this.isPickupTouchingTeam(panel, team, pickup)) {
+        this.collectPickup(panel, team, pickup);
+      }
+    }
+
+    isPickupTouchingTeam(panel: PanelView, team: TeamStatus, pickup: PickupView) {
+      const root = pickup.root as any;
+      if (root.visible === false || Number(root.alpha ?? 1) <= 0.05) {
         return false;
       }
-      const root = pickup.root as any;
+      const pickupX = Number(root.x ?? 0);
+      const pickupY = Number(root.y ?? 0);
+      const pickupDepth = this.roadDepth(panel.rect, pickupY);
       const baseY = panel.rect.y + panel.rect.height * 0.82;
-      const teamX = this.roadX(panel.rect, team.position, baseY);
       const magnetBoost = team.magnetPower > 0 || pickup.kind === 'magnet';
-      const xRadius = panel.rect.width * (magnetBoost ? 0.2 : 0.12);
-      const yRadius = panel.rect.height * (magnetBoost ? 0.19 : 0.13);
-      return Math.abs(root.x - teamX) <= xRadius && Math.abs(root.y - baseY) <= yRadius;
+      const pickupRoadPosition = this.roadPositionFromX(panel.rect, pickupX, pickupY);
+      const troopFrontY = panel.rect.y + panel.rect.height * 0.765;
+      const troopBackY = panel.rect.y + panel.rect.height * 0.91;
+      const roadCatchWidth = lerp(0.07, 0.12, pickupDepth) + (magnetBoost ? 0.13 : 0);
+      const roadCatchHeight = panel.rect.height * (magnetBoost ? 0.18 : 0.075);
+      const inTroopBand = pickupY >= troopFrontY - roadCatchHeight && pickupY <= troopBackY + roadCatchHeight;
+      if (inTroopBand && Math.abs(pickupRoadPosition - team.position) <= roadCatchWidth) {
+        return true;
+      }
+
+      const pickupRadiusX = Math.max(46, panel.rect.width * lerp(0.05, 0.09, pickupDepth)) * (magnetBoost ? 1.85 : 1);
+      const pickupRadiusY = Math.max(44, panel.rect.height * lerp(0.045, 0.078, pickupDepth)) * (magnetBoost ? 1.75 : 1);
+      return panel.soldiers.some((soldier) => {
+        const soldierRoot = soldier.root as any;
+        const soldierX = Number(soldierRoot.x ?? this.roadX(panel.rect, team.position, baseY));
+        const soldierY = Number(soldierRoot.y ?? baseY);
+        const soldierDepth = this.roadDepth(panel.rect, soldierY);
+        const soldierRadiusX = Math.max(34, panel.rect.width * lerp(0.032, 0.052, soldierDepth));
+        const soldierRadiusY = Math.max(34, panel.rect.height * lerp(0.034, 0.058, soldierDepth));
+        const dx = (pickupX - soldierX) / (pickupRadiusX + soldierRadiusX);
+        const dy = (pickupY - soldierY) / (pickupRadiusY + soldierRadiusY);
+        return dx * dx + dy * dy <= 1;
+      });
     }
 
     collectPickup(panel: PanelView, team: TeamStatus, pickup: PickupView) {
@@ -1639,6 +1674,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       team.position = nextPosition;
       team.lane = nearestLane(nextPosition);
       this.syncSoldiers(panel, team, animate);
+      if (this.phase !== 'loading' && this.phase !== 'finished') {
+        this.tryCollectPickup(panel, team);
+      }
       this.movementDirty = true;
       if (pushStats) {
         callbacks.onStats(cloneTeams(this.teams));
