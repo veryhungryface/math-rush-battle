@@ -1,0 +1,10 @@
+node_modules
+.next
+.vercel
+dist
+.env
+.env.*
+.env.local
+.DS_Store
+apps/server/data
+reference/openclaw

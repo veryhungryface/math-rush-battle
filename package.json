@@ -1,0 +1,24 @@
+{
+  "name": "openclaw-personal-assistant-web",
+  "private": true,
+  "version": "0.1.0",
+  "bin": {
+    "ima2": "./bin/ima2.js"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n web,server -c cyan,green \"npm run dev -w web\" \"npm run dev -w server\"",
+    "dev:web:lan": "npm run dev:lan -w web",
+    "build": "npm run build -w web && npm run build -w server",
+    "setup": "node bin/ima2.js setup",
+    "login": "node bin/ima2.js login",
+    "oauth:status": "node bin/ima2.js status",
+    "start": "concurrently -n web,server -c cyan,green \"npm run start -w web\" \"npm run start -w server\"",
+    "vault:sync": "tsx apps/server/src/obsidian/cli.ts"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

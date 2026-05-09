@@ -1,0 +1,3321 @@
+{
+  "meta": {
+    "compactedAt": "2026-05-09",
+    "sourceRoot": "/Users/im_1699/Documents/obsidian_vault",
+    "sourceActionCount": 69,
+    "teamCount": 2,
+    "actionCount": 69,
+    "method": {
+      "ko": "Obsidian vault의 Decisions(issamGPT 액션 보드 + 수학 액션 보드), People, 99_Archive에서 메타 7-역할 + frontmatter를 자동 추출",
+      "en": "Obsidian vault의 Decisions(issamGPT 액션 보드 + 수학 액션 보드), People, 99_Archive에서 메타 7-역할 + frontmatter를 자동 추출"
+    },
+    "caveat": {
+      "ko": "표기상 후보/전언은 운영 가설로 유지. 정체 감지·tier 시각은 vault frontmatter 기반.",
+      "en": "표기상 후보/전언은 운영 가설로 유지. 정체 감지·tier 시각은 vault frontmatter 기반."
+    },
+    "sourceNotes": [
+      "Decisions/issamGPT 액션 보드.md",
+      "Decisions/수학 액션 보드.md",
+      "People/*.md",
+      "99_Archive/2026-05/*.md"
+    ]
+  },
+  "rawEvents": [
+    {
+      "id": "RAW-U1",
+      "source": "Decisions/issamGPT 액션 보드 U1",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "[F] (2026-04-30) NS팀 팀장 → 전략기획팀 팀원 강등",
+        "en": "[F] (2026-04-30) NS팀 팀장 → 전략기획팀 팀원 강등"
+      },
+      "signal": {
+        "ko": "· 대기: 이승철",
+        "en": "· 대기: 이승철"
+      },
+      "normalizedTaskId": "U1"
+    },
+    {
+      "id": "RAW-U2",
+      "source": "Decisions/issamGPT 액션 보드 U2",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "[F] (2026-05-04 16:00 본인 미팅) [[조용기]]·[[김현석]]과 함께 확인 — 마일스톤 미준수 상태",
+        "en": "[F] (2026-05-04 16:00 본인 미팅) [[조용기]]·[[김현석]]과 함께 확인 — 마일스톤 미준수 상태"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영",
+        "en": "의뢰: 배태영"
+      },
+      "normalizedTaskId": "U2"
+    },
+    {
+      "id": "RAW-A1",
+      "source": "Decisions/issamGPT 액션 보드 A1",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "[F] (2026-05-04 08:00) Runway ML과 Zoom 미팅 진행 완료. [[박성한]]이 직접 세팅. 결과 구글 doc 그룹DM 공유.",
+        "en": "[F] (2026-05-04 08:00) Runway ML과 Zoom 미팅 진행 완료. [[박성한]]이 직접 세팅. 결과 구글 doc 그룹DM 공유."
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A1"
+    },
+    {
+      "id": "RAW-A2",
+      "source": "Decisions/issamGPT 액션 보드 A2",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04 11:41) [[박성한]]: \"issamGPT 폭이 좁음. 제미나이 대비. 폭만 넓혀도 될 것 같아요.\"",
+        "en": "후보 [F·전언] (2026-05-03~04 11:41) [[박성한]]: \"issamGPT 폭이 좁음. 제미나이 대비. 폭만 넓혀도 될 것 같아요.\""
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A2"
+    },
+    {
+      "id": "RAW-A3",
+      "source": "Decisions/issamGPT 액션 보드 A3",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04) [[박성한]]이 협상 내용 이미지 공유.",
+        "en": "후보 [F·전언] (2026-05-03~04) [[박성한]]이 협상 내용 이미지 공유."
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A3"
+    },
+    {
+      "id": "RAW-A13",
+      "source": "Decisions/issamGPT 액션 보드 A13",
+      "receivedAt": "2026-04-30",
+      "rawText": {
+        "ko": "[F] (2026-04-29 19:00~21:00) issamGPT 1학기 끝내기 LIVE 진행 — [[홍성욱]]·[[여승환]]·[[이승철]] 강사 3명",
+        "en": "[F] (2026-04-29 19:00~21:00) issamGPT 1학기 끝내기 LIVE 진행 — [[홍성욱]]·[[여승환]]·[[이승철]] 강사 3명"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A13"
+    },
+    {
+      "id": "RAW-B1",
+      "source": "Decisions/issamGPT 액션 보드 B1",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "[F] (2026-05-03~04 11:41) 미션 배정 완료 (A2)",
+        "en": "[F] (2026-05-03~04 11:41) 미션 배정 완료 (A2)"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한 · 대기: 외주(명석)",
+        "en": "의뢰: 박성한 · 대기: 외주(명석)"
+      },
+      "normalizedTaskId": "B1"
+    },
+    {
+      "id": "RAW-B2",
+      "source": "Decisions/issamGPT 액션 보드 B2",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04) [[이승철]]이 월 1,300만원 와탭 모니터링 견적 제시",
+        "en": "후보 [F·전언] (2026-05-03~04) [[이승철]]이 월 1,300만원 와탭 모니터링 견적 제시"
+      },
+      "signal": {
+        "ko": "· 대기: 와탭_후속메일",
+        "en": "· 대기: 와탭_후속메일"
+      },
+      "normalizedTaskId": "B2"
+    },
+    {
+      "id": "RAW-B3",
+      "source": "Decisions/issamGPT 액션 보드 B3",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "[F] (2026-05-03~04) 본인이 [[여승환]] 팀장께 교과서 md 공유, 의견 대기",
+        "en": "[F] (2026-05-03~04) 본인이 [[여승환]] 팀장께 교과서 md 공유, 의견 대기"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영 · 대기: 이혜림",
+        "en": "의뢰: 배태영 · 대기: 이혜림"
+      },
+      "normalizedTaskId": "B3"
+    },
+    {
+      "id": "RAW-B4",
+      "source": "Decisions/issamGPT 액션 보드 B4",
+      "receivedAt": "2026-05-06",
+      "rawText": {
+        "ko": "[F] (2026-05-03~04) 카톡방 개설 (A3)",
+        "en": "[F] (2026-05-03~04) 카톡방 개설 (A3)"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한 · 대기: 이창건",
+        "en": "의뢰: 박성한 · 대기: 이창건"
+      },
+      "normalizedTaskId": "B4"
+    },
+    {
+      "id": "RAW-B5",
+      "source": "Decisions/issamGPT 액션 보드 B5",
+      "receivedAt": "2026-05-06",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04 11:47) [[박성한]]: issamGPT 헌법 전문 답변 오류 스크린샷 공유",
+        "en": "후보 [F·전언] (2026-05-03~04 11:47) [[박성한]]: issamGPT 헌법 전문 답변 오류 스크린샷 공유"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한 · 대기: 이충원",
+        "en": "의뢰: 박성한 · 대기: 이충원"
+      },
+      "normalizedTaskId": "B5"
+    },
+    {
+      "id": "RAW-B7",
+      "source": "Decisions/issamGPT 액션 보드 B7",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "[F] (2026-05-04 사용자 명단) **본인 직속 2팀 / 총 15명**:",
+        "en": "[F] (2026-05-04 사용자 명단) **본인 직속 2팀 / 총 15명**:"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영",
+        "en": "의뢰: 배태영"
+      },
+      "normalizedTaskId": "B7"
+    },
+    {
+      "id": "RAW-B8",
+      "source": "Decisions/issamGPT 액션 보드 B8",
+      "receivedAt": "2026-04-30",
+      "rawText": {
+        "ko": "[F] (2026-04-30 17:39) [[조성숙]] 보고서 공유 (A13)",
+        "en": "[F] (2026-04-30 17:39) [[조성숙]] 보고서 공유 (A13)"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "B8"
+    },
+    {
+      "id": "RAW-B9",
+      "source": "Decisions/issamGPT 액션 보드 B9",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "[F] (2026-05-04 16:00 본인 미팅) [[조용기]]가 본인 개발 *에이전틱 워크플로우*를 [[issamGPT]] 스테이지 브랜치에 연결 → [[김현석]] 인수인계",
+        "en": "[F] (2026-05-04 16:00 본인 미팅) [[조용기]]가 본인 개발 *에이전틱 워크플로우*를 [[issamGPT]] 스테이지 브랜치에 연결 → [[김현석]] 인수인계"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영",
+        "en": "의뢰: 배태영"
+      },
+      "normalizedTaskId": "B9"
+    },
+    {
+      "id": "RAW-A4",
+      "source": "Decisions/issamGPT 액션 보드 A4",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04) [[이상학]] 실장: 교육청 영업 경력자 그룹 추천. 1인당 6억 계약 이력",
+        "en": "후보 [F·전언] (2026-05-03~04) [[이상학]] 실장: 교육청 영업 경력자 그룹 추천. 1인당 6억 계약 이력"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A4"
+    },
+    {
+      "id": "RAW-A5",
+      "source": "Decisions/issamGPT 액션 보드 A5",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04) 중고등 시장 시험지 편집 기능 수요 큼",
+        "en": "후보 [F·전언] (2026-05-03~04) 중고등 시장 시험지 편집 기능 수요 큼"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한 · 대기: U2_배포",
+        "en": "의뢰: 박성한 · 대기: U2_배포"
+      },
+      "normalizedTaskId": "A5"
+    },
+    {
+      "id": "RAW-A6",
+      "source": "Decisions/issamGPT 액션 보드 A6",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04) 메신저 실시간 현황판 부재 + [[이창건]] 동의",
+        "en": "후보 [F·전언] (2026-05-03~04) 메신저 실시간 현황판 부재 + [[이창건]] 동의"
+      },
+      "signal": {
+        "ko": "진행 중",
+        "en": "진행 중"
+      },
+      "normalizedTaskId": "A6"
+    },
+    {
+      "id": "RAW-A7",
+      "source": "Decisions/issamGPT 액션 보드 A7",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04) [[박성한]] 요청: 접속 정보·채팅 raw·GA",
+        "en": "후보 [F·전언] (2026-05-03~04) [[박성한]] 요청: 접속 정보·채팅 raw·GA"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한 · 대기: 조성숙",
+        "en": "의뢰: 박성한 · 대기: 조성숙"
+      },
+      "normalizedTaskId": "A7"
+    },
+    {
+      "id": "RAW-A8",
+      "source": "Decisions/issamGPT 액션 보드 A8",
+      "receivedAt": "2026-05-06",
+      "rawText": {
+        "ko": "[F] (2026-05-04 08:00) 미팅 진행 (A1)",
+        "en": "[F] (2026-05-04 08:00) 미팅 진행 (A1)"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A8"
+    },
+    {
+      "id": "RAW-A9",
+      "source": "Decisions/issamGPT 액션 보드 A9",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04 10:29) [[박성한]]: \"허들 너무 많음. 구매 하지 말라는 구조\"",
+        "en": "후보 [F·전언] (2026-05-03~04 10:29) [[박성한]]: \"허들 너무 많음. 구매 하지 말라는 구조\""
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A9"
+    },
+    {
+      "id": "RAW-B6",
+      "source": "Decisions/issamGPT 액션 보드 B6",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "[F] (2026-05-03~04 11:47) 본인 약속",
+        "en": "[F] (2026-05-03~04 11:47) 본인 약속"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영",
+        "en": "의뢰: 배태영"
+      },
+      "normalizedTaskId": "B6"
+    },
+    {
+      "id": "RAW-A10",
+      "source": "Decisions/issamGPT 액션 보드 A10",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04 12:32) [[박성한]] 이미지 2장 공유 (내용 불명)",
+        "en": "후보 [F·전언] (2026-05-03~04 12:32) [[박성한]] 이미지 2장 공유 (내용 불명)"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한 · 대기: 자료확인",
+        "en": "의뢰: 박성한 · 대기: 자료확인"
+      },
+      "normalizedTaskId": "A10"
+    },
+    {
+      "id": "RAW-A11",
+      "source": "Decisions/issamGPT 액션 보드 A11",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04 21:01) [[박성한]] 정리 (S2B/조달청/벤처나라/올에듀샵/시도교육청/민간 B2B)",
+        "en": "후보 [F·전언] (2026-05-03~04 21:01) [[박성한]] 정리 (S2B/조달청/벤처나라/올에듀샵/시도교육청/민간 B2B)"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한 · 대기: GS인증",
+        "en": "의뢰: 박성한 · 대기: GS인증"
+      },
+      "normalizedTaskId": "A11"
+    },
+    {
+      "id": "RAW-A12",
+      "source": "Decisions/issamGPT 액션 보드 A12",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04 22:38) [[박성한]] GitHub 레포: school-life-record",
+        "en": "후보 [F·전언] (2026-05-03~04 22:38) [[박성한]] GitHub 레포: school-life-record"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한 · 대기: 레포검토",
+        "en": "의뢰: 박성한 · 대기: 레포검토"
+      },
+      "normalizedTaskId": "A12"
+    },
+    {
+      "id": "RAW-A14",
+      "source": "Decisions/issamGPT 액션 보드 A14",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-04 09:56) [[조성숙]]: 5/6(수) 13:00~14:30 zoom 미팅",
+        "en": "후보 [F·전언] (2026-05-04 09:56) [[조성숙]]: 5/6(수) 13:00~14:30 zoom 미팅"
+      },
+      "signal": {
+        "ko": "의뢰: 조성숙",
+        "en": "의뢰: 조성숙"
+      },
+      "normalizedTaskId": "A14"
+    },
+    {
+      "id": "RAW-A15",
+      "source": "Decisions/issamGPT 액션 보드 A15",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-04) [[박성한]] 그룹DM: \"5월17일 제주도 초등학교 방문 대비의건\"",
+        "en": "후보 [F·전언] (2026-05-04) [[박성한]] 그룹DM: \"5월17일 제주도 초등학교 방문 대비의건\""
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A15"
+    },
+    {
+      "id": "RAW-A16",
+      "source": "Decisions/issamGPT 액션 보드 A16",
+      "receivedAt": "2026-04-30",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-04-30) [[박성한]]: \"AI mart 영어 박스로 이동, 핵심은 학습자 참여와 데이터화. 5/30 전 적용 논의 필요. [[정윤성]] 할수있지 않을까\"",
+        "en": "후보 [F·전언] (2026-04-30) [[박성한]]: \"AI mart 영어 박스로 이동, 핵심은 학습자 참여와 데이터화. 5/30 전 적용 논의 필요. [[정윤성]] 할수있지 않을까\""
+      },
+      "signal": {
+        "ko": "의뢰: 박성한 · 대기: 가능여부확인",
+        "en": "의뢰: 박성한 · 대기: 가능여부확인"
+      },
+      "normalizedTaskId": "A16"
+    },
+    {
+      "id": "RAW-A17",
+      "source": "Decisions/issamGPT 액션 보드 A17",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "[F] (2026-05-04) 본인 미션 분배: \".md 기술문서 정비 + 와탑·랭퓨즈로 보고 있는 것 vs 못 보고 있는 것 발표\"",
+        "en": "[F] (2026-05-04) 본인 미션 분배: \".md 기술문서 정비 + 와탑·랭퓨즈로 보고 있는 것 vs 못 보고 있는 것 발표\""
+      },
+      "signal": {
+        "ko": "의뢰: 배태영",
+        "en": "의뢰: 배태영"
+      },
+      "normalizedTaskId": "A17"
+    },
+    {
+      "id": "RAW-A18",
+      "source": "Decisions/issamGPT 액션 보드 A18",
+      "receivedAt": "2026-04-30",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-04-30) [[박성한]]: \"회장님께서 팀장이상 점심 식사요청 주셨어요\"",
+        "en": "후보 [F·전언] (2026-04-30) [[박성한]]: \"회장님께서 팀장이상 점심 식사요청 주셨어요\""
+      },
+      "signal": {
+        "ko": "의뢰: 회장 · 대기: 일정조율",
+        "en": "의뢰: 회장 · 대기: 일정조율"
+      },
+      "normalizedTaskId": "A18"
+    },
+    {
+      "id": "RAW-A19",
+      "source": "Decisions/issamGPT 액션 보드 A19",
+      "receivedAt": "2026-04-30",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-04-30) [[박성한]]: \"[대표님 이미지 자료 내부 api 공유]\"",
+        "en": "후보 [F·전언] (2026-04-30) [[박성한]]: \"[대표님 이미지 자료 내부 api 공유]\""
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A19"
+    },
+    {
+      "id": "RAW-A20",
+      "source": "Decisions/issamGPT 액션 보드 A20",
+      "receivedAt": "2026-04-30",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-04-30 17:03) [[조성숙]]: 5/8(금)까지 발행, 5/13(수)부터 고객 발행",
+        "en": "후보 [F·전언] (2026-04-30 17:03) [[조성숙]]: 5/8(금)까지 발행, 5/13(수)부터 고객 발행"
+      },
+      "signal": {
+        "ko": "의뢰: 조성숙",
+        "en": "의뢰: 조성숙"
+      },
+      "normalizedTaskId": "A20"
+    },
+    {
+      "id": "RAW-A21",
+      "source": "Decisions/issamGPT 액션 보드 A21",
+      "receivedAt": "2026-05-06",
+      "rawText": {
+        "ko": "김현지 부서 확인",
+        "en": "김현지 부서 확인"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영",
+        "en": "의뢰: 배태영"
+      },
+      "normalizedTaskId": "A21"
+    },
+    {
+      "id": "RAW-A22",
+      "source": "Decisions/issamGPT 액션 보드 A22",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-04 사용자 명단) [[김순영]]·[[남용수]]·[[조혜영]] 차장 3명 R&R 미표기",
+        "en": "후보 [F·전언] (2026-05-04 사용자 명단) [[김순영]]·[[남용수]]·[[조혜영]] 차장 3명 R&R 미표기"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영",
+        "en": "의뢰: 배태영"
+      },
+      "normalizedTaskId": "A22"
+    },
+    {
+      "id": "RAW-A23",
+      "source": "Decisions/issamGPT 액션 보드 A23",
+      "receivedAt": "2026-05-05",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-04) [[박성한]] 발화: \"개발쪽은 [[이용현]]님 의견으로 조율, **주도권은 우리본부**가 쥐고 있어야, **아트쪽이 우선순위**\"",
+        "en": "후보 [F·전언] (2026-05-04) [[박성한]] 발화: \"개발쪽은 [[이용현]]님 의견으로 조율, **주도권은 우리본부**가 쥐고 있어야, **아트쪽이 우선순위**\""
+      },
+      "signal": {
+        "ko": "의뢰: 박성한 · 대기: 이용현",
+        "en": "의뢰: 박성한 · 대기: 이용현"
+      },
+      "normalizedTaskId": "A23"
+    },
+    {
+      "id": "RAW-A24",
+      "source": "Decisions/issamGPT 액션 보드 A24",
+      "receivedAt": "2026-05-05",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-04) [[박성한]] 요청: \"[[여승환]]님이 이용권 준비 부탁드려요. [[이승철]]님이 가지고 있어요\"",
+        "en": "후보 [F·전언] (2026-05-04) [[박성한]] 요청: \"[[여승환]]님이 이용권 준비 부탁드려요. [[이승철]]님이 가지고 있어요\""
+      },
+      "signal": {
+        "ko": "의뢰: 박성한 · 대기: 이승철",
+        "en": "의뢰: 박성한 · 대기: 이승철"
+      },
+      "normalizedTaskId": "A24"
+    },
+    {
+      "id": "RAW-A25",
+      "source": "Decisions/issamGPT 액션 보드 A25",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-04) [[박성한]] 발화: \"박성한 참여하여 소개하는것 정리\"",
+        "en": "후보 [F·전언] (2026-05-04) [[박성한]] 발화: \"박성한 참여하여 소개하는것 정리\""
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A25"
+    },
+    {
+      "id": "RAW-A26",
+      "source": "Decisions/issamGPT 액션 보드 A26",
+      "receivedAt": "2026-05-05",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-04) [[박성한]]: \"[초등 영어교육학회 발표대비]\" 의제 제기",
+        "en": "후보 [F·전언] (2026-05-04) [[박성한]]: \"[초등 영어교육학회 발표대비]\" 의제 제기"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A26"
+    },
+    {
+      "id": "RAW-A27",
+      "source": "Decisions/issamGPT 액션 보드 A27",
+      "receivedAt": "2026-05-05",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-05 사용자 컨텍스트) **본부 내 개발자 7명 = 전략기획팀 4명 + 영어서비스팀 3명** 관리 방향을 본인([[배태영]])이 [[이용현]]과 적절히 협의하여 정리해야 함",
+        "en": "후보 [F·전언] (2026-05-05 사용자 컨텍스트) **본부 내 개발자 7명 = 전략기획팀 4명 + 영어서비스팀 3명** 관리 방향을 본인([[배태영]])이 [[이용현]]과 적절히 협의하여 정리해야 함"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영 · 대기: 이용현",
+        "en": "의뢰: 배태영 · 대기: 이용현"
+      },
+      "normalizedTaskId": "A27"
+    },
+    {
+      "id": "RAW-A28",
+      "source": "Decisions/issamGPT 액션 보드 A28",
+      "receivedAt": "2026-05-06",
+      "rawText": {
+        "ko": "[F] (2026-05-05 본인 메모) \"여팀장 세팅이 필요함\"",
+        "en": "[F] (2026-05-05 본인 메모) \"여팀장 세팅이 필요함\""
+      },
+      "signal": {
+        "ko": "의뢰: 배태영",
+        "en": "의뢰: 배태영"
+      },
+      "normalizedTaskId": "A28"
+    },
+    {
+      "id": "RAW-A29",
+      "source": "Decisions/issamGPT 액션 보드 A29",
+      "receivedAt": "2026-05-06",
+      "rawText": {
+        "ko": "[F] (2026-05-05 본인 메모) issamGPT 월 2회 대표·본부장 대면보고 — **월 오후로 일정 조율** 필요",
+        "en": "[F] (2026-05-05 본인 메모) issamGPT 월 2회 대표·본부장 대면보고 — **월 오후로 일정 조율** 필요"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영 · 대기: 비서실",
+        "en": "의뢰: 배태영 · 대기: 비서실"
+      },
+      "normalizedTaskId": "A29"
+    },
+    {
+      "id": "RAW-A30",
+      "source": "Decisions/issamGPT 액션 보드 A30",
+      "receivedAt": "2026-05-06",
+      "rawText": {
+        "ko": "[F] (2026-05-05 본인 메모) **KERIS 모두의 AI챌린지사업** (중등 AI교육 담당교원 역량 강화 연수) 발표 예정 **2026-05-10 또는 11**",
+        "en": "[F] (2026-05-05 본인 메모) **KERIS 모두의 AI챌린지사업** (중등 AI교육 담당교원 역량 강화 연수) 발표 예정 **2026-05-10 또는 11**"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A30"
+    },
+    {
+      "id": "RAW-A31",
+      "source": "Decisions/issamGPT 액션 보드 A31",
+      "receivedAt": "2026-05-07",
+      "rawText": {
+        "ko": "[F] (2026-05-07 [[허주환]] 발화) **아이스크림 차시 창의 ppt/pdf를 컨텍스트로, 이미지 포함 수준별 학습지 자동 생성** 자동화 원함",
+        "en": "[F] (2026-05-07 [[허주환]] 발화) **아이스크림 차시 창의 ppt/pdf를 컨텍스트로, 이미지 포함 수준별 학습지 자동 생성** 자동화 원함"
+      },
+      "signal": {
+        "ko": "의뢰: 허주환 · 대기: 책임_라인_확정",
+        "en": "의뢰: 허주환 · 대기: 책임_라인_확정"
+      },
+      "normalizedTaskId": "A31"
+    },
+    {
+      "id": "RAW-A32",
+      "source": "Decisions/issamGPT 액션 보드 A32",
+      "receivedAt": "2026-05-07",
+      "rawText": {
+        "ko": "[F] (2026-05-07 [[허주환]] 발화) \"**아이스크림(홈)에 AI 검색창**을 두어 컨텐츠 검색 + 간단한 이미지 생성. 복잡한 작업은 [[issamGPT]]로 연결\" 구상",
+        "en": "[F] (2026-05-07 [[허주환]] 발화) \"**아이스크림(홈)에 AI 검색창**을 두어 컨텐츠 검색 + 간단한 이미지 생성. 복잡한 작업은 [[issamGPT]]로 연결\" 구상"
+      },
+      "signal": {
+        "ko": "의뢰: 허주환 · 대기: 본부_R&R_확인",
+        "en": "의뢰: 허주환 · 대기: 본부_R&R_확인"
+      },
+      "normalizedTaskId": "A32"
+    },
+    {
+      "id": "RAW-A33",
+      "source": "Decisions/issamGPT 액션 보드 A33",
+      "receivedAt": "2026-05-07",
+      "rawText": {
+        "ko": "[F] (2026-05-07 [[허주환]] 발화) \"**[[issamGPT]] 느리다. 개발 속도를 가할 수 있게 뭔가 바꿀 건 바꿔야 한다**\"",
+        "en": "[F] (2026-05-07 [[허주환]] 발화) \"**[[issamGPT]] 느리다. 개발 속도를 가할 수 있게 뭔가 바꿀 건 바꿔야 한다**\""
+      },
+      "signal": {
+        "ko": "의뢰: 허주환",
+        "en": "의뢰: 허주환"
+      },
+      "normalizedTaskId": "A33"
+    },
+    {
+      "id": "RAW-A34",
+      "source": "Decisions/issamGPT 액션 보드 A34",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08) CJ 올리브네트웍스 견적 문의 — 경상북도 스마트 기기 보급 사업 제안용. 규모: **교사 300명 / 1년 프로 구독권**",
+        "en": "[F] (2026-05-08) CJ 올리브네트웍스 견적 문의 — 경상북도 스마트 기기 보급 사업 제안용. 규모: **교사 300명 / 1년 프로 구독권**"
+      },
+      "signal": {
+        "ko": "의뢰: 외부(CJ_올리브네트웍스)",
+        "en": "의뢰: 외부(CJ_올리브네트웍스)"
+      },
+      "normalizedTaskId": "A34"
+    },
+    {
+      "id": "RAW-A35",
+      "source": "Decisions/issamGPT 액션 보드 A35",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08 [[이용현]] CTO 회의 합의) **[[전략기획팀]] 방향 + [[issamGPT]] 개발 방향 재정립** + **OKR 재정립**",
+        "en": "[F] (2026-05-08 [[이용현]] CTO 회의 합의) **[[전략기획팀]] 방향 + [[issamGPT]] 개발 방향 재정립** + **OKR 재정립**"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영 · 대기: 이용현",
+        "en": "의뢰: 배태영 · 대기: 이용현"
+      },
+      "normalizedTaskId": "A35"
+    },
+    {
+      "id": "RAW-A36",
+      "source": "Decisions/issamGPT 액션 보드 A36",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08) KT 에듀 담당자 메일 발송 — ISSAMGPT 소개 PPT + 브로슈어 PPT 첨부",
+        "en": "[F] (2026-05-08) KT 에듀 담당자 메일 발송 — ISSAMGPT 소개 PPT + 브로슈어 PPT 첨부"
+      },
+      "signal": {
+        "ko": "의뢰: 박성한",
+        "en": "의뢰: 박성한"
+      },
+      "normalizedTaskId": "A36"
+    },
+    {
+      "id": "RAW-A37",
+      "source": "Decisions/issamGPT 액션 보드 A37",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08) 제안서 마감 = 2026-05-06 / 결과 공개 = **2026-05-20 (수)**",
+        "en": "[F] (2026-05-08) 제안서 마감 = 2026-05-06 / 결과 공개 = **2026-05-20 (수)**"
+      },
+      "signal": {
+        "ko": "진행 중",
+        "en": "진행 중"
+      },
+      "normalizedTaskId": "A37"
+    },
+    {
+      "id": "RAW-A38",
+      "source": "Decisions/issamGPT 액션 보드 A38",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08 1:1) [[홍성욱]] \"맡겨주면 열심히 하겠다\" — *교사커뮤니티 관리 브랜딩*보다 issamGPT 기획에 더 큰 관심",
+        "en": "[F] (2026-05-08 1:1) [[홍성욱]] \"맡겨주면 열심히 하겠다\" — *교사커뮤니티 관리 브랜딩*보다 issamGPT 기획에 더 큰 관심"
+      },
+      "signal": {
+        "ko": "의뢰: 홍성욱",
+        "en": "의뢰: 홍성욱"
+      },
+      "normalizedTaskId": "A38"
+    },
+    {
+      "id": "RAW-A39",
+      "source": "Decisions/issamGPT 액션 보드 A39",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08 1:1) [[이소연]] 기존 R&R = PR + 기자 네트워크 + 홍보 (전사적). 일부 *축소* + ***issamGPT 홍보 확장*** 긍정 검토",
+        "en": "[F] (2026-05-08 1:1) [[이소연]] 기존 R&R = PR + 기자 네트워크 + 홍보 (전사적). 일부 *축소* + ***issamGPT 홍보 확장*** 긍정 검토"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영",
+        "en": "의뢰: 배태영"
+      },
+      "normalizedTaskId": "A39"
+    },
+    {
+      "id": "RAW-A40",
+      "source": "Decisions/issamGPT 액션 보드 A40",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08 본인 미팅) 스테이지 브랜치 워크플로우 이식·재현 시연 → 본인 검토 *잘 작동* 확인",
+        "en": "[F] (2026-05-08 본인 미팅) 스테이지 브랜치 워크플로우 이식·재현 시연 → 본인 검토 *잘 작동* 확인"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영",
+        "en": "의뢰: 배태영"
+      },
+      "normalizedTaskId": "A40"
+    },
+    {
+      "id": "RAW-A41",
+      "source": "Decisions/issamGPT 액션 보드 A41",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08 합의) **2026-05-15 (금) 이전 배포 단계 진입** — 잔여 수정 마무리",
+        "en": "[F] (2026-05-08 합의) **2026-05-15 (금) 이전 배포 단계 진입** — 잔여 수정 마무리"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영 · 대기: A40",
+        "en": "의뢰: 배태영 · 대기: A40"
+      },
+      "normalizedTaskId": "A41"
+    },
+    {
+      "id": "RAW-A42",
+      "source": "Decisions/issamGPT 액션 보드 A42",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08 합의) [[김현석]]이 머지 대기 동안 *별도 브랜치*로 사용자 보이는 챗 화면 UI 변경. 본인([[배태영]])과 직접 논의·진행",
+        "en": "[F] (2026-05-08 합의) [[김현석]]이 머지 대기 동안 *별도 브랜치*로 사용자 보이는 챗 화면 UI 변경. 본인([[배태영]])과 직접 논의·진행"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영",
+        "en": "의뢰: 배태영"
+      },
+      "normalizedTaskId": "A42"
+    },
+    {
+      "id": "RAW-A43",
+      "source": "Decisions/issamGPT 액션 보드 A43",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08) HWP Studio 에이전트 = Claude Agent SDK → Claude API 필요. **현재 사용 리전 자리 부족**",
+        "en": "[F] (2026-05-08) HWP Studio 에이전트 = Claude Agent SDK → Claude API 필요. **현재 사용 리전 자리 부족**"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영 · 대기: 김정훈",
+        "en": "의뢰: 배태영 · 대기: 김정훈"
+      },
+      "normalizedTaskId": "A43"
+    },
+    {
+      "id": "RAW-A44",
+      "source": "Decisions/issamGPT 액션 보드 A44",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08) Azure 모델 띄울 시 **별도 Claude API 키** 발급 + **전략팀 법인카드 연결** 서빙 검토 — *추가 추적 필요* (본인 메모 명시)",
+        "en": "[F] (2026-05-08) Azure 모델 띄울 시 **별도 Claude API 키** 발급 + **전략팀 법인카드 연결** 서빙 검토 — *추가 추적 필요* (본인 메모 명시)"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영 · 대기: A43",
+        "en": "의뢰: 배태영 · 대기: A43"
+      },
+      "normalizedTaskId": "A44"
+    },
+    {
+      "id": "RAW-A45",
+      "source": "Decisions/issamGPT 액션 보드 A45",
+      "receivedAt": "2026-05-08",
+      "rawText": {
+        "ko": "[F] (2026-05-08) Azure·GCP 관련 모델 배포 노하우 [[김정훈]] → [[양운천]] (메모 표기 *양훈천*) 인계 필요",
+        "en": "[F] (2026-05-08) Azure·GCP 관련 모델 배포 노하우 [[김정훈]] → [[양운천]] (메모 표기 *양훈천*) 인계 필요"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영 · 대기: 이용현",
+        "en": "의뢰: 배태영 · 대기: 이용현"
+      },
+      "normalizedTaskId": "A45"
+    },
+    {
+      "id": "RAW-P1",
+      "source": "Decisions/issamGPT 액션 보드 P1",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "[F] (2026-05-03~04) 본인 약속",
+        "en": "[F] (2026-05-03~04) 본인 약속"
+      },
+      "signal": {
+        "ko": "· 대기: 와탭_후속메일",
+        "en": "· 대기: 와탭_후속메일"
+      },
+      "normalizedTaskId": "P1"
+    },
+    {
+      "id": "RAW-P2",
+      "source": "Decisions/issamGPT 액션 보드 P2",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "후보 [F·전언] (2026-05-03~04) [[이혜림]] 팀장: 교과서 PDF 이메일 전달 예정",
+        "en": "후보 [F·전언] (2026-05-03~04) [[이혜림]] 팀장: 교과서 PDF 이메일 전달 예정"
+      },
+      "signal": {
+        "ko": "· 대기: 이혜림",
+        "en": "· 대기: 이혜림"
+      },
+      "normalizedTaskId": "P2"
+    },
+    {
+      "id": "RAW-P3",
+      "source": "Decisions/issamGPT 액션 보드 P3",
+      "receivedAt": "2026-05-04",
+      "rawText": {
+        "ko": "[F] (2026-05-04) [[김진희]] 육아휴직, 2026-12 복직 예정",
+        "en": "[F] (2026-05-04) [[김진희]] 육아휴직, 2026-12 복직 예정"
+      },
+      "signal": {
+        "ko": "· 대기: 김진희",
+        "en": "· 대기: 김진희"
+      },
+      "normalizedTaskId": "P3"
+    },
+    {
+      "id": "RAW-M1",
+      "source": "Decisions/수학 액션 보드 M1",
+      "receivedAt": "2026-05-06",
+      "rawText": {
+        "ko": "[F] (2026-05-05 본인 메모) 부회장 R&D 수학 프로젝트의 교수자문 = [[곽윤주]] 전무 문의 라인",
+        "en": "[F] (2026-05-05 본인 메모) 부회장 R&D 수학 프로젝트의 교수자문 = [[곽윤주]] 전무 문의 라인"
+      },
+      "signal": {
+        "ko": "의뢰: 배태영 · 대기: 곽윤주",
+        "en": "의뢰: 배태영 · 대기: 곽윤주"
+      },
+      "normalizedTaskId": "M1"
+    }
+  ],
+  "members": [
+    {
+      "name": "김순영",
+      "role": {
+        "ko": "기획자",
+        "en": "기획자"
+      },
+      "team": "수학서비스팀",
+      "capacity": 4
+    },
+    {
+      "name": "남용수",
+      "role": {
+        "ko": "분수_문항DB",
+        "en": "분수_문항DB"
+      },
+      "team": "수학서비스팀",
+      "capacity": 4
+    },
+    {
+      "name": "조혜영",
+      "role": {
+        "ko": "PRISM",
+        "en": "PRISM"
+      },
+      "team": "수학서비스팀",
+      "capacity": 4
+    },
+    {
+      "name": "김현석",
+      "role": {
+        "ko": "issamGPT",
+        "en": "issamGPT"
+      },
+      "team": "전략기획팀",
+      "capacity": 4
+    },
+    {
+      "name": "배주은",
+      "role": {
+        "ko": "기획_채용",
+        "en": "기획_채용"
+      },
+      "team": "전략기획팀",
+      "capacity": 4
+    },
+    {
+      "name": "송영재",
+      "role": {
+        "ko": "issamGPT",
+        "en": "issamGPT"
+      },
+      "team": "전략기획팀",
+      "capacity": 4
+    },
+    {
+      "name": "여승환",
+      "role": {
+        "ko": "총괄",
+        "en": "총괄"
+      },
+      "team": "전략기획팀",
+      "capacity": 4
+    },
+    {
+      "name": "우성준",
+      "role": {
+        "ko": "팀원",
+        "en": "팀원"
+      },
+      "team": "전략기획팀",
+      "capacity": 3
+    },
+    {
+      "name": "이소연",
+      "role": {
+        "ko": "홍보",
+        "en": "홍보"
+      },
+      "team": "전략기획팀",
+      "capacity": 4
+    },
+    {
+      "name": "이승철",
+      "role": {
+        "ko": "issamGPT_라이브",
+        "en": "issamGPT_라이브"
+      },
+      "team": "전략기획팀",
+      "capacity": 2
+    },
+    {
+      "name": "이충원",
+      "role": {
+        "ko": "chat-service",
+        "en": "chat-service"
+      },
+      "team": "전략기획팀",
+      "capacity": 4
+    },
+    {
+      "name": "정윤성",
+      "role": {
+        "ko": "영어",
+        "en": "영어"
+      },
+      "team": "전략기획팀",
+      "capacity": 4
+    },
+    {
+      "name": "조성숙",
+      "role": {
+        "ko": "영업",
+        "en": "영업"
+      },
+      "team": "전략기획팀",
+      "capacity": 4
+    },
+    {
+      "name": "홍성욱",
+      "role": {
+        "ko": "issamGPT_라이브",
+        "en": "issamGPT_라이브"
+      },
+      "team": "전략기획팀",
+      "capacity": 4
+    }
+  ],
+  "workItems": [
+    {
+      "id": "U1",
+      "sourceId": "RAW-U1",
+      "title": {
+        "ko": "이승철 6/12 퇴사 인계 계획 (1.5개월 시한)",
+        "en": "이승철 6/12 퇴사 인계 계획 (1.5개월 시한)"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-04-30) NS팀 팀장 → 전략기획팀 팀원 강등",
+        "en": "[F] (2026-04-30) NS팀 팀장 → 전략기획팀 팀원 강등"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "doing",
+      "priority": "critical",
+      "ageHours": 120,
+      "due": {
+        "ko": "2026-06-12",
+        "en": "2026-06-12"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "대기: 이승철",
+        "en": "대기: 이승철"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 U1"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "U2",
+      "sourceId": "RAW-U2",
+      "title": {
+        "ko": "HWP Studio 5월 초 배포 마일스톤 미준수",
+        "en": "HWP Studio 5월 초 배포 마일스톤 미준수"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-04 16:00 본인 미팅) [[조용기]]·[[김현석]]과 함께 확인 — 마일스톤 미준수 상태",
+        "en": "[F] (2026-05-04 16:00 본인 미팅) [[조용기]]·[[김현석]]과 함께 확인 — 마일스톤 미준수 상태"
+      },
+      "owner": "김현석",
+      "nextOwner": "배태영",
+      "team": "전략기획팀",
+      "stage": "blocked",
+      "priority": "critical",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "정체 시작: 2026-05-01",
+        "en": "정체 시작: 2026-05-01"
+      },
+      "handoffNote": {
+        "ko": "[[김현석]] 분담 3건(B9) 진행률 추적 + 배포 일정 재합의",
+        "en": "[[김현석]] 분담 3건(B9) 진행률 추적 + 배포 일정 재합의"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 U2"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A1",
+      "sourceId": "RAW-A1",
+      "title": {
+        "ko": "런웨이 ML 미팅 진행",
+        "en": "런웨이 ML 미팅 진행"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-04 08:00) Runway ML과 Zoom 미팅 진행 완료. [[박성한]]이 직접 세팅. 결과 구글 doc 그룹DM 공유.",
+        "en": "[F] (2026-05-04 08:00) Runway ML과 Zoom 미팅 진행 완료. [[박성한]]이 직접 세팅. 결과 구글 doc 그룹DM 공유."
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "done",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "doc 확인 → 후속 판단 (A8 참조)",
+        "en": "doc 확인 → 후속 판단 (A8 참조)"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A1"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A2",
+      "sourceId": "RAW-A2",
+      "title": {
+        "ko": "모바일 대응 외주 미션 배정 결정",
+        "en": "모바일 대응 외주 미션 배정 결정"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04 11:41) [[박성한]]: \"issamGPT 폭이 좁음. 제미나이 대비. 폭만 넓혀도 될 것 같아요.\"",
+        "en": "후보 [F·전언] (2026-05-03~04 11:41) [[박성한]]: \"issamGPT 폭이 좁음. 제미나이 대비. 폭만 넓혀도 될 것 같아요.\""
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "done",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "외주 명석님 작업 진행 (B1)",
+        "en": "외주 명석님 작업 진행 (B1)"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A2"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A3",
+      "sourceId": "RAW-A3",
+      "title": {
+        "ko": "이창건 카톡방 개설",
+        "en": "이창건 카톡방 개설"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04) [[박성한]]이 협상 내용 이미지 공유.",
+        "en": "후보 [F·전언] (2026-05-03~04) [[박성한]]이 협상 내용 이미지 공유."
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "done",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A3"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A13",
+      "sourceId": "RAW-A13",
+      "title": {
+        "ko": "4/29 issamGPT 라이브 + 보고서",
+        "en": "4/29 issamGPT 라이브 + 보고서"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-04-29 19:00~21:00) issamGPT 1학기 끝내기 LIVE 진행 — [[홍성욱]]·[[여승환]]·[[이승철]] 강사 3명",
+        "en": "[F] (2026-04-29 19:00~21:00) issamGPT 1학기 끝내기 LIVE 진행 — [[홍성욱]]·[[여승환]]·[[이승철]] 강사 3명"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "done",
+      "priority": "medium",
+      "ageHours": 216,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-04-30",
+      "handoffNote": {
+        "ko": "VOC 후속 개선 과제 도출 (B8)",
+        "en": "VOC 후속 개선 과제 도출 (B8)"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A13"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "B1",
+      "sourceId": "RAW-B1",
+      "title": {
+        "ko": "외주 명석 모바일·태블릿 미션 (2주)",
+        "en": "외주 명석 모바일·태블릿 미션 (2주)"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-03~04 11:41) 미션 배정 완료 (A2)",
+        "en": "[F] (2026-05-03~04 11:41) 미션 배정 완료 (A2)"
+      },
+      "owner": "여승환",
+      "nextOwner": "배태영",
+      "team": "AI서비스실",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "대기: 외주(명석)",
+        "en": "대기: 외주(명석)"
+      },
+      "handoffNote": {
+        "ko": "진행 상황 추적, 산출물 검토",
+        "en": "진행 상황 추적, 산출물 검토"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 B1"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "B2",
+      "sourceId": "RAW-B2",
+      "title": {
+        "ko": "와탭 비용 점검",
+        "en": "와탭 비용 점검"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04) [[이승철]]이 월 1,300만원 와탭 모니터링 견적 제시",
+        "en": "후보 [F·전언] (2026-05-03~04) [[이승철]]이 월 1,300만원 와탭 모니터링 견적 제시"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "대기: 와탭_후속메일",
+        "en": "대기: 와탭_후속메일"
+      },
+      "handoffNote": {
+        "ko": "후속 메일 확인 → [[이용현]]께 경위 확인 → 보고",
+        "en": "후속 메일 확인 → [[이용현]]께 경위 확인 → 보고"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 B2"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "B3",
+      "sourceId": "RAW-B3",
+      "title": {
+        "ko": "교과서 마크다운 변환",
+        "en": "교과서 마크다운 변환"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-03~04) 본인이 [[여승환]] 팀장께 교과서 md 공유, 의견 대기",
+        "en": "[F] (2026-05-03~04) 본인이 [[여승환]] 팀장께 교과서 md 공유, 의견 대기"
+      },
+      "owner": "여승환",
+      "nextOwner": "배태영",
+      "team": "AI서비스실",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "대기: 이혜림",
+        "en": "대기: 이혜림"
+      },
+      "handoffNote": {
+        "ko": "[[여승환]] 의견 수렴 완료 → md 변환 진행 여부 결정",
+        "en": "[[여승환]] 의견 수렴 완료 → md 변환 진행 여부 결정"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 B3"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "B4",
+      "sourceId": "RAW-B4",
+      "title": {
+        "ko": "이창건 협상",
+        "en": "이창건 협상"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-03~04) 카톡방 개설 (A3)",
+        "en": "[F] (2026-05-03~04) 카톡방 개설 (A3)"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "blocker": {
+        "ko": "대기: 이창건",
+        "en": "대기: 이창건"
+      },
+      "handoffNote": {
+        "ko": "1) 활용건 제안 정리, 2) 카톡방 통해 송부, 3) 협상 목적·조건 구체화",
+        "en": "1) 활용건 제안 정리, 2) 카톡방 통해 송부, 3) 협상 목적·조건 구체화"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 B4"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "B5",
+      "sourceId": "RAW-B5",
+      "title": {
+        "ko": "RAG-LLM 오케스트레이션 정제 + 전략기획팀 업무 시스템 구축",
+        "en": "RAG-LLM 오케스트레이션 정제 + 전략기획팀 업무 시스템 구축"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04 11:47) [[박성한]]: issamGPT 헌법 전문 답변 오류 스크린샷 공유",
+        "en": "후보 [F·전언] (2026-05-03~04 11:47) [[박성한]]: issamGPT 헌법 전문 답변 오류 스크린샷 공유"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "blocker": {
+        "ko": "대기: 이충원",
+        "en": "대기: 이충원"
+      },
+      "handoffNote": {
+        "ko": "인계 일정 잡기 + 오케스트레이터 설계 + 오답변율 KPI(B6) + 시스템 구축 설계 (의사결정 리스팅 → 배정 → 보고 사이클)",
+        "en": "인계 일정 잡기 + 오케스트레이터 설계 + 오답변율 KPI(B6) + 시스템 구축 설계 (의사결정 리스팅 → 배정 → 보고 사이클)"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 B5"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "B7",
+      "sourceId": "RAW-B7",
+      "title": {
+        "ko": "본인 산하 12명 (전략기획팀) + 3명 (수학서비스팀) 첫 정렬",
+        "en": "본인 산하 12명 (전략기획팀) + 3명 (수학서비스팀) 첫 정렬"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-04 사용자 명단) **본인 직속 2팀 / 총 15명**:",
+        "en": "[F] (2026-05-04 사용자 명단) **본인 직속 2팀 / 총 15명**:"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "1:1 또는 단체 정렬 — 첫 회의 시점·아젠다 결정",
+        "en": "1:1 또는 단체 정렬 — 첫 회의 시점·아젠다 결정"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 B7"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "B8",
+      "sourceId": "RAW-B8",
+      "title": {
+        "ko": "4/29 라이브 보고서 후속 액션",
+        "en": "4/29 라이브 보고서 후속 액션"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-04-30 17:39) [[조성숙]] 보고서 공유 (A13)",
+        "en": "[F] (2026-04-30 17:39) [[조성숙]] 보고서 공유 (A13)"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 216,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-04-30",
+      "handoffNote": {
+        "ko": "VOC 우선 개선 과제 도출 (구매·체험 안내 / 캘린더 연동 / HWP 문서 편집 / 평가·채점 / 생기부 연계)",
+        "en": "VOC 우선 개선 과제 도출 (구매·체험 안내 / 캘린더 연동 / HWP 문서 편집 / 평가·채점 / 생기부 연계)"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 B8"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "B9",
+      "sourceId": "RAW-B9",
+      "title": {
+        "ko": "김현석 HWP Studio 분담 3건 진행",
+        "en": "김현석 HWP Studio 분담 3건 진행"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-04 16:00 본인 미팅) [[조용기]]가 본인 개발 *에이전틱 워크플로우*를 [[issamGPT]] 스테이지 브랜치에 연결 → [[김현석]] 인수인계",
+        "en": "[F] (2026-05-04 16:00 본인 미팅) [[조용기]]가 본인 개발 *에이전틱 워크플로우*를 [[issamGPT]] 스테이지 브랜치에 연결 → [[김현석]] 인수인계"
+      },
+      "owner": "김현석",
+      "nextOwner": "배태영",
+      "team": "전략기획팀",
+      "stage": "blocked",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "정체 시작: 2026-05-01",
+        "en": "정체 시작: 2026-05-01"
+      },
+      "handoffNote": {
+        "ko": "분담 3건 진행률 추적 + 인수인계 완료 시점 확인",
+        "en": "분담 3건 진행률 추적 + 인수인계 완료 시점 확인"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 B9"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A4",
+      "sourceId": "RAW-A4",
+      "title": {
+        "ko": "영업자 채용 회신 — 박성한께 (건 1)",
+        "en": "영업자 채용 회신 — 박성한께 (건 1)"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04) [[이상학]] 실장: 교육청 영업 경력자 그룹 추천. 1인당 6억 계약 이력",
+        "en": "후보 [F·전언] (2026-05-03~04) [[이상학]] 실장: 교육청 영업 경력자 그룹 추천. 1인당 6억 계약 이력"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "[[박성한]]께 회신",
+        "en": "[[박성한]]께 회신"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A4"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A5",
+      "sourceId": "RAW-A5",
+      "title": {
+        "ko": "시험지 편집 → issamGPT HWP Studio 반영",
+        "en": "시험지 편집 → issamGPT HWP Studio 반영"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04) 중고등 시장 시험지 편집 기능 수요 큼",
+        "en": "후보 [F·전언] (2026-05-03~04) 중고등 시장 시험지 편집 기능 수요 큼"
+      },
+      "owner": "김현석",
+      "nextOwner": "배태영",
+      "team": "전략기획팀",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "대기: U2_배포",
+        "en": "대기: U2_배포"
+      },
+      "handoffNote": {
+        "ko": "HWP Studio 기능 방향 검토 + 시험지 편집 수요를 김현석 분담(B9)에 반영 검토",
+        "en": "HWP Studio 기능 방향 검토 + 시험지 편집 수요를 김현석 분담(B9)에 반영 검토"
+      },
+      "evidence": [
+        "Concepts/HWP Studio",
+        "Decisions/issamGPT 액션 보드 A5"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A6",
+      "sourceId": "RAW-A6",
+      "title": {
+        "ko": "메신저 실시간 현황판 → 하이클래스 연동 기획",
+        "en": "메신저 실시간 현황판 → 하이클래스 연동 기획"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04) 메신저 실시간 현황판 부재 + [[이창건]] 동의",
+        "en": "후보 [F·전언] (2026-05-03~04) 메신저 실시간 현황판 부재 + [[이창건]] 동의"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "하이클래스 연동 기획 과제 등록 여부",
+        "en": "하이클래스 연동 기획 과제 등록 여부"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A6"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A7",
+      "sourceId": "RAW-A7",
+      "title": {
+        "ko": "연수 후 데이터 요청 — 조성숙께",
+        "en": "연수 후 데이터 요청 — 조성숙께"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04) [[박성한]] 요청: 접속 정보·채팅 raw·GA",
+        "en": "후보 [F·전언] (2026-05-03~04) [[박성한]] 요청: 접속 정보·채팅 raw·GA"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "대기: 조성숙",
+        "en": "대기: 조성숙"
+      },
+      "handoffNote": {
+        "ko": "[[조성숙]]께 데이터 전달 요청",
+        "en": "[[조성숙]]께 데이터 전달 요청"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A7"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A8",
+      "sourceId": "RAW-A8",
+      "title": {
+        "ko": "런웨이 미팅 결과 검토",
+        "en": "런웨이 미팅 결과 검토"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-04 08:00) 미팅 진행 (A1)",
+        "en": "[F] (2026-05-04 08:00) 미팅 진행 (A1)"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "done",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A8"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A9",
+      "sourceId": "RAW-A9",
+      "title": {
+        "ko": "issamGPT 몰 구매 UX 개선",
+        "en": "issamGPT 몰 구매 UX 개선"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04 10:29) [[박성한]]: \"허들 너무 많음. 구매 하지 말라는 구조\"",
+        "en": "후보 [F·전언] (2026-05-03~04 10:29) [[박성한]]: \"허들 너무 많음. 구매 하지 말라는 구조\""
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "몰 구매 프로세스 점검·개선",
+        "en": "몰 구매 프로세스 점검·개선"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A9"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "B6",
+      "sourceId": "RAW-B6",
+      "title": {
+        "ko": "오답변율 KPI 수치화 (B5 분리)",
+        "en": "오답변율 KPI 수치화 (B5 분리)"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-03~04 11:47) 본인 약속",
+        "en": "[F] (2026-05-03~04 11:47) 본인 약속"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "KPI 정의 + 측정 시스템 설계",
+        "en": "KPI 정의 + 측정 시스템 설계"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 B6"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A10",
+      "sourceId": "RAW-A10",
+      "title": {
+        "ko": "OCR 검토",
+        "en": "OCR 검토"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04 12:32) [[박성한]] 이미지 2장 공유 (내용 불명)",
+        "en": "후보 [F·전언] (2026-05-03~04 12:32) [[박성한]] 이미지 2장 공유 (내용 불명)"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "대기: 자료확인",
+        "en": "대기: 자료확인"
+      },
+      "handoffNote": {
+        "ko": "자료 본 후 검토",
+        "en": "자료 본 후 검토"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A10"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A11",
+      "sourceId": "RAW-A11",
+      "title": {
+        "ko": "GS인증 + 공공 조달 채널 진출 검토",
+        "en": "GS인증 + 공공 조달 채널 진출 검토"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04 21:01) [[박성한]] 정리 (S2B/조달청/벤처나라/올에듀샵/시도교육청/민간 B2B)",
+        "en": "후보 [F·전언] (2026-05-03~04 21:01) [[박성한]] 정리 (S2B/조달청/벤처나라/올에듀샵/시도교육청/민간 B2B)"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "대기: GS인증",
+        "en": "대기: GS인증"
+      },
+      "handoffNote": {
+        "ko": "GS인증 취득 후 진출 전략",
+        "en": "GS인증 취득 후 진출 전략"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A11"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A12",
+      "sourceId": "RAW-A12",
+      "title": {
+        "ko": "생기부 AI 연계 검토",
+        "en": "생기부 AI 연계 검토"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04 22:38) [[박성한]] GitHub 레포: school-life-record",
+        "en": "후보 [F·전언] (2026-05-03~04 22:38) [[박성한]] GitHub 레포: school-life-record"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "대기: 레포검토",
+        "en": "대기: 레포검토"
+      },
+      "handoffNote": {
+        "ko": "레포 검토 → 학생부 기능 가능성",
+        "en": "레포 검토 → 학생부 기능 가능성"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A12"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A14",
+      "sourceId": "RAW-A14",
+      "title": {
+        "ko": "5/6(수) 미리캔버스 미팅 — 외부 협업",
+        "en": "5/6(수) 미리캔버스 미팅 — 외부 협업"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-04 09:56) [[조성숙]]: 5/6(수) 13:00~14:30 zoom 미팅",
+        "en": "후보 [F·전언] (2026-05-04 09:56) [[조성숙]]: 5/6(수) 13:00~14:30 zoom 미팅"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "2026-05-06",
+        "en": "2026-05-06"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "미팅 참석·결과 정리",
+        "en": "미팅 참석·결과 정리"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A14"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A15",
+      "sourceId": "RAW-A15",
+      "title": {
+        "ko": "5/17 제주 초등학교 방문 대비",
+        "en": "5/17 제주 초등학교 방문 대비"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-04) [[박성한]] 그룹DM: \"5월17일 제주도 초등학교 방문 대비의건\"",
+        "en": "후보 [F·전언] (2026-05-04) [[박성한]] 그룹DM: \"5월17일 제주도 초등학교 방문 대비의건\""
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "2026-05-17",
+        "en": "2026-05-17"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "방문 의제·자료·동행자 결정",
+        "en": "방문 의제·자료·동행자 결정"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A15"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A16",
+      "sourceId": "RAW-A16",
+      "title": {
+        "ko": "AI mart 영어 박스 이동",
+        "en": "AI mart 영어 박스 이동"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-04-30) [[박성한]]: \"AI mart 영어 박스로 이동, 핵심은 학습자 참여와 데이터화. 5/30 전 적용 논의 필요. [[정윤성]] 할수있지 않을까\"",
+        "en": "후보 [F·전언] (2026-04-30) [[박성한]]: \"AI mart 영어 박스로 이동, 핵심은 학습자 참여와 데이터화. 5/30 전 적용 논의 필요. [[정윤성]] 할수있지 않을까\""
+      },
+      "owner": "정윤성",
+      "nextOwner": "배태영",
+      "team": "전략기획팀",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 216,
+      "due": {
+        "ko": "2026-05-30",
+        "en": "2026-05-30"
+      },
+      "updatedAt": "2026-04-30",
+      "blocker": {
+        "ko": "대기: 가능여부확인",
+        "en": "대기: 가능여부확인"
+      },
+      "handoffNote": {
+        "ko": "5/30 전 적용 여부 논의 + [[정윤성]] 가능 여부",
+        "en": "5/30 전 적용 여부 논의 + [[정윤성]] 가능 여부"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A16"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A17",
+      "sourceId": "RAW-A17",
+      "title": {
+        "ko": "송영재 미션 회수",
+        "en": "송영재 미션 회수"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-04) 본인 미션 분배: \".md 기술문서 정비 + 와탑·랭퓨즈로 보고 있는 것 vs 못 보고 있는 것 발표\"",
+        "en": "[F] (2026-05-04) 본인 미션 분배: \".md 기술문서 정비 + 와탑·랭퓨즈로 보고 있는 것 vs 못 보고 있는 것 발표\""
+      },
+      "owner": "송영재",
+      "nextOwner": "배태영",
+      "team": "전략기획팀",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "미션 산출물 회수 기한·형식 결정",
+        "en": "미션 산출물 회수 기한·형식 결정"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A17"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A18",
+      "sourceId": "RAW-A18",
+      "title": {
+        "ko": "회장님 팀장 이상 점심 식사",
+        "en": "회장님 팀장 이상 점심 식사"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-04-30) [[박성한]]: \"회장님께서 팀장이상 점심 식사요청 주셨어요\"",
+        "en": "후보 [F·전언] (2026-04-30) [[박성한]]: \"회장님께서 팀장이상 점심 식사요청 주셨어요\""
+      },
+      "owner": "배태영",
+      "nextOwner": "회장",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 216,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-04-30",
+      "blocker": {
+        "ko": "대기: 일정조율",
+        "en": "대기: 일정조율"
+      },
+      "handoffNote": {
+        "ko": "일정 조율",
+        "en": "일정 조율"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A18"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A19",
+      "sourceId": "RAW-A19",
+      "title": {
+        "ko": "대표님 이미지 자료 내부 API 공유",
+        "en": "대표님 이미지 자료 내부 API 공유"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-04-30) [[박성한]]: \"[대표님 이미지 자료 내부 api 공유]\"",
+        "en": "후보 [F·전언] (2026-04-30) [[박성한]]: \"[대표님 이미지 자료 내부 api 공유]\""
+      },
+      "owner": "배태영",
+      "nextOwner": "대표",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 216,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-04-30",
+      "handoffNote": {
+        "ko": "내부 API 형태 결정·공유",
+        "en": "내부 API 형태 결정·공유"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A19"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A20",
+      "sourceId": "RAW-A20",
+      "title": {
+        "ko": "issamGPT 직무연수패키지 3개월 쿠폰 발행",
+        "en": "issamGPT 직무연수패키지 3개월 쿠폰 발행"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-04-30 17:03) [[조성숙]]: 5/8(금)까지 발행, 5/13(수)부터 고객 발행",
+        "en": "후보 [F·전언] (2026-04-30 17:03) [[조성숙]]: 5/8(금)까지 발행, 5/13(수)부터 고객 발행"
+      },
+      "owner": "배태영",
+      "nextOwner": "조성숙",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 216,
+      "due": {
+        "ko": "2026-05-08",
+        "en": "2026-05-08"
+      },
+      "updatedAt": "2026-04-30",
+      "handoffNote": {
+        "ko": "의사결정 → 쿠폰 유의사항 작성 → 발행",
+        "en": "의사결정 → 쿠폰 유의사항 작성 → 발행"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A20"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A21",
+      "sourceId": "RAW-A21",
+      "title": {
+        "ko": "김현지 부서 확인",
+        "en": "김현지 부서 확인"
+      },
+      "rawSummary": {
+        "ko": "김현지 부서 확인",
+        "en": "김현지 부서 확인"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "done",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A21"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A22",
+      "sourceId": "RAW-A22",
+      "title": {
+        "ko": "수학서비스팀 R&R 정확화",
+        "en": "수학서비스팀 R&R 정확화"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-04 사용자 명단) [[김순영]]·[[남용수]]·[[조혜영]] 차장 3명 R&R 미표기",
+        "en": "후보 [F·전언] (2026-05-04 사용자 명단) [[김순영]]·[[남용수]]·[[조혜영]] 차장 3명 R&R 미표기"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "1:1 정렬 시 R&R 명확화",
+        "en": "1:1 정렬 시 R&R 명확화"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A22"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A23",
+      "sourceId": "RAW-A23",
+      "title": {
+        "ko": "개발 주도권 라인 정리 — 박성한·이용현·본인 트리오",
+        "en": "개발 주도권 라인 정리 — 박성한·이용현·본인 트리오"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-04) [[박성한]] 발화: \"개발쪽은 [[이용현]]님 의견으로 조율, **주도권은 우리본부**가 쥐고 있어야, **아트쪽이 우선순위**\"",
+        "en": "후보 [F·전언] (2026-05-04) [[박성한]] 발화: \"개발쪽은 [[이용현]]님 의견으로 조율, **주도권은 우리본부**가 쥐고 있어야, **아트쪽이 우선순위**\""
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 96,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-05",
+      "blocker": {
+        "ko": "대기: 이용현",
+        "en": "대기: 이용현"
+      },
+      "handoffNote": {
+        "ko": "1) [[이용현]] 본직(아트·프라우드) 비중 인지하고 협력 라인 설계, 2) A27(7명 관리 방향)과 묶어 진행",
+        "en": "1) [[이용현]] 본직(아트·프라우드) 비중 인지하고 협력 라인 설계, 2) A27(7명 관리 방향)과 묶어 진행"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A23"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A24",
+      "sourceId": "RAW-A24",
+      "title": {
+        "ko": "issamGPT 이용권 준비 — 여승환께 (이승철 인계)",
+        "en": "issamGPT 이용권 준비 — 여승환께 (이승철 인계)"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-04) [[박성한]] 요청: \"[[여승환]]님이 이용권 준비 부탁드려요. [[이승철]]님이 가지고 있어요\"",
+        "en": "후보 [F·전언] (2026-05-04) [[박성한]] 요청: \"[[여승환]]님이 이용권 준비 부탁드려요. [[이승철]]님이 가지고 있어요\""
+      },
+      "owner": "여승환",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 96,
+      "due": {
+        "ko": "2026-05-08",
+        "en": "2026-05-08"
+      },
+      "updatedAt": "2026-05-05",
+      "blocker": {
+        "ko": "대기: 이승철",
+        "en": "대기: 이승철"
+      },
+      "handoffNote": {
+        "ko": "[[여승환]]께 [[이승철]]에게서 종이쿠폰 직접 받아 5/7-8 미팅 전 준비",
+        "en": "[[여승환]]께 [[이승철]]에게서 종이쿠폰 직접 받아 5/7-8 미팅 전 준비"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A24"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A25",
+      "sourceId": "RAW-A25",
+      "title": {
+        "ko": "박성한 자기소개 정리 (윗선 보고용)",
+        "en": "박성한 자기소개 정리 (윗선 보고용)"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-04) [[박성한]] 발화: \"박성한 참여하여 소개하는것 정리\"",
+        "en": "후보 [F·전언] (2026-05-04) [[박성한]] 발화: \"박성한 참여하여 소개하는것 정리\""
+      },
+      "owner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "handoffNote": {
+        "ko": "[[박성한]]께서 직접 작성하는지 / 본인 협조 요청 있을지 대기",
+        "en": "[[박성한]]께서 직접 작성하는지 / 본인 협조 요청 있을지 대기"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A25"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A26",
+      "sourceId": "RAW-A26",
+      "title": {
+        "ko": "초등 영어교육학회 발표대비 — 박성한 본인 액션",
+        "en": "초등 영어교육학회 발표대비 — 박성한 본인 액션"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-04) [[박성한]]: \"[초등 영어교육학회 발표대비]\" 의제 제기",
+        "en": "후보 [F·전언] (2026-05-04) [[박성한]]: \"[초등 영어교육학회 발표대비]\" 의제 제기"
+      },
+      "owner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 96,
+      "due": {
+        "ko": "2026-05-30",
+        "en": "2026-05-30"
+      },
+      "updatedAt": "2026-05-05",
+      "handoffNote": {
+        "ko": "[[박성한]]께 본인 협조 필요 여부 확인 + 발표 자료 준비 일정 추적",
+        "en": "[[박성한]]께 본인 협조 필요 여부 확인 + 발표 자료 준비 일정 추적"
+      },
+      "evidence": [
+        "Events/2026-05-30 초등 영어교육학회 발표",
+        "Decisions/issamGPT 액션 보드 A26"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A27",
+      "sourceId": "RAW-A27",
+      "title": {
+        "ko": "본부 내 개발자 7명 관리 방향 — 이용현과 협의",
+        "en": "본부 내 개발자 7명 관리 방향 — 이용현과 협의"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-05 사용자 컨텍스트) **본부 내 개발자 7명 = 전략기획팀 4명 + 영어서비스팀 3명** 관리 방향을 본인([[배태영]])이 [[이용현]]과 적절히 협의하여 정리해야 함",
+        "en": "후보 [F·전언] (2026-05-05 사용자 컨텍스트) **본부 내 개발자 7명 = 전략기획팀 4명 + 영어서비스팀 3명** 관리 방향을 본인([[배태영]])이 [[이용현]]과 적절히 협의하여 정리해야 함"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "high",
+      "ageHours": 96,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-05",
+      "blocker": {
+        "ko": "대기: 이용현",
+        "en": "대기: 이용현"
+      },
+      "handoffNote": {
+        "ko": "1) 7명 정확한 명단 확보, 2) [[이용현]] 1:1 정렬, 3) A23(개발 주도권)과 묶어 진행",
+        "en": "1) 7명 정확한 명단 확보, 2) [[이용현]] 1:1 정렬, 3) A23(개발 주도권)과 묶어 진행"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A27"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A28",
+      "sourceId": "RAW-A28",
+      "title": {
+        "ko": "여팀장 세팅 — 전략기획팀 운영 안정화",
+        "en": "여팀장 세팅 — 전략기획팀 운영 안정화"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) \"여팀장 세팅이 필요함\"",
+        "en": "[F] (2026-05-05 본인 메모) \"여팀장 세팅이 필요함\""
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "handoffNote": {
+        "ko": "여팀장 1:1 정렬 → 권한·보고 사이클·12명 운영 R&R 합의",
+        "en": "여팀장 1:1 정렬 → 권한·보고 사이클·12명 운영 R&R 합의"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A28"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A29",
+      "sourceId": "RAW-A29",
+      "title": {
+        "ko": "issamGPT 월 2회 대표·본부장 대면보고 일정 조율",
+        "en": "issamGPT 월 2회 대표·본부장 대면보고 일정 조율"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) issamGPT 월 2회 대표·본부장 대면보고 — **월 오후로 일정 조율** 필요",
+        "en": "[F] (2026-05-05 본인 메모) issamGPT 월 2회 대표·본부장 대면보고 — **월 오후로 일정 조율** 필요"
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "blocker": {
+        "ko": "대기: 비서실",
+        "en": "대기: 비서실"
+      },
+      "handoffNote": {
+        "ko": "비서실 통한 정기 일정 픽스 (월 2회 / 월요일 오후 슬롯)",
+        "en": "비서실 통한 정기 일정 픽스 (월 2회 / 월요일 오후 슬롯)"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A29"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A30",
+      "sourceId": "RAW-A30",
+      "title": {
+        "ko": "KERIS \"모두의 AI챌린지\" 발표 — 박성한 본인 액션",
+        "en": "KERIS \"모두의 AI챌린지\" 발표 — 박성한 본인 액션"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) **KERIS 모두의 AI챌린지사업** (중등 AI교육 담당교원 역량 강화 연수) 발표 예정 **2026-05-10 또는 11**",
+        "en": "[F] (2026-05-05 본인 메모) **KERIS 모두의 AI챌린지사업** (중등 AI교육 담당교원 역량 강화 연수) 발표 예정 **2026-05-10 또는 11**"
+      },
+      "owner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "2026-05-11",
+        "en": "2026-05-11"
+      },
+      "updatedAt": "2026-05-06",
+      "handoffNote": {
+        "ko": "1) 일자 확정, 2) 본인 협조 필요 여부 확인, 3) 발표 자료 본인 검토 라인 여부",
+        "en": "1) 일자 확정, 2) 본인 협조 필요 여부 확인, 3) 발표 자료 본인 검토 라인 여부"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A30"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A31",
+      "sourceId": "RAW-A31",
+      "title": {
+        "ko": "수준별 학습지 자동 생성 — 허주환 대표 요청",
+        "en": "수준별 학습지 자동 생성 — 허주환 대표 요청"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-07 [[허주환]] 발화) **아이스크림 차시 창의 ppt/pdf를 컨텍스트로, 이미지 포함 수준별 학습지 자동 생성** 자동화 원함",
+        "en": "[F] (2026-05-07 [[허주환]] 발화) **아이스크림 차시 창의 ppt/pdf를 컨텍스트로, 이미지 포함 수준별 학습지 자동 생성** 자동화 원함"
+      },
+      "owner": "배태영",
+      "nextOwner": "허주환",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 48,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-07",
+      "blocker": {
+        "ko": "대기: 책임_라인_확정",
+        "en": "대기: 책임_라인_확정"
+      },
+      "handoffNote": {
+        "ko": "1) [[박성한]]께 본부 R&R 확인, 2) 기술 PoC 가능 범위 정리",
+        "en": "1) [[박성한]]께 본부 R&R 확인, 2) 기술 PoC 가능 범위 정리"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A31"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A32",
+      "sourceId": "RAW-A32",
+      "title": {
+        "ko": "AI 검색창 + issamGPT 백엔드 연결 안 — 허주환 대표 구상",
+        "en": "AI 검색창 + issamGPT 백엔드 연결 안 — 허주환 대표 구상"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-07 [[허주환]] 발화) \"**아이스크림(홈)에 AI 검색창**을 두어 컨텐츠 검색 + 간단한 이미지 생성. 복잡한 작업은 [[issamGPT]]로 연결\" 구상",
+        "en": "[F] (2026-05-07 [[허주환]] 발화) \"**아이스크림(홈)에 AI 검색창**을 두어 컨텐츠 검색 + 간단한 이미지 생성. 복잡한 작업은 [[issamGPT]]로 연결\" 구상"
+      },
+      "owner": "배태영",
+      "nextOwner": "허주환",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 48,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-07",
+      "blocker": {
+        "ko": "대기: 본부_R&R_확인",
+        "en": "대기: 본부_R&R_확인"
+      },
+      "handoffNote": {
+        "ko": "1) 검색창 책임 본부 확인 ([[박성한]]·본인 라인 들어가는지), 2) issamGPT 백엔드 API화 범위 검토 (B5 RAG 오케스트레이터와 연계)",
+        "en": "1) 검색창 책임 본부 확인 ([[박성한]]·본인 라인 들어가는지), 2) issamGPT 백엔드 API화 범위 검토 (B5 RAG 오케스트레이터와 연계)"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A32"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A33",
+      "sourceId": "RAW-A33",
+      "title": {
+        "ko": "issamGPT 속도/성능 개선 — 허주환 대표 명시 우려",
+        "en": "issamGPT 속도/성능 개선 — 허주환 대표 명시 우려"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-07 [[허주환]] 발화) \"**[[issamGPT]] 느리다. 개발 속도를 가할 수 있게 뭔가 바꿀 건 바꿔야 한다**\"",
+        "en": "[F] (2026-05-07 [[허주환]] 발화) \"**[[issamGPT]] 느리다. 개발 속도를 가할 수 있게 뭔가 바꿀 건 바꿔야 한다**\""
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "high",
+      "ageHours": 48,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-07",
+      "handoffNote": {
+        "ko": "1) 응답 latency 측정 (B5·B6 KPI 라인) → 병목 파악, 2) 개발 인력 평가 ([[이용현]] CTO·A27와 묶어 진행), 3) 대표께 단기·중기 개선안 보고",
+        "en": "1) 응답 latency 측정 (B5·B6 KPI 라인) → 병목 파악, 2) 개발 인력 평가 ([[이용현]] CTO·A27와 묶어 진행), 3) 대표께 단기·중기 개선안 보고"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A33"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A34",
+      "sourceId": "RAW-A34",
+      "title": {
+        "ko": "CJ 올리브네트웍스 ISSAMGPT 견적 메일 — 경상북도 스마트 기기 보급 사업",
+        "en": "CJ 올리브네트웍스 ISSAMGPT 견적 메일 — 경상북도 스마트 기기 보급 사업"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08) CJ 올리브네트웍스 견적 문의 — 경상북도 스마트 기기 보급 사업 제안용. 규모: **교사 300명 / 1년 프로 구독권**",
+        "en": "[F] (2026-05-08) CJ 올리브네트웍스 견적 문의 — 경상북도 스마트 기기 보급 사업 제안용. 규모: **교사 300명 / 1년 프로 구독권**"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "doing",
+      "priority": "critical",
+      "ageHours": 24,
+      "due": {
+        "ko": "2026-05-11",
+        "en": "2026-05-11"
+      },
+      "updatedAt": "2026-05-08",
+      "handoffNote": {
+        "ko": "**2026-05-11 (월) 단가 제안 메일 발송** (총 4천만 원 안)",
+        "en": "**2026-05-11 (월) 단가 제안 메일 발송** (총 4천만 원 안)"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A34"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A35",
+      "sourceId": "RAW-A35",
+      "title": {
+        "ko": "전략기획팀 워크숍 — 2026-05-12 / 2026-05-15 (전일)",
+        "en": "전략기획팀 워크숍 — 2026-05-12 / 2026-05-15 (전일)"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08 [[이용현]] CTO 회의 합의) **[[전략기획팀]] 방향 + [[issamGPT]] 개발 방향 재정립** + **OKR 재정립**",
+        "en": "[F] (2026-05-08 [[이용현]] CTO 회의 합의) **[[전략기획팀]] 방향 + [[issamGPT]] 개발 방향 재정립** + **OKR 재정립**"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 24,
+      "due": {
+        "ko": "2026-05-15",
+        "en": "2026-05-15"
+      },
+      "updatedAt": "2026-05-08",
+      "blocker": {
+        "ko": "대기: 이용현",
+        "en": "대기: 이용현"
+      },
+      "handoffNote": {
+        "ko": "1) 어젠다 초안 (방향성·OKR·R&R), 2) [[홍성욱]]·[[이소연]]·[[배주은]]·[[김진희 자리 우성준]] R&R 정리, 3) 워크숍 산출물 = 5월~6월 OKR 합의서",
+        "en": "1) 어젠다 초안 (방향성·OKR·R&R), 2) [[홍성욱]]·[[이소연]]·[[배주은]]·[[김진희 자리 우성준]] R&R 정리, 3) 워크숍 산출물 = 5월~6월 OKR 합의서"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A35"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A36",
+      "sourceId": "RAW-A36",
+      "title": {
+        "ko": "KT 제안 자료 발송 — 완료",
+        "en": "KT 제안 자료 발송 — 완료"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08) KT 에듀 담당자 메일 발송 — ISSAMGPT 소개 PPT + 브로슈어 PPT 첨부",
+        "en": "[F] (2026-05-08) KT 에듀 담당자 메일 발송 — ISSAMGPT 소개 PPT + 브로슈어 PPT 첨부"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "done",
+      "priority": "medium",
+      "ageHours": 24,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-08",
+      "handoffNote": {
+        "ko": "KT 후속 회신 대기 (P 카드 전환 대기)",
+        "en": "KT 후속 회신 대기 (P 카드 전환 대기)"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A36"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A37",
+      "sourceId": "RAW-A37",
+      "title": {
+        "ko": "아이스크림 바이브 코딩 공모전 제안서 심사",
+        "en": "아이스크림 바이브 코딩 공모전 제안서 심사"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08) 제안서 마감 = 2026-05-06 / 결과 공개 = **2026-05-20 (수)**",
+        "en": "[F] (2026-05-08) 제안서 마감 = 2026-05-06 / 결과 공개 = **2026-05-20 (수)**"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 24,
+      "due": {
+        "ko": "2026-05-20",
+        "en": "2026-05-20"
+      },
+      "updatedAt": "2026-05-08",
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A37"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A38",
+      "sourceId": "RAW-A38",
+      "title": {
+        "ko": "홍성욱 issamGPT 기획자 R&R 평가 — 본인 의지 표명",
+        "en": "홍성욱 issamGPT 기획자 R&R 평가 — 본인 의지 표명"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08 1:1) [[홍성욱]] \"맡겨주면 열심히 하겠다\" — *교사커뮤니티 관리 브랜딩*보다 issamGPT 기획에 더 큰 관심",
+        "en": "[F] (2026-05-08 1:1) [[홍성욱]] \"맡겨주면 열심히 하겠다\" — *교사커뮤니티 관리 브랜딩*보다 issamGPT 기획에 더 큰 관심"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 24,
+      "due": {
+        "ko": "2026-05-15",
+        "en": "2026-05-15"
+      },
+      "updatedAt": "2026-05-08",
+      "handoffNote": {
+        "ko": "워크숍(5/12·5/15)에서 분담 정리",
+        "en": "워크숍(5/12·5/15)에서 분담 정리"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A38"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A39",
+      "sourceId": "RAW-A39",
+      "title": {
+        "ko": "이소연 issamGPT 홍보 R&R 확장 검토",
+        "en": "이소연 issamGPT 홍보 R&R 확장 검토"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08 1:1) [[이소연]] 기존 R&R = PR + 기자 네트워크 + 홍보 (전사적). 일부 *축소* + ***issamGPT 홍보 확장*** 긍정 검토",
+        "en": "[F] (2026-05-08 1:1) [[이소연]] 기존 R&R = PR + 기자 네트워크 + 홍보 (전사적). 일부 *축소* + ***issamGPT 홍보 확장*** 긍정 검토"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 24,
+      "due": {
+        "ko": "2026-05-15",
+        "en": "2026-05-15"
+      },
+      "updatedAt": "2026-05-08",
+      "handoffNote": {
+        "ko": "워크숍에서 분담 정리. 전사 PR 라인 축소분 처리 라인 협의 필요.",
+        "en": "워크숍에서 분담 정리. 전사 PR 라인 축소분 처리 라인 협의 필요."
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A39"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A40",
+      "sourceId": "RAW-A40",
+      "title": {
+        "ko": "HWP Studio 데브 머지 — 조용기 책임",
+        "en": "HWP Studio 데브 머지 — 조용기 책임"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08 본인 미팅) 스테이지 브랜치 워크플로우 이식·재현 시연 → 본인 검토 *잘 작동* 확인",
+        "en": "[F] (2026-05-08 본인 미팅) 스테이지 브랜치 워크플로우 이식·재현 시연 → 본인 검토 *잘 작동* 확인"
+      },
+      "owner": "조용기",
+      "nextOwner": "배태영",
+      "team": "R&D센터",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 24,
+      "due": {
+        "ko": "2026-05-12",
+        "en": "2026-05-12"
+      },
+      "updatedAt": "2026-05-08",
+      "handoffNote": {
+        "ko": "U2·A41 연계",
+        "en": "U2·A41 연계"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A40"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A41",
+      "sourceId": "RAW-A41",
+      "title": {
+        "ko": "HWP Studio 배포 진입 — 김현석 책임",
+        "en": "HWP Studio 배포 진입 — 김현석 책임"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08 합의) **2026-05-15 (금) 이전 배포 단계 진입** — 잔여 수정 마무리",
+        "en": "[F] (2026-05-08 합의) **2026-05-15 (금) 이전 배포 단계 진입** — 잔여 수정 마무리"
+      },
+      "owner": "김현석",
+      "nextOwner": "배태영",
+      "team": "전략기획팀",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 24,
+      "due": {
+        "ko": "2026-05-15",
+        "en": "2026-05-15"
+      },
+      "updatedAt": "2026-05-08",
+      "blocker": {
+        "ko": "대기: A40",
+        "en": "대기: A40"
+      },
+      "handoffNote": {
+        "ko": "분담 3건(테스트 데이터·드래그 수정·롤백) 진행률 추적 + 배포 일정 재합의",
+        "en": "분담 3건(테스트 데이터·드래그 수정·롤백) 진행률 추적 + 배포 일정 재합의"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A41"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A42",
+      "sourceId": "RAW-A42",
+      "title": {
+        "ko": "HWP Studio 챗 화면 UI 변경 논의 — 5/12·5/13 별도 브랜치",
+        "en": "HWP Studio 챗 화면 UI 변경 논의 — 5/12·5/13 별도 브랜치"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08 합의) [[김현석]]이 머지 대기 동안 *별도 브랜치*로 사용자 보이는 챗 화면 UI 변경. 본인([[배태영]])과 직접 논의·진행",
+        "en": "[F] (2026-05-08 합의) [[김현석]]이 머지 대기 동안 *별도 브랜치*로 사용자 보이는 챗 화면 UI 변경. 본인([[배태영]])과 직접 논의·진행"
+      },
+      "owner": "김현석",
+      "nextOwner": "배태영",
+      "team": "전략기획팀",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 24,
+      "due": {
+        "ko": "2026-05-13",
+        "en": "2026-05-13"
+      },
+      "updatedAt": "2026-05-08",
+      "handoffNote": {
+        "ko": "UI 변경 가설·와이어프레임 정렬",
+        "en": "UI 변경 가설·와이어프레임 정렬"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A42"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A43",
+      "sourceId": "RAW-A43",
+      "title": {
+        "ko": "Azure Sonnet 4.6 모델 자리 확보 — 김정우 라인",
+        "en": "Azure Sonnet 4.6 모델 자리 확보 — 김정우 라인"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08) HWP Studio 에이전트 = Claude Agent SDK → Claude API 필요. **현재 사용 리전 자리 부족**",
+        "en": "[F] (2026-05-08) HWP Studio 에이전트 = Claude Agent SDK → Claude API 필요. **현재 사용 리전 자리 부족**"
+      },
+      "owner": "조용기",
+      "nextOwner": "배태영",
+      "team": "R&D센터",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 24,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-08",
+      "blocker": {
+        "ko": "대기: 김정훈",
+        "en": "대기: 김정훈"
+      },
+      "handoffNote": {
+        "ko": "[[김정훈]] 회신 대기 → 회신 후 P 카드 전환 또는 fallback 결정",
+        "en": "[[김정훈]] 회신 대기 → 회신 후 P 카드 전환 또는 fallback 결정"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A43"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A44",
+      "sourceId": "RAW-A44",
+      "title": {
+        "ko": "Claude API 별도 키 발급 + 전략팀 법카 연결 (서빙 구조)",
+        "en": "Claude API 별도 키 발급 + 전략팀 법카 연결 (서빙 구조)"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08) Azure 모델 띄울 시 **별도 Claude API 키** 발급 + **전략팀 법인카드 연결** 서빙 검토 — *추가 추적 필요* (본인 메모 명시)",
+        "en": "[F] (2026-05-08) Azure 모델 띄울 시 **별도 Claude API 키** 발급 + **전략팀 법인카드 연결** 서빙 검토 — *추가 추적 필요* (본인 메모 명시)"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 24,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-08",
+      "blocker": {
+        "ko": "대기: A43",
+        "en": "대기: A43"
+      },
+      "handoffNote": {
+        "ko": "A43 결과 후 비용 라인·결재 라인 합의",
+        "en": "A43 결과 후 비용 라인·결재 라인 합의"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A44"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "A45",
+      "sourceId": "RAW-A45",
+      "title": {
+        "ko": "Azure·GCP 모델 배포 인계 — 김정훈 → 양운천 (메모 표기 양훈천)",
+        "en": "Azure·GCP 모델 배포 인계 — 김정훈 → 양운천 (메모 표기 양훈천)"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-08) Azure·GCP 관련 모델 배포 노하우 [[김정훈]] → [[양운천]] (메모 표기 *양훈천*) 인계 필요",
+        "en": "[F] (2026-05-08) Azure·GCP 관련 모델 배포 노하우 [[김정훈]] → [[양운천]] (메모 표기 *양훈천*) 인계 필요"
+      },
+      "owner": "배태영",
+      "nextOwner": "이용현",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 24,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-08",
+      "blocker": {
+        "ko": "대기: 이용현",
+        "en": "대기: 이용현"
+      },
+      "handoffNote": {
+        "ko": "[[이용현]] 1:1에서 인계 일정·범위 합의",
+        "en": "[[이용현]] 1:1에서 인계 일정·범위 합의"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 A45"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "P1",
+      "sourceId": "RAW-P1",
+      "title": {
+        "ko": "와탭 후속 메일 (B2 의존)",
+        "en": "와탭 후속 메일 (B2 의존)"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-03~04) 본인 약속",
+        "en": "[F] (2026-05-03~04) 본인 약속"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "blocked",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "정체 시작: 2026-05-04 / 대기: 와탭_후속메일",
+        "en": "정체 시작: 2026-05-04 / 대기: 와탭_후속메일"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 P1"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "P2",
+      "sourceId": "RAW-P2",
+      "title": {
+        "ko": "이혜림 팀장 PDF 이메일 (B3 의존)",
+        "en": "이혜림 팀장 PDF 이메일 (B3 의존)"
+      },
+      "rawSummary": {
+        "ko": "후보 [F·전언] (2026-05-03~04) [[이혜림]] 팀장: 교과서 PDF 이메일 전달 예정",
+        "en": "후보 [F·전언] (2026-05-03~04) [[이혜림]] 팀장: 교과서 PDF 이메일 전달 예정"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "blocked",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "정체 시작: 2026-05-04 / 대기: 이혜림",
+        "en": "정체 시작: 2026-05-04 / 대기: 이혜림"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 P2"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "P3",
+      "sourceId": "RAW-P3",
+      "title": {
+        "ko": "김진희 12월 복직 시 우성준 계약 처리",
+        "en": "김진희 12월 복직 시 우성준 계약 처리"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-04) [[김진희]] 육아휴직, 2026-12 복직 예정",
+        "en": "[F] (2026-05-04) [[김진희]] 육아휴직, 2026-12 복직 예정"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "blocked",
+      "priority": "medium",
+      "ageHours": 120,
+      "due": {
+        "ko": "2026-12-01",
+        "en": "2026-12-01"
+      },
+      "updatedAt": "2026-05-04",
+      "blocker": {
+        "ko": "대기: 김진희",
+        "en": "대기: 김진희"
+      },
+      "evidence": [
+        "Decisions/issamGPT 액션 보드 P3"
+      ],
+      "tier": "internal",
+      "boardSource": "issamGPT"
+    },
+    {
+      "id": "M1",
+      "sourceId": "RAW-M1",
+      "title": {
+        "ko": "교수자문 라인 — 곽윤주 전무 문의",
+        "en": "교수자문 라인 — 곽윤주 전무 문의"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) 부회장 R&D 수학 프로젝트의 교수자문 = [[곽윤주]] 전무 문의 라인",
+        "en": "[F] (2026-05-05 본인 메모) 부회장 R&D 수학 프로젝트의 교수자문 = [[곽윤주]] 전무 문의 라인"
+      },
+      "owner": "배태영",
+      "nextOwner": "박대민",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "blocker": {
+        "ko": "대기: 곽윤주",
+        "en": "대기: 곽윤주"
+      },
+      "handoffNote": {
+        "ko": "1) 곽윤주 직접 접근 채널 결정 ([[박성한]] 경유 vs 직접), 2) 교과서집필진 명단 확보, 3) 김순영 R&R로 매핑 검토",
+        "en": "1) 곽윤주 직접 접근 채널 결정 ([[박성한]] 경유 vs 직접), 2) 교과서집필진 명단 확보, 3) 김순영 R&R로 매핑 검토"
+      },
+      "evidence": [
+        "Decisions/수학 액션 보드 M1"
+      ],
+      "tier": "sensitive",
+      "boardSource": "math"
+    },
+    {
+      "id": "M2",
+      "sourceId": "RAW-M2",
+      "title": {
+        "ko": "김순영 차장 R&R = 기획자 롤 (3개월 초등 분수 프로젝트)",
+        "en": "김순영 차장 R&R = 기획자 롤 (3개월 초등 분수 프로젝트)"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) 김순영 면담 예정 — R&R 결정용",
+        "en": "[F] (2026-05-05 본인 메모) 김순영 면담 예정 — R&R 결정용"
+      },
+      "owner": "김순영",
+      "nextOwner": "배태영",
+      "team": "수학서비스팀",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 48,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-07",
+      "handoffNote": {
+        "ko": "M10 (5/8 일정 초안 + 미팅) 추적",
+        "en": "M10 (5/8 일정 초안 + 미팅) 추적"
+      },
+      "evidence": [
+        "Decisions/수학 액션 보드 M2"
+      ],
+      "tier": "sensitive",
+      "boardSource": "math"
+    },
+    {
+      "id": "M3",
+      "sourceId": "RAW-M3",
+      "title": {
+        "ko": "조혜영 차장 R&R = 논문 리서치 + 지식맵 분수 고도화",
+        "en": "조혜영 차장 R&R = 논문 리서치 + 지식맵 분수 고도화"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) 조혜영 = 부회장 R&D 수학 프로젝트의 *논문 리서치 + 지식맵 분수 기준 고도화* 롤",
+        "en": "[F] (2026-05-05 본인 메모) 조혜영 = 부회장 R&D 수학 프로젝트의 *논문 리서치 + 지식맵 분수 기준 고도화* 롤"
+      },
+      "owner": "조혜영",
+      "nextOwner": "배태영",
+      "team": "수학서비스팀",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "handoffNote": {
+        "ko": "1) 논문 리서치 범위·산출물 형식 정렬, 2) 지식맵 분수 고도화 일정",
+        "en": "1) 논문 리서치 범위·산출물 형식 정렬, 2) 지식맵 분수 고도화 일정"
+      },
+      "evidence": [
+        "Decisions/수학 액션 보드 M3"
+      ],
+      "tier": "sensitive",
+      "boardSource": "math"
+    },
+    {
+      "id": "M4",
+      "sourceId": "RAW-M4",
+      "title": {
+        "ko": "남용수 차장 R&R = 분수 문항DB 확보",
+        "en": "남용수 차장 R&R = 분수 문항DB 확보"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) 남용수 = 분수 문항DB 확보 롤. 출처: 교과서 + AIDT",
+        "en": "[F] (2026-05-05 본인 메모) 남용수 = 분수 문항DB 확보 롤. 출처: 교과서 + AIDT"
+      },
+      "owner": "남용수",
+      "nextOwner": "배태영",
+      "team": "수학서비스팀",
+      "stage": "doing",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "handoffNote": {
+        "ko": "DB 형식·범위·확보 채널 정렬",
+        "en": "DB 형식·범위·확보 채널 정렬"
+      },
+      "evidence": [
+        "Decisions/수학 액션 보드 M4"
+      ],
+      "tier": "sensitive",
+      "boardSource": "math"
+    },
+    {
+      "id": "M5",
+      "sourceId": "RAW-M5",
+      "title": {
+        "ko": "임미연 교수 컨택방법 조사",
+        "en": "임미연 교수 컨택방법 조사"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) 분수 관련 교수진 리스트업 + 임미연 교수 컨택방법 알아보기",
+        "en": "[F] (2026-05-05 본인 메모) 분수 관련 교수진 리스트업 + 임미연 교수 컨택방법 알아보기"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "blocker": {
+        "ko": "대기: 컨택라인_조사",
+        "en": "대기: 컨택라인_조사"
+      },
+      "handoffNote": {
+        "ko": "컨택 라인 조사 → 첫 접근 채널 결정",
+        "en": "컨택 라인 조사 → 첫 접근 채널 결정"
+      },
+      "evidence": [
+        "Decisions/수학 액션 보드 M5"
+      ],
+      "tier": "sensitive",
+      "boardSource": "math"
+    },
+    {
+      "id": "M6",
+      "sourceId": "RAW-M6",
+      "title": {
+        "ko": "분수 관련 교수진 리스트업",
+        "en": "분수 관련 교수진 리스트업"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) 분수 관련 교수진 리스트업 (M5와 묶음)",
+        "en": "[F] (2026-05-05 본인 메모) 분수 관련 교수진 리스트업 (M5와 묶음)"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "handoffNote": {
+        "ko": "분야별 후보 교수 명단 작성 → 우선순위·접근 채널 결정",
+        "en": "분야별 후보 교수 명단 작성 → 우선순위·접근 채널 결정"
+      },
+      "evidence": [
+        "Decisions/수학 액션 보드 M6"
+      ],
+      "tier": "sensitive",
+      "boardSource": "math"
+    },
+    {
+      "id": "M7",
+      "sourceId": "RAW-M7",
+      "title": {
+        "ko": "분수 좁힘 정리·전달",
+        "en": "분수 좁힘 정리·전달"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) \"분수를 깊게 파는 방향으로 팀전체의 좁힘을 잘 정리해서 전달해야한다\"",
+        "en": "[F] (2026-05-05 본인 메모) \"분수를 깊게 파는 방향으로 팀전체의 좁힘을 잘 정리해서 전달해야한다\""
+      },
+      "owner": "배태영",
+      "nextOwner": "박성한",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "handoffNote": {
+        "ko": "팀 내 전달 자료 + 윗선 전달 자료 (V02 매핑 포함) 별도 작성",
+        "en": "팀 내 전달 자료 + 윗선 전달 자료 (V02 매핑 포함) 별도 작성"
+      },
+      "evidence": [
+        "Decisions/수학 액션 보드 M7"
+      ],
+      "tier": "sensitive",
+      "boardSource": "math"
+    },
+    {
+      "id": "M8",
+      "sourceId": "RAW-M8",
+      "title": {
+        "ko": "구글드라이브 mathservice001 용량 추가 구독",
+        "en": "구글드라이브 mathservice001 용량 추가 구독"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) 팀 법카로 구글드라이브 용량 추가 구독",
+        "en": "[F] (2026-05-05 본인 메모) 팀 법카로 구글드라이브 용량 추가 구독"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "미정",
+        "en": "미정"
+      },
+      "updatedAt": "2026-05-06",
+      "blocker": {
+        "ko": "대기: 팀_법카",
+        "en": "대기: 팀_법카"
+      },
+      "handoffNote": {
+        "ko": "필요 용량 산정 → 결제",
+        "en": "필요 용량 산정 → 결제"
+      },
+      "evidence": [
+        "Decisions/수학 액션 보드 M8"
+      ],
+      "tier": "sensitive",
+      "boardSource": "math"
+    },
+    {
+      "id": "M9",
+      "sourceId": "RAW-M9",
+      "title": {
+        "ko": "수학서비스팀 회식 (5/7 목 판교 마끼로치아)",
+        "en": "수학서비스팀 회식 (5/7 목 판교 마끼로치아)"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-05 본인 메모) 5/7 목요일 점심 — 판교 마끼로치아 뷔페",
+        "en": "[F] (2026-05-05 본인 메모) 5/7 목요일 점심 — 판교 마끼로치아 뷔페"
+      },
+      "owner": "배태영",
+      "team": "AI서비스실",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 72,
+      "due": {
+        "ko": "2026-05-07",
+        "en": "2026-05-07"
+      },
+      "updatedAt": "2026-05-06",
+      "handoffNote": {
+        "ko": "예약·참석 확인",
+        "en": "예약·참석 확인"
+      },
+      "evidence": [
+        "Decisions/수학 액션 보드 M9"
+      ],
+      "tier": "sensitive",
+      "boardSource": "math"
+    },
+    {
+      "id": "M10",
+      "sourceId": "RAW-M10",
+      "title": {
+        "ko": "김순영 5/8 분수 프로젝트 일정 초안 + 미팅",
+        "en": "김순영 5/8 분수 프로젝트 일정 초안 + 미팅"
+      },
+      "rawSummary": {
+        "ko": "[F] (2026-05-07 면담 합의) **5/8 오전**: 김순영이 3개월 초등 분수 프로젝트 일정 초안 작성",
+        "en": "[F] (2026-05-07 면담 합의) **5/8 오전**: 김순영이 3개월 초등 분수 프로젝트 일정 초안 작성"
+      },
+      "owner": "김순영",
+      "nextOwner": "배태영",
+      "team": "수학서비스팀",
+      "stage": "triage",
+      "priority": "medium",
+      "ageHours": 48,
+      "due": {
+        "ko": "2026-05-08",
+        "en": "2026-05-08"
+      },
+      "updatedAt": "2026-05-07",
+      "blocker": {
+        "ko": "대기: 김순영",
+        "en": "대기: 김순영"
+      },
+      "handoffNote": {
+        "ko": "5/8 점심 후 미팅 진행 → 초안 피드백 → 다음 마일스톤 합의",
+        "en": "5/8 점심 후 미팅 진행 → 초안 피드백 → 다음 마일스톤 합의"
+      },
+      "evidence": [
+        "Decisions/수학 액션 보드 M10"
+      ],
+      "tier": "sensitive",
+      "boardSource": "math"
+    }
+  ],
+  "activity": [
+    {
+      "id": "ACT-M2-1",
+      "time": "2026-05-07",
+      "title": {
+        "ko": "M2 갱신",
+        "en": "M2 갱신"
+      },
+      "detail": {
+        "ko": "본인([[배태영]]) 코칭 방식: \"스스로 업무·프로젝트 파악 → 스스로 기획 → 같이 논의하면서 디자인\"",
+        "en": "본인([[배태영]]) 코칭 방식: \"스스로 업무·프로젝트 파악 → 스스로 기획 → 같이 논의하면서 디자인\""
+      },
+      "kind": "assign"
+    },
+    {
+      "id": "ACT-M2-0",
+      "time": "2026-05-07",
+      "title": {
+        "ko": "M2 갱신",
+        "en": "M2 갱신"
+      },
+      "detail": {
+        "ko": "본인 발화: \"뭐부터 해야 할지 막막\"",
+        "en": "본인 발화: \"뭐부터 해야 할지 막막\""
+      },
+      "kind": "assign"
+    },
+    {
+      "id": "ACT-A8-0",
+      "time": "2026-05-06",
+      "title": {
+        "ko": "A8 갱신",
+        "en": "A8 갱신"
+      },
+      "detail": {
+        "ko": "사유: 사용자 dashboard 피드백 \"일단 패스하겠습니다\"",
+        "en": "사유: 사용자 dashboard 피드백 \"일단 패스하겠습니다\""
+      },
+      "kind": "done"
+    }
+  ]
+}

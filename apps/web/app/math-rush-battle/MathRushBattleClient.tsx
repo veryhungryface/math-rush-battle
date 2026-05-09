@@ -1,0 +1,1713 @@
+'use client';
+
+import {
+  ArrowLeft,
+  ArrowRight,
+  Crown,
+  Play,
+  RotateCcw,
+  Shield,
+  Swords,
+  Trophy,
+  UsersRound,
+  Zap
+} from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
+import styles from './math-rush-battle.module.css';
+
+type PlayPhase = 'menu' | 'playing' | 'result';
+type TeamColor = 'blue' | 'red' | 'green' | 'purple';
+type RoundMode = 'targets' | 'boss';
+type ScenePhase = 'loading' | 'running' | 'between' | 'finished';
+
+type Problem = {
+  prompt: string;
+  answer: number;
+  choices: number[];
+  unit: string;
+};
+
+type TeamStatus = {
+  id: number;
+  label: string;
+  teamName: string;
+  color: TeamColor;
+  score: number;
+  soldiers: number;
+  combo: number;
+  maxCombo: number;
+  correct: number;
+  attempts: number;
+  lane: number;
+  position: number;
+  weaponLevel: number;
+  shield: number;
+  rapidUntil: number;
+  spreadUntil: number;
+  rocketShots: number;
+  magnetPower: number;
+};
+
+type RoundInfo = {
+  number: number;
+  mode: RoundMode;
+  problem: Problem;
+  bossHp: number;
+  bossMaxHp: number;
+  message: string;
+};
+
+type GameSummary = {
+  teams: TeamStatus[];
+  winners: TeamStatus[];
+  bossDefeated: boolean;
+  totalRounds: number;
+};
+
+type GameApi = {
+  moveTeam: (teamId: number, delta: -1 | 1) => void;
+  setTeamPosition: (teamId: number, position: number) => void;
+  setTeamDirection: (teamId: number, direction: -1 | 0 | 1) => void;
+};
+
+type PhaserSurfaceProps = {
+  playerCount: number;
+  runId: number;
+  onApi: (api: GameApi | null) => void;
+  onRound: (round: RoundInfo) => void;
+  onStats: (teams: TeamStatus[]) => void;
+  onFinish: (summary: GameSummary) => void;
+};
+
+type Rect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+type SoldierView = {
+  root: unknown;
+};
+
+type TargetView = {
+  lane: number;
+  position: number;
+  choice: number;
+  elite: boolean;
+  hp: number;
+  maxHp: number;
+  correct: boolean;
+  defeated: boolean;
+  root: unknown;
+  choiceLabel: unknown;
+  energyFill: unknown;
+  baseY: number;
+};
+
+type ProjectileView = {
+  root: unknown;
+  panelId: number;
+  teamId: number;
+  damage: number;
+  position: number;
+  speed: number;
+  scaleBase: number;
+  alive: boolean;
+};
+
+type PickupView = {
+  position: number;
+  kind: PickupKind;
+  collected: boolean;
+  root: unknown;
+};
+
+type PickupKind = 'rapid' | 'multi' | 'soldier' | 'shield' | 'rocket' | 'freeze' | 'heal' | 'magnet';
+
+type PanelView = {
+  teamId: number;
+  rect: Rect;
+  laneGlow: unknown;
+  soldiers: SoldierView[];
+  targets: TargetView[];
+  pickup: PickupView | null;
+  boss: unknown;
+  bossHpText: unknown;
+  teamLabel: unknown;
+  statLabel: unknown;
+  verdict: unknown;
+};
+
+const v2AssetBase = '/math-rush-battle-v2';
+const lanes = ['왼쪽', '가운데', '오른쪽'];
+const roadPerspective = {
+  topY: 0.235,
+  bottomY: 0.985,
+  topLeft: 0.442,
+  topRight: 0.558,
+  bottomLeft: -0.018,
+  bottomRight: 1.018
+};
+const pickupKinds: PickupKind[] = ['rapid', 'multi', 'soldier', 'shield', 'rocket', 'freeze', 'heal', 'magnet'];
+const pickupFrames: Record<PickupKind, number> = {
+  rapid: 8,
+  multi: 9,
+  soldier: 10,
+  shield: 11,
+  rocket: 12,
+  freeze: 13,
+  heal: 14,
+  magnet: 15
+};
+
+const pickupLabels: Record<PickupKind, string> = {
+  rapid: 'RAPID',
+  multi: 'x3',
+  soldier: '+2',
+  shield: 'SAFE',
+  rocket: 'BOOM',
+  freeze: 'ICE',
+  heal: '+1',
+  magnet: 'MAG'
+};
+
+const teamPalette: Record<TeamColor, { main: number; css: string }> = {
+  blue: { main: 0x2d7cff, css: '#2d7cff' },
+  red: { main: 0xff4d4d, css: '#ff4d4d' },
+  green: { main: 0x42ba5f, css: '#42ba5f' },
+  purple: { main: 0x8c5bff, css: '#8c5bff' }
+};
+
+const teamSeeds: Array<Pick<TeamStatus, 'label' | 'teamName' | 'color'>> = [
+  { label: '1P', teamName: 'A팀', color: 'blue' },
+  { label: '2P', teamName: 'B팀', color: 'red' },
+  { label: '3P', teamName: 'C팀', color: 'green' },
+  { label: '4P', teamName: 'D팀', color: 'purple' }
+];
+
+function createTeams(playerCount: number): TeamStatus[] {
+  return teamSeeds.slice(0, playerCount).map((seed, index) => ({
+    id: index,
+    ...seed,
+    score: 0,
+    soldiers: 1,
+    combo: 0,
+    maxCombo: 0,
+    correct: 0,
+    attempts: 0,
+    lane: 1,
+    position: 0.5,
+    weaponLevel: 1,
+    shield: 0,
+    rapidUntil: 0,
+    spreadUntil: 0,
+    rocketShots: 0,
+    magnetPower: 0
+  }));
+}
+
+function cloneTeams(teams: TeamStatus[]): TeamStatus[] {
+  return teams.map((team) => ({ ...team }));
+}
+
+function getAccuracy(team: TeamStatus) {
+  if (team.attempts === 0) {
+    return 0;
+  }
+
+  return Math.round((team.correct / team.attempts) * 100);
+}
+
+function shuffle<T>(items: T[]) {
+  const next = [...items];
+  for (let index = next.length - 1; index > 0; index -= 1) {
+    const target = Math.floor(Math.random() * (index + 1));
+    [next[index], next[target]] = [next[target], next[index]];
+  }
+  return next;
+}
+
+function uniqueChoices(answer: number, candidates: number[]) {
+  const values = [answer, ...candidates].filter((value, index, list) => list.indexOf(value) === index);
+  while (values.length < 3) {
+    values.push(answer + values.length + 3);
+  }
+  return shuffle(values.slice(0, 3));
+}
+
+function makeProblem(round: number, mode: RoundMode): Problem {
+  const pattern = round % 5;
+
+  if (mode === 'boss') {
+    const a = 7 + ((round * 2) % 6);
+    const b = 6 + ((round * 3) % 5);
+    const c = 8 + round;
+    const answer = a * b - c;
+    return {
+      prompt: `${a} × ${b} - ${c} = ?`,
+      answer,
+      choices: uniqueChoices(answer, [answer + 8, Math.max(8, answer - 6), a * b]),
+      unit: '보스 연산'
+    };
+  }
+
+  if (pattern === 0) {
+    const a = 4 + (round % 6);
+    const b = 5 + ((round * 2) % 6);
+    const answer = a * b;
+    return {
+      prompt: `${a} × ${b} = ?`,
+      answer,
+      choices: uniqueChoices(answer, [answer + a, Math.max(4, answer - b), (a + 1) * b]),
+      unit: '곱셈'
+    };
+  }
+
+  if (pattern === 1) {
+    const answer = 28 + round * 3;
+    const divisor = 4 + (round % 5);
+    return {
+      prompt: `${answer * divisor} ÷ ${divisor} = ?`,
+      answer,
+      choices: uniqueChoices(answer, [answer + 2, answer - 3, answer + divisor]),
+      unit: '나눗셈'
+    };
+  }
+
+  if (pattern === 2) {
+    const width = 4 + round;
+    const height = 3 + (round % 5);
+    const answer = width * height;
+    return {
+      prompt: `가로 ${width}, 세로 ${height} 직사각형의 넓이는?`,
+      answer,
+      choices: uniqueChoices(answer, [width + height, answer + width, width * 2 + height * 2]),
+      unit: '도형'
+    };
+  }
+
+  if (pattern === 3) {
+    const start = 14 + round * 2;
+    const step = 3 + (round % 4);
+    const answer = start + step * 3;
+    return {
+      prompt: `${start}, ${start + step}, ${start + step * 2}, ?`,
+      answer,
+      choices: uniqueChoices(answer, [answer + step, answer - step, answer + 2]),
+      unit: '규칙'
+    };
+  }
+
+  const first = 31 + round * 4;
+  const second = 18 + round * 2;
+  const answer = first + second;
+  return {
+    prompt: `${first} + ${second} = ?`,
+    answer,
+    choices: uniqueChoices(answer, [answer + 9, answer - 8, answer + 12]),
+    unit: '덧셈'
+  };
+}
+
+function rankTeams(teams: TeamStatus[]) {
+  const topScore = Math.max(...teams.map((team) => team.score));
+  return teams.filter((team) => team.score === topScore);
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function nearestLane(position: number) {
+  return clamp(Math.floor(clamp(position, 0, 0.999) * 3), 0, 2);
+}
+
+function positionLabel(position: number) {
+  const lane = nearestLane(position);
+  return `${lanes[lane]} ${Math.round(clamp(position, 0, 1) * 100)}%`;
+}
+
+function lerp(start: number, end: number, amount: number) {
+  return start + (end - start) * amount;
+}
+
+export default function MathRushBattleClient() {
+  const [phase, setPhase] = useState<PlayPhase>('menu');
+  const [playerCount, setPlayerCount] = useState(1);
+  const [runId, setRunId] = useState(0);
+  const [teams, setTeams] = useState<TeamStatus[]>(() => createTeams(1));
+  const [round, setRound] = useState<RoundInfo | null>(null);
+  const [summary, setSummary] = useState<GameSummary | null>(null);
+  const apiRef = useRef<GameApi | null>(null);
+
+  const startGame = useCallback(() => {
+    setTeams(createTeams(playerCount));
+    setRound(null);
+    setSummary(null);
+    setRunId((value) => value + 1);
+    setPhase('playing');
+  }, [playerCount]);
+
+  const backToMenu = useCallback(() => {
+    apiRef.current = null;
+    setPhase('menu');
+    setRound(null);
+  }, []);
+
+  const handleStats = useCallback((nextTeams: TeamStatus[]) => {
+    setTeams(nextTeams);
+  }, []);
+
+  const handleRound = useCallback((nextRound: RoundInfo) => {
+    setRound(nextRound);
+  }, []);
+
+  const handleFinish = useCallback((nextSummary: GameSummary) => {
+    setSummary(nextSummary);
+    setTeams(nextSummary.teams);
+    setPhase('result');
+  }, []);
+
+  const handleApi = useCallback((api: GameApi | null) => {
+    apiRef.current = api;
+  }, []);
+
+  return (
+    <main className={styles.shell}>
+      {phase === 'menu' ? (
+        <section className={styles.menuScreen}>
+          <div className={styles.menuBackdrop}>
+            <img alt="" src={`${v2AssetBase}/assets/frames/runner-asset-04.png`} />
+            <img alt="" src={`${v2AssetBase}/assets/frames/runner-asset-09.png`} />
+            <img alt="" src={`${v2AssetBase}/assets/frames/runner-asset-15.png`} />
+          </div>
+
+          <div className={styles.titleBlock}>
+            <div className={styles.arcadeChip}>
+              <Swords size={18} />
+              RUNNER MATH SHOOTER
+            </div>
+            <h1>수학 러시 배틀</h1>
+            <p>악당 배의 답 선지를 보고, 머리 위 에너지 바를 총알로 0까지 깎으세요.</p>
+          </div>
+
+          <div className={styles.playerGrid} aria-label="플레이 인원 선택">
+            {[1, 2, 3, 4].map((count) => (
+              <button
+                key={count}
+                className={`${styles.playerCard} ${playerCount === count ? styles.selectedCard : ''}`}
+                onClick={() => setPlayerCount(count)}
+                type="button"
+              >
+                <span className={styles.cardGlow} />
+                <img alt="" src={`${v2AssetBase}/assets/frames/runner-asset-0${count - 1}.png`} />
+                <strong>{count}P</strong>
+                <span>{count === 1 ? '솔로 러시' : `${count}팀 배틀`}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className={styles.teamPreview}>
+            {createTeams(playerCount).map((team) => (
+              <span key={team.id} className={`${styles.teamBadge} ${styles[team.color]}`}>
+                <img alt="" src={`${v2AssetBase}/assets/frames/runner-asset-0${team.id}.png`} />
+                {team.label} {team.teamName}
+              </span>
+            ))}
+          </div>
+
+          <button className={styles.startButton} onClick={startGame} type="button">
+            <Play size={24} fill="currentColor" />
+            게임 시작
+          </button>
+        </section>
+      ) : null}
+
+      {phase === 'playing' ? (
+        <section className={styles.gameScreen}>
+          <div className={styles.topHud}>
+            <div className={styles.problemPanel}>
+              <span>{round?.mode === 'boss' ? 'BOSS ROUND' : round?.problem.unit ?? 'READY'}</span>
+              <strong>{round?.problem.prompt ?? '전투 준비 중...'}</strong>
+            </div>
+            <div className={styles.roundPanel}>
+              <span>ROUND</span>
+              <strong>{round?.number ?? 1}</strong>
+            </div>
+            <div className={styles.bossPanel}>
+              <span>{round?.mode === 'boss' ? 'BOSS HP' : 'MISSION'}</span>
+              <strong>{round?.mode === 'boss' ? `${Math.max(0, round.bossHp)} / ${round.bossMaxHp}` : round?.message ?? '배 숫자 정답 찾기'}</strong>
+            </div>
+          </div>
+
+          <div className={styles.playField}>
+            <PhaserSurface
+              key={runId}
+              onApi={handleApi}
+              onFinish={handleFinish}
+              onRound={handleRound}
+              onStats={handleStats}
+              playerCount={playerCount}
+              runId={runId}
+            />
+          </div>
+
+          <div className={styles.controlDeck}>
+            {teams.map((team) => (
+              <article
+                key={team.id}
+                className={`${styles.controlCard} ${styles[team.color]}`}
+                style={{ '--team': teamPalette[team.color].css } as CSSProperties}
+              >
+                <div className={styles.controlHeader}>
+                  <strong>{team.label} {team.teamName}</strong>
+                  <span>{team.score.toLocaleString()}점</span>
+                </div>
+                <div className={styles.quickStats}>
+                  <span><Shield size={15} /> {team.soldiers}</span>
+                  <span><Zap size={15} /> x{team.combo}</span>
+                  <span><Crown size={15} /> Lv.{team.weaponLevel}</span>
+                </div>
+                <div className={styles.laneControls}>
+                  <button
+                    aria-label={`${team.teamName} 왼쪽으로 계속 이동`}
+                    onClick={() => apiRef.current?.moveTeam(team.id, -1)}
+                    onPointerCancel={() => apiRef.current?.setTeamDirection(team.id, 0)}
+                    onPointerDown={() => apiRef.current?.setTeamDirection(team.id, -1)}
+                    onPointerLeave={() => apiRef.current?.setTeamDirection(team.id, 0)}
+                    onPointerUp={() => apiRef.current?.setTeamDirection(team.id, 0)}
+                    type="button"
+                  >
+                    <ArrowLeft size={24} />
+                  </button>
+                  <input
+                    aria-label={`${team.teamName} 조준 위치`}
+                    max={1}
+                    min={0}
+                    onChange={(event) => apiRef.current?.setTeamPosition(team.id, Number(event.target.value))}
+                    step={0.01}
+                    type="range"
+                    value={team.position}
+                  />
+                  <button
+                    aria-label={`${team.teamName} 오른쪽으로 계속 이동`}
+                    onClick={() => apiRef.current?.moveTeam(team.id, 1)}
+                    onPointerCancel={() => apiRef.current?.setTeamDirection(team.id, 0)}
+                    onPointerDown={() => apiRef.current?.setTeamDirection(team.id, 1)}
+                    onPointerLeave={() => apiRef.current?.setTeamDirection(team.id, 0)}
+                    onPointerUp={() => apiRef.current?.setTeamDirection(team.id, 0)}
+                    type="button"
+                  >
+                    <ArrowRight size={24} />
+                  </button>
+                </div>
+                <div className={styles.laneLabel}>{positionLabel(team.position)} · 키보드/드래그</div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {phase === 'result' && summary ? (
+        <section className={styles.resultScreen}>
+          <div className={styles.resultHeader}>
+            <Trophy size={44} />
+            <span>{summary.bossDefeated ? 'BOSS CLEAR' : 'TIME UP'}</span>
+            <h1>{summary.winners.map((team) => team.teamName).join(' · ')} 승리!</h1>
+          </div>
+
+          <div className={styles.resultGrid}>
+            {summary.teams
+              .slice()
+              .sort((a, b) => b.score - a.score)
+              .map((team) => (
+                <article key={team.id} className={`${styles.resultCard} ${styles[team.color]}`}>
+                  <div className={styles.resultCardTop}>
+                    <strong>{team.label} {team.teamName}</strong>
+                    <span>{team.score.toLocaleString()}점</span>
+                  </div>
+                  <dl>
+                    <div>
+                      <dt>정답률</dt>
+                      <dd>{getAccuracy(team)}%</dd>
+                    </div>
+                    <div>
+                      <dt>최대 콤보</dt>
+                      <dd>{team.maxCombo}</dd>
+                    </div>
+                    <div>
+                      <dt>남은 인원</dt>
+                      <dd>{team.soldiers}</dd>
+                    </div>
+                    <div>
+                      <dt>무기</dt>
+                      <dd>Lv.{team.weaponLevel}</dd>
+                    </div>
+                  </dl>
+                </article>
+              ))}
+          </div>
+
+          <div className={styles.resultActions}>
+            <button onClick={startGame} type="button">
+              <RotateCcw size={22} />
+              다시 플레이
+            </button>
+            <button onClick={backToMenu} type="button">
+              <UsersRound size={22} />
+              인원 다시 선택
+            </button>
+          </div>
+        </section>
+      ) : null}
+    </main>
+  );
+}
+
+function PhaserSurface({ playerCount, runId, onApi, onFinish, onRound, onStats }: PhaserSurfaceProps) {
+  const mountRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    let game: { destroy: (removeCanvas?: boolean) => void } | null = null;
+
+    async function bootGame() {
+      const host = mountRef.current;
+      if (!host) {
+        return;
+      }
+
+      const module = await import('phaser');
+      const Phaser = ('default' in module && module.default ? module.default : module) as Record<string, any>;
+      if (cancelled) {
+        return;
+      }
+
+      game = createPhaserGame(Phaser, host, {
+        playerCount,
+        onApi,
+        onFinish,
+        onRound,
+        onStats
+      });
+    }
+
+    bootGame();
+
+    return () => {
+      cancelled = true;
+      onApi(null);
+      game?.destroy(true);
+    };
+  }, [onApi, onFinish, onRound, onStats, playerCount, runId]);
+
+  return <div className={styles.canvasMount} ref={mountRef} />;
+}
+
+function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, callbacks: Omit<PhaserSurfaceProps, 'runId'>) {
+  const config: Record<string, any> = {
+    type: Phaser.AUTO,
+    parent: host,
+    width: Math.max(900, host.clientWidth || 1200),
+    height: Math.max(620, host.clientHeight || 720),
+    backgroundColor: '#172234',
+    transparent: false,
+    scale: {
+      mode: Phaser.Scale.RESIZE,
+      parent: host,
+      width: '100%',
+      height: '100%'
+    },
+    scene: []
+  };
+
+  class RushScene extends Phaser.Scene {
+    teams: TeamStatus[];
+    panels: PanelView[];
+    projectiles: ProjectileView[];
+    worldLayer: any;
+    fxLayer: any;
+    problem: Problem | null;
+    phase: ScenePhase;
+    round: number;
+    maxRounds: number;
+    bossStartRound: number;
+    bossHp: number;
+    bossMaxHp: number;
+    roundElapsed: number;
+    roundDuration: number;
+    shootClock: number;
+    shootInterval: number;
+    resolvedTeams: Set<number>;
+    inputDirections: number[];
+    draggingTeamId: number | null;
+    inputKeys: Record<string, any>;
+    statsPulse: number;
+    movementDirty: boolean;
+
+    constructor() {
+      super('rush-scene');
+      this.teams = createTeams(callbacks.playerCount);
+      this.panels = [];
+      this.projectiles = [];
+      this.worldLayer = null;
+      this.fxLayer = null;
+      this.problem = null;
+      this.phase = 'loading';
+      this.round = 0;
+      this.maxRounds = 9;
+      this.bossStartRound = 6;
+      this.bossMaxHp = 70 + callbacks.playerCount * 18;
+      this.bossHp = this.bossMaxHp;
+      this.roundElapsed = 0;
+      this.roundDuration = 10800;
+      this.shootClock = 0;
+      this.shootInterval = 245;
+      this.resolvedTeams = new Set();
+      this.inputDirections = [0, 0, 0, 0];
+      this.draggingTeamId = null;
+      this.inputKeys = {};
+      this.statsPulse = 0;
+      this.movementDirty = false;
+    }
+
+    preload() {
+      this.load.image('road-bg-v3', `${v2AssetBase}/assets/road-bg-v3.png`);
+      this.load.spritesheet('runner-atlas-v2', `${v2AssetBase}/assets/runner-battle-atlas-v2.png`, {
+        frameWidth: 256,
+        frameHeight: 256
+      });
+      this.load.spritesheet('runner-extra-atlas-v3', `${v2AssetBase}/assets/runner-extra-atlas-v3.png`, {
+        frameWidth: 256,
+        frameHeight: 256
+      });
+    }
+
+    create() {
+      this.worldLayer = this.add.container(0, 0);
+      this.fxLayer = this.add.container(0, 0);
+      this.rebuildArena();
+      this.bindInput();
+      callbacks.onStats(cloneTeams(this.teams));
+      callbacks.onApi({
+        moveTeam: (teamId, delta) => this.moveTeam(teamId, delta),
+        setTeamPosition: (teamId, position) => this.setTeamPosition(teamId, position, true, true),
+        setTeamDirection: (teamId, direction) => this.setTeamDirection(teamId, direction)
+      });
+      this.time.delayedCall(400, () => this.startRound());
+    }
+
+    update(_time: number, delta: number) {
+      if (this.phase !== 'running' || !this.problem) {
+        return;
+      }
+
+      this.roundElapsed += delta;
+      this.shootClock += delta;
+      this.statsPulse += delta;
+      this.updateContinuousMovement(delta);
+      this.updateTargetPositions();
+      this.updatePickupPositions();
+      this.updateProjectiles(delta);
+
+      while (this.shootClock >= this.shootInterval) {
+        this.shootClock -= this.shootInterval;
+        this.shootAllTeams();
+      }
+
+      if (this.roundElapsed >= this.roundDuration) {
+        this.resolveMissedTeams();
+        this.scheduleNextRound();
+      }
+
+      if (this.movementDirty && this.statsPulse >= 80) {
+        this.statsPulse = 0;
+        this.movementDirty = false;
+        callbacks.onStats(cloneTeams(this.teams));
+      }
+    }
+
+    bindInput() {
+      this.input.on('pointerdown', (pointer: { x: number; y: number }) => {
+        const panel = this.panels.find((item) => {
+          const { rect } = item;
+          return pointer.x >= rect.x && pointer.x <= rect.x + rect.width && pointer.y >= rect.y && pointer.y <= rect.y + rect.height;
+        });
+        if (!panel) {
+          return;
+        }
+        this.draggingTeamId = panel.teamId;
+        this.setTeamPositionFromPointer(panel, pointer.x, true);
+      });
+
+      this.input.on('pointermove', (pointer: { x: number }) => {
+        if (this.draggingTeamId === null) {
+          return;
+        }
+        const panel = this.panels[this.draggingTeamId];
+        if (panel) {
+          this.setTeamPositionFromPointer(panel, pointer.x, false);
+        }
+      });
+
+      this.input.on('pointerup', () => {
+        this.draggingTeamId = null;
+      });
+      this.input.on('pointerupoutside', () => {
+        this.draggingTeamId = null;
+      });
+
+      this.inputKeys = this.input.keyboard?.addKeys({
+        p1Left: 'A',
+        p1Right: 'D',
+        p1AltLeft: 'LEFT',
+        p1AltRight: 'RIGHT',
+        p2Left: 'J',
+        p2Right: 'L',
+        p3Left: 'F',
+        p3Right: 'H',
+        p4Left: 'N',
+        p4Right: 'M'
+      }) ?? {};
+    }
+
+    rebuildArena() {
+      this.worldLayer?.destroy(true);
+      this.fxLayer?.destroy(true);
+      this.worldLayer = this.add.container(0, 0);
+      this.fxLayer = this.add.container(0, 0);
+      this.panels = [];
+      this.projectiles = [];
+
+      const width = Number(this.scale.width);
+      const height = Number(this.scale.height);
+      const background = this.add.graphics();
+      background.fillGradientStyle(0x8b6740, 0x8b6740, 0x152238, 0x101826, 1);
+      background.fillRect(0, 0, width, height);
+      this.worldLayer.add(background);
+
+      const rects = getPanelRects(width, height, callbacks.playerCount);
+      rects.forEach((rect, index) => this.createPanel(rect, this.teams[index]));
+    }
+
+    createPanel(rect: Rect, team: TeamStatus) {
+      const palette = teamPalette[team.color];
+      const panelFrame = this.add.graphics();
+      panelFrame.fillStyle(0x0b1322, 0.5);
+      panelFrame.fillRoundedRect(rect.x, rect.y, rect.width, rect.height, 18);
+      panelFrame.lineStyle(4, palette.main, 0.55);
+      panelFrame.strokeRoundedRect(rect.x + 2, rect.y + 2, rect.width - 4, rect.height - 4, 16);
+      this.worldLayer.add(this.drawRoad(rect));
+      this.worldLayer.add(panelFrame);
+
+      const laneGlow = this.add.graphics();
+      this.worldLayer.add(laneGlow);
+
+      const topSize = Math.max(18, Math.min(32, rect.width * 0.04));
+      const teamLabel = this.add.text(rect.x + 18, rect.y + 14, `${team.label} ${team.teamName}`, {
+        color: '#ffffff',
+        fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
+        fontSize: `${topSize}px`,
+        fontStyle: '900',
+        stroke: '#0b1220',
+        strokeThickness: 5
+      });
+      this.worldLayer.add(teamLabel);
+
+      const statLabel = this.add.text(rect.x + rect.width - 18, rect.y + 16, '', {
+        align: 'right',
+        color: '#fff9d6',
+        fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
+        fontSize: `${Math.max(14, topSize * 0.72)}px`,
+        fontStyle: '800',
+        stroke: '#0b1220',
+        strokeThickness: 4
+      }).setOrigin(1, 0);
+      this.worldLayer.add(statLabel);
+
+      const boss = this.add.sprite(rect.x + rect.width * 0.5, rect.y + rect.height * 0.23, 'runner-atlas-v2', 7);
+      boss.setVisible(false);
+      boss.setAlpha(0.72);
+      boss.setScale(Math.max(0.34, Math.min(0.78, rect.width / 920)));
+      this.worldLayer.add(boss);
+
+      const bossHpText = this.add.text(rect.x + rect.width * 0.5, rect.y + rect.height * 0.12, '', {
+        align: 'center',
+        color: '#ffffff',
+        fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
+        fontSize: `${Math.max(16, rect.width * 0.035)}px`,
+        fontStyle: '900',
+        stroke: '#0b1220',
+        strokeThickness: 5
+      }).setOrigin(0.5);
+      this.worldLayer.add(bossHpText);
+
+      const verdict = this.add.text(rect.x + rect.width * 0.5, rect.y + rect.height * 0.55, '', {
+        align: 'center',
+        color: '#ffffff',
+        fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
+        fontSize: `${Math.max(24, rect.width * 0.06)}px`,
+        fontStyle: '900',
+        stroke: '#0b1220',
+        strokeThickness: 8
+      }).setOrigin(0.5).setAlpha(0);
+      this.worldLayer.add(verdict);
+
+      const panel: PanelView = {
+        teamId: team.id,
+        rect,
+        laneGlow,
+        soldiers: [],
+        targets: [],
+        pickup: null,
+        boss,
+        bossHpText,
+        teamLabel,
+        statLabel,
+        verdict
+      };
+      this.panels.push(panel);
+      this.syncSoldiers(panel, team, false);
+      this.refreshPanelStats(team.id);
+    }
+
+    drawRoad(rect: Rect) {
+      const road = this.add.container(0, 0);
+      const background = this.add.image(rect.x + rect.width * 0.5, rect.y + rect.height * 0.5, 'road-bg-v3');
+      background.setDisplaySize(rect.width, rect.height);
+      road.add(background);
+      const roadOverlay = this.add.graphics();
+      roadOverlay.fillStyle(0x0d1524, 0.2);
+      roadOverlay.fillRoundedRect(rect.x + rect.width * 0.01, rect.y + rect.height * 0.03, rect.width * 0.98, rect.height * 0.94, 18);
+      road.add(roadOverlay);
+      return road;
+    }
+
+    roadTopY(rect: Rect) {
+      return rect.y + rect.height * roadPerspective.topY;
+    }
+
+    roadBottomY(rect: Rect) {
+      return rect.y + rect.height * roadPerspective.bottomY;
+    }
+
+    roadEdges(rect: Rect, y: number) {
+      const topY = this.roadTopY(rect);
+      const bottomY = this.roadBottomY(rect);
+      const t = clamp((y - topY) / (bottomY - topY), 0, 1);
+      return {
+        left: lerp(rect.x + rect.width * roadPerspective.topLeft, rect.x + rect.width * roadPerspective.bottomLeft, t),
+        right: lerp(rect.x + rect.width * roadPerspective.topRight, rect.x + rect.width * roadPerspective.bottomRight, t)
+      };
+    }
+
+    roadDepth(rect: Rect, y: number) {
+      const topY = this.roadTopY(rect);
+      const bottomY = this.roadBottomY(rect);
+      return clamp((y - topY) / (bottomY - topY), 0, 1);
+    }
+
+    roadPositionFromX(rect: Rect, x: number, y: number) {
+      const edges = this.roadEdges(rect, y);
+      return clamp((x - edges.left) / (edges.right - edges.left), 0.04, 0.96);
+    }
+
+    targetPerspectiveScale(rect: Rect, y: number) {
+      return lerp(0.62, 1.16, this.roadDepth(rect, y));
+    }
+
+    pickupPerspectiveScale(rect: Rect, y: number) {
+      return lerp(0.72, 1.1, this.roadDepth(rect, y));
+    }
+
+    projectilePerspectiveScale(rect: Rect, y: number) {
+      return lerp(0.58, 1.08, this.roadDepth(rect, y));
+    }
+
+    roadX(rect: Rect, position: number, y: number) {
+      const edges = this.roadEdges(rect, y);
+      return lerp(edges.left, edges.right, clamp(position, 0.04, 0.96));
+    }
+
+    roadBoundaryX(rect: Rect, boundary: number, y: number) {
+      const edges = this.roadEdges(rect, y);
+      return lerp(edges.left, edges.right, boundary / 3);
+    }
+
+    startRound() {
+      if (this.phase === 'finished') {
+        return;
+      }
+
+      this.round += 1;
+      const mode: RoundMode = this.round >= this.bossStartRound ? 'boss' : 'targets';
+      this.problem = makeProblem(this.round, mode);
+      this.roundElapsed = 0;
+      this.shootClock = 0;
+      this.resolvedTeams.clear();
+      this.phase = 'running';
+
+      this.panels.forEach((panel) => {
+        const boss = panel.boss as any;
+        const bossHpText = panel.bossHpText as any;
+        boss.setVisible(mode === 'boss');
+        bossHpText.setText(mode === 'boss' ? `HP ${Math.max(0, this.bossHp)} / ${this.bossMaxHp}` : '');
+        this.setPanelVerdict(panel, '');
+        this.clearProjectiles(panel.teamId);
+        this.clearTargets(panel);
+        this.createTargets(panel, this.problem as Problem, mode);
+        this.createPickup(panel);
+      });
+
+      callbacks.onRound({
+        number: this.round,
+        mode,
+        problem: this.problem,
+        bossHp: this.bossHp,
+        bossMaxHp: this.bossMaxHp,
+        message: mode === 'boss' ? '배 숫자 정답 보스 격파' : '배 숫자 정답 찾기'
+      });
+      callbacks.onStats(cloneTeams(this.teams));
+    }
+
+    clearTargets(panel: PanelView) {
+      panel.targets.forEach((target) => (target.root as any).destroy());
+      panel.targets = [];
+      if (panel.pickup) {
+        (panel.pickup.root as any).destroy();
+        panel.pickup = null;
+      }
+    }
+
+    clearProjectiles(panelId?: number) {
+      this.projectiles = this.projectiles.filter((projectile) => {
+        if (panelId !== undefined && projectile.panelId !== panelId) {
+          return true;
+        }
+        projectile.alive = false;
+        (projectile.root as any).destroy();
+        return false;
+      });
+    }
+
+    createTargets(panel: PanelView, problem: Problem, mode: RoundMode) {
+      const scale = Math.max(0.36, Math.min(0.82, panel.rect.width / 820));
+      problem.choices.forEach((choice, lane) => {
+        const position = (lane + 0.5) / 3;
+        const y = panel.rect.y + panel.rect.height * ([0.32, 0.24, 0.33][lane] ?? 0.31);
+        const x = this.roadX(panel.rect, position, y);
+        const elite = mode === 'boss' || this.round >= 4 || (this.round + lane + panel.teamId) % 4 === 0;
+        const gauge = elite ? 42 + this.round * 5 + lane * 8 : 24 + this.round * 3 + lane * 5;
+        const root = this.add.container(x, y);
+        root.setScale(this.targetPerspectiveScale(panel.rect, y));
+        root.setDepth(Math.floor(y) + 520);
+        const monsterTexture = elite ? 'runner-extra-atlas-v3' : ((this.round + lane) % 2 === 0 ? 'runner-extra-atlas-v3' : 'runner-atlas-v2');
+        const monsterFrame = elite
+          ? 4 + ((this.round + lane + panel.teamId) % 4)
+          : monsterTexture === 'runner-extra-atlas-v3'
+            ? (this.round + lane + panel.teamId) % 4
+            : 4 + ((this.round + lane + panel.teamId) % 4);
+        const monster = this.add.sprite(0, -6, monsterTexture, monsterFrame);
+        monster.setScale(elite ? scale * 0.88 : scale * 0.74);
+        const barWidth = Math.max(78, panel.rect.width * 0.13);
+        const barBack = this.add.rectangle(-barWidth / 2, -105, barWidth, 13, 0x1a2637, 0.92).setOrigin(0, 0.5);
+        barBack.setStrokeStyle(2, 0xffffff, 0.65);
+        const energyFill = this.add.rectangle(-barWidth / 2 + 2, -105, barWidth - 4, 9, elite ? 0xff5f55 : 0x57e36c, 1).setOrigin(0, 0.5);
+        const choiceLabel = this.add.text(0, 34, String(choice), {
+          align: 'center',
+          color: '#ffffff',
+          fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
+          fontSize: `${Math.max(27, panel.rect.width * 0.055)}px`,
+          fontStyle: '950',
+          stroke: '#1b120b',
+          strokeThickness: 8
+        }).setOrigin(0.5);
+        const eliteBadge = this.add.text(0, -126, elite ? 'HEAVY' : '', {
+          align: 'center',
+          color: '#ffe27a',
+          fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
+          fontSize: `${Math.max(10, panel.rect.width * 0.016)}px`,
+          fontStyle: '950',
+          stroke: '#23150a',
+          strokeThickness: 3
+        }).setOrigin(0.5);
+        root.add([barBack, energyFill, eliteBadge, monster, choiceLabel]);
+        this.worldLayer.add(root);
+        panel.targets.push({
+          lane,
+          position,
+          choice,
+          elite,
+          hp: gauge,
+          maxHp: gauge,
+          correct: choice === problem.answer,
+          defeated: false,
+          root,
+          choiceLabel,
+          energyFill,
+          baseY: y
+        });
+      });
+    }
+
+    createPickup(panel: PanelView) {
+      const team = this.teams[panel.teamId];
+      const kind = pickupKinds[(this.round + panel.teamId * 2) % pickupKinds.length];
+      const position = ((this.round + panel.teamId + (this.round % 2)) % 3 + 0.5) / 3;
+      const root = this.add.container(0, 0);
+      const glow = this.add.sprite(0, 0, 'runner-atlas-v2', 15);
+      glow.setScale(Math.max(0.14, Math.min(0.28, panel.rect.width / 1450)));
+      glow.setAlpha(0.86);
+      const item = this.add.sprite(0, 0, 'runner-extra-atlas-v3', pickupFrames[kind]);
+      item.setScale(Math.max(0.23, Math.min(0.42, panel.rect.width / 1080)));
+      const label = this.add.text(0, -2, pickupLabels[kind], {
+        color: '#ffffff',
+        fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
+        fontSize: `${Math.max(15, panel.rect.width * 0.03)}px`,
+        fontStyle: '950',
+        stroke: '#19213a',
+        strokeThickness: 5
+      }).setOrigin(0.5);
+      root.add([glow, item, label]);
+      root.setVisible(team.soldiers < 16 || kind !== 'soldier');
+      this.worldLayer.add(root);
+      panel.pickup = { position, kind, collected: false, root };
+      this.updatePickupPosition(panel, 0);
+    }
+
+    updateTargetPositions() {
+      const progress = clamp(this.roundElapsed / this.roundDuration, 0, 1);
+      this.panels.forEach((panel) => {
+        panel.targets.forEach((target) => {
+          const y = target.baseY + panel.rect.height * 0.24 * progress;
+          const x = this.roadX(panel.rect, target.position, y);
+          const root = target.root as any;
+          root.setPosition(x, y);
+          root.setScale(this.targetPerspectiveScale(panel.rect, y));
+          root.setDepth(Math.floor(y) + 520);
+        });
+      });
+    }
+
+    updatePickupPositions() {
+      const progress = clamp(this.roundElapsed / this.roundDuration, 0, 1);
+      this.panels.forEach((panel) => {
+        this.updatePickupPosition(panel, progress);
+        const pickup = panel.pickup;
+        const team = this.teams[panel.teamId];
+        if (!pickup || pickup.collected || !team || this.resolvedTeams.has(team.id)) {
+          return;
+        }
+        if (this.isPickupTouchingTeam(panel, team, pickup, progress)) {
+          this.collectPickup(panel, team, pickup);
+        }
+        if (progress >= 0.96 && !pickup.collected) {
+          (pickup.root as any).setAlpha(0.35);
+        }
+      });
+    }
+
+    updatePickupPosition(panel: PanelView, progress: number) {
+      if (!panel.pickup || panel.pickup.collected) {
+        return;
+      }
+      const y = lerp(panel.rect.y + panel.rect.height * 0.42, panel.rect.y + panel.rect.height * 0.85, progress);
+      const team = this.teams[panel.teamId];
+      const naturalX = this.roadX(panel.rect, panel.pickup.position, y);
+      const teamX = team && team.magnetPower > 0 && progress > 0.35 ? this.roadX(panel.rect, team.position, y) : naturalX;
+      const x = team && team.magnetPower > 0 && progress > 0.35 ? lerp(naturalX, teamX, 0.48) : naturalX;
+      const root = panel.pickup.root as any;
+      root.setPosition(x, y);
+      root.setScale(this.pickupPerspectiveScale(panel.rect, y));
+      root.setDepth(Math.floor(y) + 430);
+    }
+
+    isPickupTouchingTeam(panel: PanelView, team: TeamStatus, pickup: PickupView, progress: number) {
+      if (progress < 0.42 || progress > 0.98) {
+        return false;
+      }
+      const root = pickup.root as any;
+      const baseY = panel.rect.y + panel.rect.height * 0.82;
+      const teamX = this.roadX(panel.rect, team.position, baseY);
+      const magnetBoost = team.magnetPower > 0 || pickup.kind === 'magnet';
+      const xRadius = panel.rect.width * (magnetBoost ? 0.2 : 0.12);
+      const yRadius = panel.rect.height * (magnetBoost ? 0.19 : 0.13);
+      return Math.abs(root.x - teamX) <= xRadius && Math.abs(root.y - baseY) <= yRadius;
+    }
+
+    collectPickup(panel: PanelView, team: TeamStatus, pickup: PickupView) {
+      pickup.collected = true;
+      if (pickup.kind !== 'magnet' && team.magnetPower > 0) {
+        team.magnetPower = Math.max(0, team.magnetPower - 1);
+      }
+      this.applyPickupEffect(panel, team, pickup.kind);
+      team.score += 35;
+      this.refreshPanelStats(team.id);
+      this.syncSoldiers(panel, team, true);
+      const root = pickup.root as any;
+      this.tweens.add({
+        targets: root,
+        alpha: 0,
+        scale: 1.55,
+        y: root.y - panel.rect.height * 0.08,
+        duration: 420,
+        ease: 'Back.easeOut'
+      });
+      callbacks.onStats(cloneTeams(this.teams));
+    }
+
+    applyPickupEffect(panel: PanelView, team: TeamStatus, kind: PickupKind) {
+      switch (kind) {
+        case 'rapid':
+          team.rapidUntil = Math.max(team.rapidUntil, this.roundElapsed + 5200);
+          this.setPanelVerdict(panel, 'RAPID FIRE!');
+          break;
+        case 'multi':
+          team.spreadUntil = Math.max(team.spreadUntil, this.roundElapsed + 5200);
+          team.weaponLevel = Math.min(5, team.weaponLevel + 1);
+          this.setPanelVerdict(panel, 'TRIPLE SHOT!');
+          break;
+        case 'soldier':
+          team.soldiers = Math.min(16, team.soldiers + 2);
+          this.setPanelVerdict(panel, '+2 JOIN!');
+          break;
+        case 'shield':
+          team.shield = Math.min(3, team.shield + 1);
+          this.setPanelVerdict(panel, 'SHIELD!');
+          break;
+        case 'rocket':
+          team.rocketShots = Math.min(12, team.rocketShots + 6);
+          this.setPanelVerdict(panel, 'ROCKETS!');
+          break;
+        case 'freeze':
+          this.roundElapsed = Math.max(0, this.roundElapsed - 1800);
+          this.setPanelVerdict(panel, 'FREEZE!');
+          break;
+        case 'heal':
+          team.soldiers = Math.min(16, team.soldiers + 1);
+          this.setPanelVerdict(panel, 'REPAIR!');
+          break;
+        case 'magnet':
+          team.magnetPower = Math.min(3, team.magnetPower + 2);
+          this.setPanelVerdict(panel, 'MAGNET!');
+          break;
+      }
+    }
+
+    shootAllTeams() {
+      this.teams.forEach((team) => {
+        if (this.resolvedTeams.has(team.id)) {
+          return;
+        }
+        const panel = this.panels[team.id];
+        if (!panel) {
+          return;
+        }
+        panel.soldiers.forEach((soldier, index) => {
+          const offsets = team.spreadUntil > this.roundElapsed ? [-0.035, 0, 0.035] : [0];
+          offsets.forEach((offset, offsetIndex) => {
+            this.time.delayedCall(index * 22 + offsetIndex * 12, () => this.fireSoldierBullet(panel, team, soldier, offset));
+          });
+          if (team.rapidUntil > this.roundElapsed) {
+            this.time.delayedCall(index * 22 + 86, () => this.fireSoldierBullet(panel, team, soldier, 0));
+          }
+        });
+      });
+    }
+
+    fireSoldierBullet(panel: PanelView, team: TeamStatus, soldier: SoldierView, roadOffset = 0) {
+      if (this.phase !== 'running') {
+        return;
+      }
+      const root = soldier.root as any;
+      const useRocket = team.rocketShots > 0;
+      if (useRocket) {
+        team.rocketShots -= 1;
+      }
+      const bulletFrame = useRocket || team.weaponLevel >= 3 ? 13 : 12;
+      const launchY = root.y - 22;
+      const launchPosition = clamp(this.roadPositionFromX(panel.rect, root.x + 10, launchY) + roadOffset, 0.04, 0.96);
+      const launchX = this.roadX(panel.rect, launchPosition, launchY);
+      const bullet = this.add.sprite(launchX, launchY, 'runner-atlas-v2', bulletFrame);
+      const scaleBase = Math.max(0.09, Math.min(0.2, panel.rect.width / 2200)) * (useRocket ? 1.55 : team.weaponLevel >= 3 ? 1.2 : 1);
+      bullet.setScale(scaleBase * this.projectilePerspectiveScale(panel.rect, launchY));
+      bullet.setAlpha(0.95);
+      bullet.rotation = -Math.PI / 2;
+      bullet.setDepth(Math.floor(launchY) + 900);
+      this.fxLayer.add(bullet);
+      this.projectiles.push({
+        root: bullet,
+        panelId: panel.teamId,
+        teamId: team.id,
+        damage: useRocket ? team.weaponLevel * 7 + 14 : team.weaponLevel * 3 + 4 + Math.ceil(team.soldiers / 5),
+        position: launchPosition,
+        speed: 0.78 + team.weaponLevel * 0.052 + (useRocket ? 0.1 : 0),
+        scaleBase,
+        alive: true
+      });
+      this.tweens.add({
+        targets: root,
+        y: root.y + 3,
+        duration: 45,
+        yoyo: true,
+        ease: 'Quad.easeOut'
+      });
+    }
+
+    applyProjectilePerspective(panel: PanelView, projectile: ProjectileView, y: number) {
+      const bullet = projectile.root as any;
+      const previousX = bullet.x ?? this.roadX(panel.rect, projectile.position, y);
+      const previousY = bullet.y ?? y;
+      const x = this.roadX(panel.rect, projectile.position, y);
+      bullet.setPosition(x, y);
+      bullet.setScale(projectile.scaleBase * this.projectilePerspectiveScale(panel.rect, y));
+      bullet.setDepth(Math.floor(y) + 900);
+      const dx = x - previousX;
+      const dy = y - previousY;
+      if (Math.abs(dx) + Math.abs(dy) > 0.001) {
+        const lean = clamp(dx / (Math.abs(dy) + 1), -0.36, 0.36);
+        bullet.rotation = -Math.PI / 2 + lean;
+      }
+    }
+
+    updateProjectiles(delta: number) {
+      this.projectiles = this.projectiles.filter((projectile) => {
+        const bullet = projectile.root as any;
+        const panel = this.panels[projectile.panelId];
+        const team = this.teams[projectile.teamId];
+        if (!projectile.alive || !panel || !team || this.resolvedTeams.has(projectile.teamId)) {
+          bullet?.destroy();
+          return false;
+        }
+
+        this.applyProjectilePerspective(panel, projectile, bullet.y - projectile.speed * delta);
+        const target = this.findProjectileHit(panel, bullet);
+        if (target) {
+          projectile.alive = false;
+          bullet.destroy();
+          this.hitTarget(panel, team, target, projectile.damage);
+          return false;
+        }
+
+        if (bullet.y < panel.rect.y + panel.rect.height * 0.11) {
+          bullet.destroy();
+          return false;
+        }
+        return true;
+      });
+    }
+
+    findProjectileHit(panel: PanelView, bullet: { x: number; y: number }) {
+      const hitWidth = Math.max(28, panel.rect.width * 0.04);
+      const hitTop = panel.rect.height * 0.13;
+      const hitBottom = panel.rect.height * 0.1;
+      return panel.targets
+        .filter((target) => {
+          if (target.defeated) {
+            return false;
+          }
+          const root = target.root as any;
+          const scale = Math.max(0.76, Number(root.scaleX ?? 1));
+          return Math.abs(bullet.x - root.x) <= hitWidth * scale && bullet.y >= root.y - hitTop * scale && bullet.y <= root.y + hitBottom * scale;
+        })
+        .sort((a, b) => Math.abs(((a.root as any).y ?? 0) - bullet.y) - Math.abs(((b.root as any).y ?? 0) - bullet.y))[0];
+    }
+
+    hitTarget(panel: PanelView, team: TeamStatus, target: TargetView, damage: number) {
+      if (target.defeated) {
+        return;
+      }
+      const root = target.root as any;
+      const energyFill = target.energyFill as any;
+      const targetScale = Math.max(0.72, Number(root.scaleX ?? 1));
+      target.hp = Math.max(0, target.hp - damage);
+      energyFill.setScale(Math.max(0.02, target.hp / target.maxHp), 1);
+      const damageText = this.add.text(root.x, root.y - 116 * targetScale, `-${damage}`, {
+        color: '#fff5a8',
+        fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
+        fontSize: `${Math.max(14, panel.rect.width * 0.026)}px`,
+        fontStyle: '950',
+        stroke: '#3a160c',
+        strokeThickness: 4
+      }).setOrigin(0.5);
+      this.fxLayer.add(damageText);
+      this.tweens.add({
+        targets: damageText,
+        y: damageText.y - 26,
+        alpha: 0,
+        duration: 360,
+        ease: 'Quad.easeOut',
+        onComplete: () => damageText.destroy()
+      });
+      const spark = this.add.sprite(root.x, root.y + 12, 'runner-atlas-v2', 14);
+      spark.setScale(Math.max(0.18, Math.min(0.38, panel.rect.width / 1240)) * targetScale);
+      spark.setAlpha(0.9);
+      this.fxLayer.add(spark);
+      this.tweens.add({
+        targets: spark,
+        alpha: 0,
+        scale: spark.scale * 1.7,
+        duration: 220,
+        ease: 'Quad.easeOut',
+        onComplete: () => spark.destroy()
+      });
+      this.tweens.add({
+        targets: root,
+        x: root.x + (Math.random() > 0.5 ? 5 : -5),
+        duration: 38,
+        yoyo: true,
+        repeat: 1
+      });
+      if (target.correct) {
+        this.cameras.main.shake(34, 0.0012);
+      }
+      if (target.hp <= 0) {
+        this.destroyTarget(panel, team, target);
+      }
+    }
+
+    destroyTarget(panel: PanelView, team: TeamStatus, target: TargetView) {
+      target.defeated = true;
+      const root = target.root as any;
+      const targetScale = Math.max(0.72, Number(root.scaleX ?? 1));
+      const boom = this.add.sprite(root.x, root.y, 'runner-atlas-v2', 15);
+      boom.setScale(Math.max(0.34, Math.min(0.68, panel.rect.width / 860)) * targetScale);
+      this.fxLayer.add(boom);
+      this.tweens.add({
+        targets: boom,
+        alpha: 0,
+        scale: boom.scale * 1.75,
+        duration: 480,
+        ease: 'Back.easeOut',
+        onComplete: () => boom.destroy()
+      });
+      this.tweens.add({
+        targets: root,
+        alpha: 0,
+        scale: 0.64,
+        duration: 180,
+        onComplete: () => root.destroy()
+      });
+      if (target.correct) {
+        this.resolveTeamSuccess(panel, team);
+      }
+    }
+
+    resolveTeamSuccess(panel: PanelView, team: TeamStatus) {
+      if (!this.problem || this.resolvedTeams.has(team.id)) {
+        return;
+      }
+      const bossMode = this.round >= this.bossStartRound;
+      this.resolvedTeams.add(team.id);
+      team.attempts += 1;
+      team.correct += 1;
+      team.combo += 1;
+      team.maxCombo = Math.max(team.maxCombo, team.combo);
+      team.score += 160 + team.combo * 35 + team.soldiers * 12;
+      if (team.combo > 0 && team.combo % 3 === 0) {
+        team.weaponLevel = Math.min(5, team.weaponLevel + 1);
+      }
+      if (bossMode) {
+        this.bossHp = Math.max(0, this.bossHp - (team.soldiers * 4 + team.weaponLevel * 7));
+        (panel.bossHpText as any).setText(`HP ${Math.max(0, this.bossHp)} / ${this.bossMaxHp}`);
+      }
+      this.setPanelVerdict(panel, team.combo >= 2 ? `${team.combo} COMBO!` : '정답 파괴!');
+      this.refreshPanelStats(team.id);
+      callbacks.onStats(cloneTeams(this.teams));
+      callbacks.onRound({
+        number: this.round,
+        mode: bossMode ? 'boss' : 'targets',
+        problem: this.problem,
+        bossHp: this.bossHp,
+        bossMaxHp: this.bossMaxHp,
+        message: bossMode ? '배 숫자 정답 보스 격파' : '배 숫자 정답 찾기'
+      });
+      this.scheduleNextRound();
+    }
+
+    resolveMissedTeams() {
+      this.teams.forEach((team) => {
+        if (this.resolvedTeams.has(team.id)) {
+          return;
+        }
+        const panel = this.panels[team.id];
+        if (!panel) {
+          return;
+        }
+        this.resolvedTeams.add(team.id);
+        team.attempts += 1;
+        team.combo = 0;
+        if (team.shield > 0) {
+          team.shield -= 1;
+          this.setPanelVerdict(panel, 'SHIELD BLOCK!');
+        } else {
+          team.soldiers = Math.max(1, team.soldiers - 1);
+          team.score = Math.max(0, team.score - 35);
+          this.setPanelVerdict(panel, '놓쳤다!');
+        }
+        this.syncSoldiers(panel, team, true);
+        this.refreshPanelStats(team.id);
+      });
+      callbacks.onStats(cloneTeams(this.teams));
+    }
+
+    scheduleNextRound() {
+      if (this.phase !== 'running') {
+        return;
+      }
+      if (this.resolvedTeams.size < this.teams.length) {
+        return;
+      }
+      this.phase = 'between';
+      this.time.delayedCall(980, () => {
+        if (this.bossHp <= 0 || this.round >= this.maxRounds) {
+          this.finishGame();
+        } else {
+          this.startRound();
+        }
+      });
+    }
+
+    setPanelVerdict(panel: PanelView, text: string) {
+      const verdict = panel.verdict as any;
+      verdict.setText(text);
+      verdict.setAlpha(text ? 1 : 0);
+      verdict.setScale(0.86);
+      if (text) {
+        this.tweens.add({
+          targets: verdict,
+          scale: 1,
+          alpha: 0,
+          delay: 500,
+          duration: 520,
+          ease: 'Back.easeOut'
+        });
+      }
+    }
+
+    createSoldierView(team: TeamStatus) {
+      const root = this.add.container(0, 0);
+      const shadow = this.add.ellipse(0, 27, 74, 18, 0x0b1020, 0.24);
+      const sprite = this.add.sprite(0, -12, 'runner-atlas-v2', team.id);
+      sprite.setScale(0.36);
+      root.add([shadow, sprite]);
+      this.worldLayer.add(root);
+      return { root };
+    }
+
+    syncSoldiers(panel: PanelView, team: TeamStatus, animate: boolean) {
+      while (panel.soldiers.length < team.soldiers) {
+        panel.soldiers.push(this.createSoldierView(team));
+      }
+      while (panel.soldiers.length > team.soldiers) {
+        const soldier = panel.soldiers.pop();
+        if (soldier) {
+          (soldier.root as any).destroy();
+        }
+      }
+      const positions = this.getSoldierPositions(panel, team);
+      panel.soldiers.forEach((soldier, index) => {
+        const root = soldier.root as any;
+        const position = positions[index];
+        const scale = Math.max(0.66, Math.min(1.15, panel.rect.width / 960));
+        root.setScale(scale);
+        if (animate) {
+          this.tweens.add({
+            targets: root,
+            x: position.x,
+            y: position.y,
+            duration: 190,
+            ease: 'Back.easeOut'
+          });
+        } else {
+          root.setPosition(position.x, position.y);
+        }
+      });
+      this.drawLaneGlow(panel, team);
+    }
+
+    getSoldierPositions(panel: PanelView, team: TeamStatus) {
+      const baseY = panel.rect.y + panel.rect.height * 0.82;
+      const centerX = this.roadX(panel.rect, team.position, baseY);
+      const count = team.soldiers;
+      const rowSize = Math.min(4, Math.max(1, Math.ceil(Math.sqrt(count + 1))));
+      const gapX = Math.max(22, panel.rect.width * 0.038);
+      const gapY = Math.max(24, panel.rect.height * 0.048);
+      return Array.from({ length: count }, (_, index) => {
+        const row = Math.floor(index / rowSize);
+        const col = index % rowSize;
+        const itemsInRow = Math.min(rowSize, count - row * rowSize);
+        return {
+          x: centerX + (col - (itemsInRow - 1) / 2) * gapX,
+          y: baseY + row * gapY - Math.floor(count / 5) * gapY * 0.45
+        };
+      });
+    }
+
+    drawLaneGlow(panel: PanelView, team: TeamStatus) {
+      const glow = panel.laneGlow as any;
+      const baseY = panel.rect.y + panel.rect.height * 0.84;
+      const x = this.roadX(panel.rect, team.position, baseY);
+      glow.clear();
+      glow.fillStyle(teamPalette[team.color].main, 0.24);
+      glow.fillEllipse(x, baseY + 8, panel.rect.width * 0.18, panel.rect.height * 0.08);
+      glow.lineStyle(2, 0xffffff, 0.22);
+      glow.strokeEllipse(x, baseY + 8, panel.rect.width * 0.18, panel.rect.height * 0.08);
+    }
+
+    refreshPanelStats(teamId: number) {
+      const team = this.teams[teamId];
+      const panel = this.panels[teamId];
+      if (!team || !panel) {
+        return;
+      }
+
+      const statLabel = panel.statLabel as any;
+      statLabel.setText(`${team.score}점  인원 ${team.soldiers}  x${team.combo}`);
+      const bossHpText = panel.bossHpText as any;
+      if (this.round >= this.bossStartRound) {
+        bossHpText.setText(`HP ${Math.max(0, this.bossHp)} / ${this.bossMaxHp}`);
+      }
+    }
+
+    updateContinuousMovement(delta: number) {
+      this.teams.forEach((team) => {
+        const keyboardDirection = this.getKeyboardDirection(team.id);
+        const holdDirection = this.inputDirections[team.id] ?? 0;
+        const direction = holdDirection || keyboardDirection;
+        if (direction === 0) {
+          return;
+        }
+
+        const speed = 0.00064 + team.weaponLevel * 0.000025;
+        this.setTeamPosition(team.id, team.position + direction * speed * delta, false, false);
+      });
+    }
+
+    getKeyboardDirection(teamId: number) {
+      const keyPairs = [
+        ['p1Left', 'p1Right', 'p1AltLeft', 'p1AltRight'],
+        ['p2Left', 'p2Right'],
+        ['p3Left', 'p3Right'],
+        ['p4Left', 'p4Right']
+      ];
+      const keys = keyPairs[teamId] ?? [];
+      const leftPressed = keys
+        .filter((key) => key.toLowerCase().includes('left'))
+        .some((key) => this.inputKeys[key]?.isDown);
+      const rightPressed = keys
+        .filter((key) => key.toLowerCase().includes('right'))
+        .some((key) => this.inputKeys[key]?.isDown);
+      if (leftPressed === rightPressed) {
+        return 0;
+      }
+      return leftPressed ? -1 : 1;
+    }
+
+    setTeamDirection(teamId: number, direction: -1 | 0 | 1) {
+      this.inputDirections[teamId] = direction;
+    }
+
+    setTeamPositionFromPointer(panel: PanelView, x: number, pushStats: boolean) {
+      const baseY = panel.rect.y + panel.rect.height * 0.82;
+      const edges = this.roadEdges(panel.rect, baseY);
+      const position = (x - edges.left) / (edges.right - edges.left);
+      this.setTeamPosition(panel.teamId, position, false, pushStats);
+    }
+
+    moveTeam(teamId: number, delta: -1 | 1) {
+      const team = this.teams[teamId];
+      if (!team) {
+        return;
+      }
+      this.setTeamPosition(teamId, team.position + delta * 0.085, true, true);
+    }
+
+    setTeamPosition(teamId: number, position: number, animate: boolean, pushStats: boolean) {
+      const team = this.teams[teamId];
+      const panel = this.panels[teamId];
+      if (!team || !panel) {
+        return;
+      }
+
+      const nextPosition = clamp(position, 0.055, 0.945);
+      if (Math.abs(nextPosition - team.position) < 0.001) {
+        return;
+      }
+      team.position = nextPosition;
+      team.lane = nearestLane(nextPosition);
+      this.syncSoldiers(panel, team, animate);
+      this.movementDirty = true;
+      if (pushStats) {
+        callbacks.onStats(cloneTeams(this.teams));
+      }
+    }
+
+    finishGame() {
+      this.phase = 'finished';
+      const teams = cloneTeams(this.teams);
+      callbacks.onFinish({
+        teams,
+        winners: rankTeams(teams),
+        bossDefeated: this.bossHp <= 0,
+        totalRounds: this.round
+      });
+    }
+  }
+
+  config.scene = [RushScene];
+  return new Phaser.Game(config);
+}
+
+function getPanelRects(width: number, height: number, count: number): Rect[] {
+  const gap = 14;
+  const pad = 14;
+  const usableWidth = width - pad * 2;
+  const usableHeight = height - pad * 2;
+
+  if (count === 1) {
+    return [{ x: pad, y: pad, width: usableWidth, height: usableHeight }];
+  }
+
+  if (count === 2) {
+    const panelWidth = (usableWidth - gap) / 2;
+    return [0, 1].map((index) => ({
+      x: pad + index * (panelWidth + gap),
+      y: pad,
+      width: panelWidth,
+      height: usableHeight
+    }));
+  }
+
+  if (count === 3) {
+    const panelWidth = (usableWidth - gap * 2) / 3;
+    return [0, 1, 2].map((index) => ({
+      x: pad + index * (panelWidth + gap),
+      y: pad,
+      width: panelWidth,
+      height: usableHeight
+    }));
+  }
+
+  const wideBoard = width / height > 1.7 && width > 1260;
+  if (wideBoard) {
+    const panelWidth = (usableWidth - gap * 3) / 4;
+    return [0, 1, 2, 3].map((index) => ({
+      x: pad + index * (panelWidth + gap),
+      y: pad,
+      width: panelWidth,
+      height: usableHeight
+    }));
+  }
+
+  const panelWidth = (usableWidth - gap) / 2;
+  const panelHeight = (usableHeight - gap) / 2;
+  return [0, 1, 2, 3].map((index) => ({
+    x: pad + (index % 2) * (panelWidth + gap),
+    y: pad + Math.floor(index / 2) * (panelHeight + gap),
+    width: panelWidth,
+    height: panelHeight
+  }));
+}
