@@ -120,6 +120,7 @@ type PickupView = {
 };
 
 type PickupKind = 'rapid' | 'multi' | 'soldier' | 'shield' | 'rocket' | 'freeze' | 'heal' | 'magnet' | 'laser' | 'drone' | 'bomb' | 'overdrive';
+type SpriteRef = { texture: string; frame: number };
 
 type PanelView = {
   teamId: number;
@@ -145,19 +146,19 @@ const roadPerspective = {
   bottomRight: 1.018
 };
 const pickupKinds: PickupKind[] = ['rapid', 'multi', 'soldier', 'shield', 'rocket', 'freeze', 'heal', 'magnet', 'laser', 'drone', 'bomb', 'overdrive'];
-const pickupFrames: Record<PickupKind, number> = {
-  rapid: 10,
-  multi: 11,
-  soldier: 12,
-  shield: 13,
-  rocket: 14,
-  freeze: 15,
-  heal: 16,
-  magnet: 17,
-  laser: 18,
-  drone: 19,
-  bomb: 20,
-  overdrive: 21
+const pickupSprites: Record<PickupKind, SpriteRef> = {
+  rapid: { texture: 'runner-extra-atlas-v3', frame: 8 },
+  multi: { texture: 'runner-extra-atlas-v3', frame: 9 },
+  soldier: { texture: 'runner-extra-atlas-v3', frame: 10 },
+  shield: { texture: 'runner-extra-atlas-v3', frame: 11 },
+  rocket: { texture: 'runner-extra-atlas-v3', frame: 12 },
+  freeze: { texture: 'runner-extra-atlas-v3', frame: 13 },
+  heal: { texture: 'runner-extra-atlas-v3', frame: 14 },
+  magnet: { texture: 'runner-extra-atlas-v3', frame: 15 },
+  laser: { texture: 'projectiles-fx-sheet', frame: 3 },
+  drone: { texture: 'gates-pickups-sheet', frame: 5 },
+  bomb: { texture: 'projectiles-fx-sheet', frame: 4 },
+  overdrive: { texture: 'gates-pickups-sheet', frame: 7 }
 };
 
 const pickupLabels: Record<PickupKind, string> = {
@@ -175,7 +176,20 @@ const pickupLabels: Record<PickupKind, string> = {
   overdrive: 'MAX'
 };
 
-const enemyFrames = [0, 1, 2, 3, 4, 5, 6, 7, 9];
+const enemySprites: SpriteRef[] = [
+  { texture: 'runner-extra-atlas-v3', frame: 0 },
+  { texture: 'runner-extra-atlas-v3', frame: 1 },
+  { texture: 'runner-extra-atlas-v3', frame: 2 },
+  { texture: 'runner-extra-atlas-v3', frame: 3 },
+  { texture: 'runner-extra-atlas-v3', frame: 4 },
+  { texture: 'runner-extra-atlas-v3', frame: 5 },
+  { texture: 'runner-extra-atlas-v3', frame: 6 },
+  { texture: 'runner-extra-atlas-v3', frame: 7 },
+  { texture: 'runner-atlas-v2', frame: 4 },
+  { texture: 'runner-atlas-v2', frame: 5 },
+  { texture: 'runner-atlas-v2', frame: 6 },
+  { texture: 'runner-atlas-v2', frame: 7 }
+];
 
 const teamPalette: Record<TeamColor, { main: number; css: string }> = {
   blue: { main: 0x2d7cff, css: '#2d7cff' },
@@ -625,9 +639,17 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         frameWidth: 256,
         frameHeight: 256
       });
-      this.load.spritesheet('runner-combat-atlas-v4', `${v2AssetBase}/assets/runner-combat-atlas-v4.png`, {
+      this.load.spritesheet('gates-pickups-sheet', `${v2AssetBase}/assets/gates-pickups-sheet.png`, {
         frameWidth: 256,
         frameHeight: 256
+      });
+      this.load.spritesheet('projectiles-fx-sheet', `${v2AssetBase}/assets/projectiles-fx-sheet.png`, {
+        frameWidth: 256,
+        frameHeight: 256
+      });
+      this.load.spritesheet('boss-math-sheet', `${v2AssetBase}/assets/boss-math-sheet.png`, {
+        frameWidth: 384,
+        frameHeight: 384
       });
     }
 
@@ -773,10 +795,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       }).setOrigin(1, 0);
       this.worldLayer.add(statLabel);
 
-      const boss = this.add.sprite(rect.x + rect.width * 0.5, rect.y + rect.height * 0.23, 'runner-combat-atlas-v4', 8);
+      const boss = this.add.sprite(rect.x + rect.width * 0.5, rect.y + rect.height * 0.23, 'boss-math-sheet', 0);
       boss.setVisible(false);
       boss.setAlpha(0.72);
-      boss.setScale(Math.max(0.34, Math.min(0.86, rect.width / 860)));
+      boss.setScale(Math.max(0.24, Math.min(0.62, rect.width / 1180)));
       this.worldLayer.add(boss);
 
       const bossHpText = this.add.text(rect.x + rect.width * 0.5, rect.y + rect.height * 0.12, '', {
@@ -948,18 +970,19 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         const position = (lane + 0.5) / 3;
         const y = panel.rect.y + panel.rect.height * ([0.32, 0.24, 0.33][lane] ?? 0.31);
         const x = this.roadX(panel.rect, position, y);
-        const enemyFrame = mode === 'boss'
-          ? 8
-          : enemyFrames[(this.round * 2 + lane + panel.teamId) % enemyFrames.length];
-        const heavyBonus = [0, 9, 4, 13, 7, 15, 5, 11, 18][enemyFrame % 9] ?? 0;
-        const elite = mode === 'boss' || this.round >= 4 || enemyFrame >= 4 || (this.round + lane + panel.teamId) % 4 === 0;
+        const enemyIndex = (this.round * 2 + lane + panel.teamId) % enemySprites.length;
+        const enemySprite = mode === 'boss'
+          ? enemySprites[7]
+          : enemySprites[enemyIndex];
+        const heavyBonus = [0, 9, 4, 13, 7, 15, 5, 11, 18, 6, 14, 10][enemyIndex] ?? 0;
+        const elite = mode === 'boss' || this.round >= 4 || enemyIndex >= 4 || (this.round + lane + panel.teamId) % 4 === 0;
         const gauge = elite
           ? 42 + this.round * 5 + lane * 8 + heavyBonus
           : 24 + this.round * 3 + lane * 5 + Math.floor(heavyBonus / 2);
         const root = this.add.container(x, y);
         root.setScale(this.targetPerspectiveScale(panel.rect, y));
         root.setDepth(Math.floor(y) + 520);
-        const monster = this.add.sprite(0, -6, 'runner-combat-atlas-v4', enemyFrame);
+        const monster = this.add.sprite(0, -6, enemySprite.texture, enemySprite.frame);
         monster.setScale(elite ? scale * 0.92 : scale * 0.78);
         const barWidth = Math.max(78, panel.rect.width * 0.13);
         const barBack = this.add.rectangle(-barWidth / 2, -105, barWidth, 13, 0x1a2637, 0.92).setOrigin(0, 0.5);
@@ -1006,11 +1029,12 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const team = this.teams[panel.teamId];
       const kind = pickupKinds[(this.round + panel.teamId * 2) % pickupKinds.length];
       const position = ((this.round + panel.teamId + (this.round % 2)) % 3 + 0.5) / 3;
+      const pickupSprite = pickupSprites[kind];
       const root = this.add.container(0, 0);
-      const glow = this.add.sprite(0, 0, 'runner-combat-atlas-v4', 26);
-      glow.setScale(Math.max(0.2, Math.min(0.46, panel.rect.width / 1120)));
-      glow.setAlpha(0.36);
-      const item = this.add.sprite(0, 0, 'runner-combat-atlas-v4', pickupFrames[kind]);
+      const glow = this.add.sprite(0, 0, 'projectiles-fx-sheet', 9);
+      glow.setScale(Math.max(0.2, Math.min(0.44, panel.rect.width / 1180)));
+      glow.setAlpha(0.5);
+      const item = this.add.sprite(0, 0, pickupSprite.texture, pickupSprite.frame);
       item.setScale(Math.max(0.25, Math.min(0.5, panel.rect.width / 960)));
       const label = this.add.text(0, -2, pickupLabels[kind], {
         color: '#ffffff',
@@ -1208,8 +1232,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const burst = this.add.sprite(
         panel.rect.x + panel.rect.width * 0.5,
         panel.rect.y + panel.rect.height * 0.55,
-        'runner-combat-atlas-v4',
-        27
+        'projectiles-fx-sheet',
+        8
       );
       burst.setScale(Math.max(0.65, Math.min(1.4, panel.rect.width / 720)));
       burst.setAlpha(0.78);
@@ -1256,12 +1280,13 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const root = soldier.root as any;
       const laserActive = team.laserUntil > this.roundElapsed;
       const missileBoost = team.missileUntil > this.roundElapsed || team.weaponLevel >= 3;
-      const bulletFrame = laserActive ? 24 : missileBoost ? 23 : 22;
+      const bulletTexture = laserActive ? 'projectiles-fx-sheet' : 'runner-atlas-v2';
+      const bulletFrame = laserActive ? 2 : 13;
       const launchY = root.y - 22;
       const launchPosition = clamp(this.roadPositionFromX(panel.rect, root.x + 10, launchY) + roadOffset, 0.04, 0.96);
       const launchX = this.roadX(panel.rect, launchPosition, launchY);
-      const bullet = this.add.sprite(launchX, launchY, 'runner-combat-atlas-v4', bulletFrame);
-      const scaleBase = Math.max(0.1, Math.min(0.23, panel.rect.width / 2100)) * (laserActive ? 1.35 : missileBoost ? 1.24 : 1);
+      const bullet = this.add.sprite(launchX, launchY, bulletTexture, bulletFrame);
+      const scaleBase = Math.max(0.1, Math.min(0.23, panel.rect.width / 2100)) * (laserActive ? 1.3 : missileBoost ? 1.45 : 1.16);
       bullet.setScale(scaleBase * this.projectilePerspectiveScale(panel.rect, launchY));
       bullet.setAlpha(0.95);
       bullet.rotation = -Math.PI / 2;
@@ -1375,7 +1400,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         ease: 'Quad.easeOut',
         onComplete: () => damageText.destroy()
       });
-      const spark = this.add.sprite(root.x, root.y + 12, 'runner-combat-atlas-v4', 26);
+      const spark = this.add.sprite(root.x, root.y + 12, 'projectiles-fx-sheet', 4);
       spark.setScale(Math.max(0.18, Math.min(0.38, panel.rect.width / 1240)) * targetScale);
       spark.setAlpha(0.9);
       this.fxLayer.add(spark);
@@ -1406,7 +1431,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       target.defeated = true;
       const root = target.root as any;
       const targetScale = Math.max(0.72, Number(root.scaleX ?? 1));
-      const boom = this.add.sprite(root.x, root.y, 'runner-combat-atlas-v4', 27);
+      const boom = this.add.sprite(root.x, root.y, 'projectiles-fx-sheet', 8);
       boom.setScale(Math.max(0.34, Math.min(0.68, panel.rect.width / 860)) * targetScale);
       this.fxLayer.add(boom);
       this.tweens.add({
