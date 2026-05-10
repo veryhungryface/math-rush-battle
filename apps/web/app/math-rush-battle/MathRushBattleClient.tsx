@@ -28,6 +28,8 @@ type TeamStatus = {
   teamName: string;
   color: TeamColor;
   score: number;
+  hp: number;
+  maxHp: number;
   soldiers: number;
   combo: number;
   maxCombo: number;
@@ -95,6 +97,7 @@ type TargetView = {
   maxHp: number;
   correct: boolean;
   defeated: boolean;
+  breached: boolean;
   root: unknown;
   choiceLabel: unknown;
   energyFill: unknown;
@@ -113,6 +116,7 @@ type BlockerView = {
   root: unknown;
   energyFill: unknown;
   defeated: boolean;
+  breached: boolean;
   swayAmplitude: number;
   swaySpeed: number;
   phase: number;
@@ -154,6 +158,8 @@ type PanelView = {
   bossHpText: unknown;
   teamLabel: unknown;
   statLabel: unknown;
+  baseHpFill: unknown;
+  baseHpText: unknown;
   verdict: unknown;
 };
 
@@ -230,6 +236,8 @@ function createTeams(playerCount: number): TeamStatus[] {
     id: index,
     ...seed,
     score: 0,
+    hp: 100,
+    maxHp: 100,
     soldiers: 1,
     combo: 0,
     maxCombo: 0,
@@ -460,13 +468,13 @@ export default function MathRushBattleClient() {
         <section className={styles.gameScreen}>
           <div className={styles.playField}>
             <div className={styles.topHud}>
-              <div className={styles.problemPanel}>
-                <span>{round?.mode === 'boss' ? 'BOSS ROUND' : round?.problem.unit ?? 'READY'}</span>
-                <strong>{round?.problem.prompt ?? '전투 준비 중...'}</strong>
-              </div>
               <div className={styles.roundPanel}>
                 <span>ROUND</span>
                 <strong>{round?.number ?? 1}</strong>
+              </div>
+              <div className={styles.problemPanel}>
+                <span>{round?.mode === 'boss' ? 'BOSS ROUND' : round?.problem.unit ?? 'READY'}</span>
+                <strong>{round?.problem.prompt ?? '전투 준비 중...'}</strong>
               </div>
               <div className={styles.bossPanel}>
                 <span>{round?.mode === 'boss' ? 'BOSS HP' : 'MISSION'}</span>
@@ -516,6 +524,10 @@ export default function MathRushBattleClient() {
                     <div>
                       <dt>남은 인원</dt>
                       <dd>{team.soldiers}</dd>
+                    </div>
+                    <div>
+                      <dt>기지 HP</dt>
+                      <dd>{team.hp}/{team.maxHp}</dd>
                     </div>
                     <div>
                       <dt>무기</dt>
@@ -635,7 +647,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.round = 0;
       this.maxRounds = 9;
       this.bossStartRound = 6;
-      this.bossMaxHp = 70 + callbacks.playerCount * 18;
+      this.bossMaxHp = 160 + callbacks.playerCount * 45;
       this.bossHp = this.bossMaxHp;
       this.roundElapsed = 0;
       this.roundDuration = 12800;
@@ -913,6 +925,25 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       }).setOrigin(0.5).setAlpha(0);
       this.worldLayer.add(verdict);
 
+      const baseHpWidth = Math.max(180, Math.min(340, rect.width * 0.34));
+      const baseHpY = rect.y + rect.height - 34;
+      const baseHpX = rect.x + rect.width * 0.5 - baseHpWidth / 2;
+      const baseHpBack = this.add.rectangle(baseHpX, baseHpY, baseHpWidth, 18, 0x111a2a, 0.86).setOrigin(0, 0.5);
+      baseHpBack.setStrokeStyle(2, 0xffffff, 0.38);
+      const baseHpFill = this.add.rectangle(baseHpX + 3, baseHpY, baseHpWidth - 6, 12, 0x5ff27a, 1).setOrigin(0, 0.5);
+      const baseHpText = this.add.text(rect.x + rect.width * 0.5, baseHpY - 24, '', {
+        align: 'center',
+        color: '#fff9d6',
+        fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
+        fontSize: `${Math.max(12, rect.width * 0.018)}px`,
+        fontStyle: '950',
+        stroke: '#101827',
+        strokeThickness: 4
+      }).setOrigin(0.5);
+      this.worldLayer.add(baseHpBack);
+      this.worldLayer.add(baseHpFill);
+      this.worldLayer.add(baseHpText);
+
       const panel: PanelView = {
         teamId: team.id,
         rect,
@@ -925,6 +956,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         bossHpText,
         teamLabel,
         statLabel,
+        baseHpFill,
+        baseHpText,
         verdict
       };
       this.panels.push(panel);
@@ -991,6 +1024,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
 
     projectileCeilingY(rect: Rect) {
       return this.roadTopY(rect) + rect.height * 0.018;
+    }
+
+    defenseLineY(rect: Rect) {
+      return rect.y + rect.height * 0.79;
     }
 
     roadX(rect: Rect, position: number, y: number) {
@@ -1130,6 +1167,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           maxHp: gauge,
           correct,
           defeated: false,
+          breached: false,
           root,
           choiceLabel,
           energyFill,
@@ -1137,7 +1175,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           swayAmplitude: correct ? 0.026 : 0.018,
           swaySpeed: 1.15 + ((this.round + lane + panel.teamId) % 3) * 0.22,
           phase: (this.round + lane * 1.37 + panel.teamId * 0.7) * Math.PI * 0.5,
-          speedMultiplier: 0.92 + ((this.round + lane + panel.teamId) % 4) * 0.055
+          speedMultiplier: 1 + ((this.round + lane + panel.teamId) % 4) * 0.06
         });
       });
     }
@@ -1209,6 +1247,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           root,
           energyFill,
           defeated: false,
+          breached: false,
           swayAmplitude: 0.08 + index * 0.035,
           swaySpeed: fastDrop ? 2.4 : 1.55,
           phase: (this.round + panel.teamId * 1.7 + index * 1.2) * Math.PI * 0.45,
@@ -1247,14 +1286,21 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const progress = clamp(this.roundElapsed / this.roundDuration, 0, 1);
       this.panels.forEach((panel) => {
         panel.targets.forEach((target) => {
+          if (target.defeated) {
+            return;
+          }
           const wave = Math.sin(progress * Math.PI * 2 * target.swaySpeed + target.phase) * target.swayAmplitude;
-          const y = target.baseY + panel.rect.height * 0.29 * progress * target.speedMultiplier;
+          const travel = clamp(progress * target.speedMultiplier, 0, 1);
+          const y = lerp(target.baseY, this.defenseLineY(panel.rect) + panel.rect.height * 0.01, travel);
           const position = clamp(target.position + wave, 0.09, 0.91);
           const x = this.roadX(panel.rect, position, y);
           const root = target.root as any;
           root.setPosition(x, y);
           root.setScale(this.targetPerspectiveScale(panel.rect, y));
           root.setDepth(Math.floor(y) + 520);
+          if (y >= this.defenseLineY(panel.rect) && !target.breached) {
+            this.breachTarget(panel, target);
+          }
         });
       });
     }
@@ -1267,7 +1313,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
             return;
           }
           const wave = Math.sin(progress * Math.PI * 2 * blocker.swaySpeed + blocker.phase) * blocker.swayAmplitude;
-          const y = blocker.baseY + panel.rect.height * 0.34 * progress * blocker.speedMultiplier;
+          const travel = clamp(progress * blocker.speedMultiplier, 0, 1);
+          const y = lerp(blocker.baseY, this.defenseLineY(panel.rect) + panel.rect.height * 0.025, travel);
           const position = clamp(blocker.position + wave, 0.12, 0.88);
           const x = this.roadX(panel.rect, position, y);
           const root = blocker.root as any;
@@ -1277,8 +1324,118 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           if (progress > 0.9) {
             root.setAlpha(lerp(1, 0.46, (progress - 0.9) / 0.1));
           }
+          if (y >= this.defenseLineY(panel.rect) && !blocker.breached) {
+            this.breachBlocker(panel, blocker);
+          }
         });
       });
+    }
+
+    breachTarget(panel: PanelView, target: TargetView) {
+      if (target.breached || target.defeated) {
+        return;
+      }
+      const team = this.teams[panel.teamId];
+      if (!team) {
+        return;
+      }
+      target.breached = true;
+      target.defeated = true;
+      const root = target.root as any;
+      const damage = target.correct ? 28 : target.elite ? 18 : 12;
+      this.playBaseImpact(panel, root.x, root.y, damage);
+      this.applyBaseDamage(panel, team, damage, target.correct ? '정답 악당 침입!' : 'BASE HIT!');
+      this.tweens.add({
+        targets: root,
+        alpha: 0,
+        scale: root.scale * 1.18,
+        duration: 220,
+        ease: 'Quad.easeOut',
+        onComplete: () => root.destroy()
+      });
+      if (target.correct) {
+        this.resolveTeamMiss(panel, team, '정답 놓침!');
+      }
+    }
+
+    breachBlocker(panel: PanelView, blocker: BlockerView) {
+      if (blocker.breached || blocker.defeated) {
+        return;
+      }
+      const team = this.teams[panel.teamId];
+      if (!team) {
+        return;
+      }
+      blocker.breached = true;
+      blocker.defeated = true;
+      const root = blocker.root as any;
+      const damage = blocker.maxHp >= 420 ? 28 : 20;
+      this.playBaseImpact(panel, root.x, root.y, damage);
+      this.applyBaseDamage(panel, team, damage, '방해몹 충돌!');
+      this.tweens.add({
+        targets: root,
+        alpha: 0,
+        scale: root.scale * 1.08,
+        duration: 260,
+        ease: 'Quad.easeOut',
+        onComplete: () => root.destroy()
+      });
+    }
+
+    playBaseImpact(panel: PanelView, x: number, y: number, damage: number) {
+      const impact = this.add.sprite(x, Math.max(y, this.defenseLineY(panel.rect)), 'projectiles-fx-sheet', 8);
+      impact.setScale(Math.max(0.42, Math.min(0.9, panel.rect.width / 780)));
+      impact.setDepth(Math.floor(y) + 980);
+      this.fxLayer.add(impact);
+      this.tweens.add({
+        targets: impact,
+        alpha: 0,
+        scale: impact.scale * 1.7,
+        duration: 380,
+        ease: 'Back.easeOut',
+        onComplete: () => impact.destroy()
+      });
+      const text = this.add.text(x, this.defenseLineY(panel.rect) - panel.rect.height * 0.05, `BASE -${damage}`, {
+        align: 'center',
+        color: '#ffdf7b',
+        fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
+        fontSize: `${Math.max(17, panel.rect.width * 0.03)}px`,
+        fontStyle: '950',
+        stroke: '#3a120c',
+        strokeThickness: 5
+      }).setOrigin(0.5);
+      this.fxLayer.add(text);
+      this.tweens.add({
+        targets: text,
+        y: text.y - 32,
+        alpha: 0,
+        duration: 520,
+        ease: 'Quad.easeOut',
+        onComplete: () => text.destroy()
+      });
+      this.cameras.main.shake(70, 0.002);
+    }
+
+    applyBaseDamage(panel: PanelView, team: TeamStatus, damage: number, message: string) {
+      if (team.hp <= 0) {
+        return;
+      }
+      if (team.shield > 0) {
+        team.shield -= 1;
+        this.setPanelVerdict(panel, 'SHIELD BLOCK!');
+        this.refreshPanelStats(team.id);
+        callbacks.onStats(cloneTeams(this.teams));
+        return;
+      }
+      team.hp = Math.max(0, team.hp - damage);
+      team.combo = 0;
+      team.score = Math.max(0, team.score - Math.floor(damage * 1.8));
+      this.setPanelVerdict(panel, team.hp <= 0 ? 'BASE DOWN!' : message);
+      this.refreshPanelStats(team.id);
+      callbacks.onStats(cloneTeams(this.teams));
+      if (team.hp <= 0) {
+        this.resolveTeamMiss(panel, team, 'BASE DOWN!');
+      }
     }
 
     updatePickupPositions() {
@@ -1681,6 +1838,45 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.cameras.main.shake(46, 0.0014);
     }
 
+    updateBossHud() {
+      this.panels.forEach((panel) => {
+        const bossHpText = panel.bossHpText as any;
+        if (this.round >= this.bossStartRound) {
+          bossHpText.setText(`HP ${Math.max(0, this.bossHp)} / ${this.bossMaxHp}`);
+        }
+      });
+      if (this.problem) {
+        callbacks.onRound({
+          number: this.round,
+          mode: this.round >= this.bossStartRound ? 'boss' : 'targets',
+          problem: this.problem,
+          bossHp: this.bossHp,
+          bossMaxHp: this.bossMaxHp,
+          message: this.round >= this.bossStartRound ? '정답 악당 타격으로 보스 HP 감소' : '배 숫자 정답 찾기'
+        });
+      }
+    }
+
+    damageBoss(panel: PanelView, damage: number) {
+      if (this.round < this.bossStartRound || this.bossHp <= 0) {
+        return;
+      }
+      this.bossHp = Math.max(0, this.bossHp - damage);
+      this.updateBossHud();
+      const boss = panel.boss as any;
+      this.tweens.add({
+        targets: boss,
+        scale: boss.scale * 1.08,
+        duration: 70,
+        yoyo: true,
+        ease: 'Quad.easeOut'
+      });
+      if (this.bossHp <= 0) {
+        this.setPanelVerdict(panel, 'BOSS DOWN!');
+        this.cameras.main.shake(120, 0.0032);
+      }
+    }
+
     hitTarget(panel: PanelView, team: TeamStatus, target: TargetView, damage: number) {
       if (target.defeated) {
         return;
@@ -1690,6 +1886,14 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const targetScale = Math.max(0.72, Number(root.scaleX ?? 1));
       target.hp = Math.max(0, target.hp - damage);
       energyFill.setScale(Math.max(0.02, target.hp / target.maxHp), 1);
+      const bossMode = this.round >= this.bossStartRound;
+      if (bossMode && target.correct) {
+        this.damageBoss(panel, Math.max(1, Math.floor(damage * 0.9)));
+        if (this.bossHp <= 0) {
+          target.hp = 0;
+          energyFill.setScale(0.02, 1);
+        }
+      }
       const damageText = this.add.text(root.x, root.y - 116 * targetScale, `-${damage}`, {
         color: '#fff5a8',
         fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
@@ -1775,10 +1979,6 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       if (team.combo > 0 && team.combo % 3 === 0) {
         team.weaponLevel = Math.min(5, team.weaponLevel + 1);
       }
-      if (bossMode) {
-        this.bossHp = Math.max(0, this.bossHp - (team.soldiers * 4 + team.weaponLevel * 7));
-        (panel.bossHpText as any).setText(`HP ${Math.max(0, this.bossHp)} / ${this.bossMaxHp}`);
-      }
       this.setPanelVerdict(panel, team.combo >= 2 ? `${team.combo} COMBO!` : '정답 파괴!');
       this.refreshPanelStats(team.id);
       callbacks.onStats(cloneTeams(this.teams));
@@ -1793,6 +1993,29 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.scheduleNextRound();
     }
 
+    resolveTeamMiss(panel: PanelView, team: TeamStatus, message: string) {
+      if (!this.problem || this.resolvedTeams.has(team.id)) {
+        return;
+      }
+      const bossMode = this.round >= this.bossStartRound;
+      this.resolvedTeams.add(team.id);
+      team.attempts += 1;
+      team.combo = 0;
+      team.score = Math.max(0, team.score - 25);
+      this.setPanelVerdict(panel, message);
+      this.refreshPanelStats(team.id);
+      callbacks.onStats(cloneTeams(this.teams));
+      callbacks.onRound({
+        number: this.round,
+        mode: bossMode ? 'boss' : 'targets',
+        problem: this.problem,
+        bossHp: this.bossHp,
+        bossMaxHp: this.bossMaxHp,
+        message: bossMode ? '보스 공격 방어 실패' : '방어선 피해'
+      });
+      this.scheduleNextRound();
+    }
+
     resolveMissedTeams() {
       this.teams.forEach((team) => {
         if (this.resolvedTeams.has(team.id)) {
@@ -1802,17 +2025,12 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         if (!panel) {
           return;
         }
-        this.resolvedTeams.add(team.id);
-        team.attempts += 1;
-        team.combo = 0;
-        if (team.shield > 0) {
-          team.shield -= 1;
-          this.setPanelVerdict(panel, 'SHIELD BLOCK!');
-        } else {
-          team.soldiers = Math.max(1, team.soldiers - 1);
-          team.score = Math.max(0, team.score - 35);
-          this.setPanelVerdict(panel, '놓쳤다!');
-        }
+        const liveCorrectTarget = panel.targets.find((target) => target.correct && !target.defeated && !target.breached);
+        const fallbackX = panel.rect.x + panel.rect.width * 0.5;
+        const impactX = liveCorrectTarget ? (liveCorrectTarget.root as any).x : fallbackX;
+        this.playBaseImpact(panel, impactX, this.defenseLineY(panel.rect), 12);
+        this.applyBaseDamage(panel, team, 12, '시간 초과!');
+        this.resolveTeamMiss(panel, team, '놓쳤다!');
         this.syncSoldiers(panel, team, true);
         this.refreshPanelStats(team.id);
       });
@@ -1939,7 +2157,13 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         team.spreadUntil > this.roundElapsed ? '3WAY' : '',
         team.magnetPower > 0 ? '자석' : ''
       ].filter(Boolean).slice(0, 2).join(' ');
-      statLabel.setText(`${team.score}점  인원 ${team.soldiers}  Lv.${team.weaponLevel}  x${team.combo}${boosts ? `  ${boosts}` : ''}`);
+      statLabel.setText(`${team.score}점  HP ${team.hp}/${team.maxHp}  인원 ${team.soldiers}  Lv.${team.weaponLevel}${boosts ? `  ${boosts}` : ''}`);
+      const hpRatio = clamp(team.hp / team.maxHp, 0, 1);
+      const baseHpFill = panel.baseHpFill as any;
+      const baseHpText = panel.baseHpText as any;
+      baseHpFill.setScale(Math.max(0.02, hpRatio), 1);
+      baseHpFill.setFillStyle(hpRatio > 0.55 ? 0x5ff27a : hpRatio > 0.25 ? 0xffd75f : 0xff5d57, 1);
+      baseHpText.setText(`BASE HP ${team.hp} / ${team.maxHp}`);
       const bossHpText = panel.bossHpText as any;
       if (this.round >= this.bossStartRound) {
         bossHpText.setText(`HP ${Math.max(0, this.bossHp)} / ${this.bossMaxHp}`);
