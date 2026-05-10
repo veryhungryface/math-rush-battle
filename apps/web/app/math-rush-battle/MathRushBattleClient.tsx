@@ -140,7 +140,7 @@ type PickupView = {
 type PickupKind = 'rapid' | 'multi' | 'soldier' | 'shield' | 'rocket' | 'freeze' | 'heal' | 'magnet' | 'laser' | 'drone' | 'bomb' | 'overdrive';
 type SpriteRef = { texture: string; frame: number };
 type EnemySpriteRef = SpriteRef & { anim: string };
-type BlockerSpriteRef = SpriteRef & { scale: number; hpBoost: number };
+type BlockerSpriteRef = SpriteRef & { scale: number; hpBoost: number; anim: string };
 
 type PanelView = {
   teamId: number;
@@ -197,19 +197,18 @@ const pickupLabels: Record<PickupKind, string> = {
   overdrive: 'MAX'
 };
 
-const enemyMotionFrameCount = 4;
+const actionFrameCount = 4;
 const enemySprites: EnemySpriteRef[] = Array.from({ length: 12 }, (_, index) => ({
-  texture: 'enemy-motion-atlas-v1',
-  frame: index * enemyMotionFrameCount,
-  anim: `enemy-motion-${index}`
+  texture: 'enemy-walk-sheet-v1',
+  frame: (index % 4) * actionFrameCount,
+  anim: `enemy-walk-${index % 4}`
 }));
 
 const blockerSprites: BlockerSpriteRef[] = [
-  { texture: 'boss-math-sheet', frame: 1, scale: 1.08, hpBoost: 72 },
-  { texture: 'boss-math-sheet', frame: 2, scale: 1.14, hpBoost: 88 },
-  { texture: 'boss-math-sheet', frame: 3, scale: 1.2, hpBoost: 108 },
-  { texture: 'runner-extra-atlas-v3', frame: 5, scale: 1.22, hpBoost: 62 },
-  { texture: 'runner-extra-atlas-v3', frame: 7, scale: 1.18, hpBoost: 78 }
+  { texture: 'enemy-walk-sheet-v1', frame: 2 * actionFrameCount, scale: 1.18, hpBoost: 108, anim: 'enemy-walk-2' },
+  { texture: 'enemy-walk-sheet-v1', frame: 3 * actionFrameCount, scale: 1.22, hpBoost: 96, anim: 'enemy-walk-3' },
+  { texture: 'enemy-walk-sheet-v1', frame: 1 * actionFrameCount, scale: 1.12, hpBoost: 84, anim: 'enemy-walk-1' },
+  { texture: 'enemy-walk-sheet-v1', frame: 0, scale: 1.2, hpBoost: 72, anim: 'enemy-walk-0' }
 ];
 
 const teamPalette: Record<TeamColor, { main: number; css: string }> = {
@@ -660,7 +659,11 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         frameWidth: 256,
         frameHeight: 256
       });
-      this.load.spritesheet('enemy-motion-atlas-v1', `${v2AssetBase}/assets/enemy-motion-atlas-v1.png`, {
+      this.load.spritesheet('hero-run-shoot-sheet-v1', `${v2AssetBase}/assets/hero-run-shoot-sheet-v1.png`, {
+        frameWidth: 256,
+        frameHeight: 256
+      });
+      this.load.spritesheet('enemy-walk-sheet-v1', `${v2AssetBase}/assets/enemy-walk-sheet-v1.png`, {
         frameWidth: 256,
         frameHeight: 256
       });
@@ -681,6 +684,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     create() {
       this.worldLayer = this.add.container(0, 0);
       this.fxLayer = this.add.container(0, 0);
+      this.createHeroAnimations();
       this.createEnemyAnimations();
       this.rebuildArena();
       this.bindInput();
@@ -700,11 +704,29 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         }
         this.anims.create({
           key: sprite.anim,
-          frames: Array.from({ length: enemyMotionFrameCount }, (_, frameIndex) => ({
+          frames: Array.from({ length: actionFrameCount }, (_, frameIndex) => ({
             key: sprite.texture,
             frame: sprite.frame + frameIndex
           })),
           frameRate: 7 + (index % 3),
+          repeat: -1
+        });
+      });
+    }
+
+    createHeroAnimations() {
+      teamSeeds.forEach((_, teamIndex) => {
+        const key = `hero-run-shoot-${teamIndex}`;
+        if (this.anims.exists(key)) {
+          return;
+        }
+        this.anims.create({
+          key,
+          frames: Array.from({ length: actionFrameCount }, (_, frameIndex) => ({
+            key: 'hero-run-shoot-sheet-v1',
+            frame: teamIndex * actionFrameCount + frameIndex
+          })),
+          frameRate: 9,
           repeat: -1
         });
       });
@@ -1143,6 +1165,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         aura.setAlpha(fastDrop ? 0.58 : 0.4);
         const body = this.add.sprite(0, 0, sprite.texture, sprite.frame);
         body.setScale(baseScale * sprite.scale);
+        body.play(sprite.anim);
         this.tweens.add({
           targets: body,
           angle: fastDrop ? 3.2 : 2.1,
@@ -1833,8 +1856,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     createSoldierView(team: TeamStatus) {
       const root = this.add.container(0, 0);
       const shadow = this.add.ellipse(0, 27, 74, 18, 0x0b1020, 0.24);
-      const sprite = this.add.sprite(0, -12, 'runner-atlas-v2', team.id);
+      const sprite = this.add.sprite(0, -12, 'hero-run-shoot-sheet-v1', team.id * actionFrameCount);
       sprite.setScale(0.36);
+      sprite.play(`hero-run-shoot-${team.id}`);
       root.add([shadow, sprite]);
       this.worldLayer.add(root);
       return { root };
