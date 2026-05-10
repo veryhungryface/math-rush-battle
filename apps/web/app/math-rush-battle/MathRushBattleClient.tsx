@@ -99,6 +99,10 @@ type TargetView = {
   choiceLabel: unknown;
   energyFill: unknown;
   baseY: number;
+  swayAmplitude: number;
+  swaySpeed: number;
+  phase: number;
+  speedMultiplier: number;
 };
 
 type BlockerView = {
@@ -135,6 +139,7 @@ type PickupView = {
 
 type PickupKind = 'rapid' | 'multi' | 'soldier' | 'shield' | 'rocket' | 'freeze' | 'heal' | 'magnet' | 'laser' | 'drone' | 'bomb' | 'overdrive';
 type SpriteRef = { texture: string; frame: number };
+type EnemySpriteRef = SpriteRef & { anim: string };
 type BlockerSpriteRef = SpriteRef & { scale: number; hpBoost: number };
 
 type PanelView = {
@@ -192,20 +197,12 @@ const pickupLabels: Record<PickupKind, string> = {
   overdrive: 'MAX'
 };
 
-const enemySprites: SpriteRef[] = [
-  { texture: 'runner-extra-atlas-v3', frame: 0 },
-  { texture: 'runner-extra-atlas-v3', frame: 1 },
-  { texture: 'runner-extra-atlas-v3', frame: 2 },
-  { texture: 'runner-extra-atlas-v3', frame: 3 },
-  { texture: 'runner-extra-atlas-v3', frame: 4 },
-  { texture: 'runner-extra-atlas-v3', frame: 5 },
-  { texture: 'runner-extra-atlas-v3', frame: 6 },
-  { texture: 'runner-extra-atlas-v3', frame: 7 },
-  { texture: 'runner-atlas-v2', frame: 4 },
-  { texture: 'runner-atlas-v2', frame: 5 },
-  { texture: 'runner-atlas-v2', frame: 6 },
-  { texture: 'runner-atlas-v2', frame: 7 }
-];
+const enemyMotionFrameCount = 4;
+const enemySprites: EnemySpriteRef[] = Array.from({ length: 12 }, (_, index) => ({
+  texture: 'enemy-motion-atlas-v1',
+  frame: index * enemyMotionFrameCount,
+  anim: `enemy-motion-${index}`
+}));
 
 const blockerSprites: BlockerSpriteRef[] = [
   { texture: 'boss-math-sheet', frame: 1, scale: 1.08, hpBoost: 72 },
@@ -663,6 +660,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         frameWidth: 256,
         frameHeight: 256
       });
+      this.load.spritesheet('enemy-motion-atlas-v1', `${v2AssetBase}/assets/enemy-motion-atlas-v1.png`, {
+        frameWidth: 256,
+        frameHeight: 256
+      });
       this.load.spritesheet('gates-pickups-sheet', `${v2AssetBase}/assets/gates-pickups-sheet.png`, {
         frameWidth: 256,
         frameHeight: 256
@@ -680,6 +681,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     create() {
       this.worldLayer = this.add.container(0, 0);
       this.fxLayer = this.add.container(0, 0);
+      this.createEnemyAnimations();
       this.rebuildArena();
       this.bindInput();
       callbacks.onStats(cloneTeams(this.teams));
@@ -689,6 +691,23 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         setTeamDirection: (teamId, direction) => this.setTeamDirection(teamId, direction)
       });
       this.time.delayedCall(400, () => this.startRound());
+    }
+
+    createEnemyAnimations() {
+      enemySprites.forEach((sprite, index) => {
+        if (this.anims.exists(sprite.anim)) {
+          return;
+        }
+        this.anims.create({
+          key: sprite.anim,
+          frames: Array.from({ length: enemyMotionFrameCount }, (_, frameIndex) => ({
+            key: sprite.texture,
+            frame: sprite.frame + frameIndex
+          })),
+          frameRate: 7 + (index % 3),
+          repeat: -1
+        });
+      });
     }
 
     update(_time: number, delta: number) {
@@ -996,6 +1015,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     createTargets(panel: PanelView, problem: Problem, mode: RoundMode) {
       const scale = Math.max(0.36, Math.min(0.82, panel.rect.width / 820));
       problem.choices.forEach((choice, lane) => {
+        const correct = choice === problem.answer;
         const position = (lane + 0.5) / 3;
         const y = panel.rect.y + panel.rect.height * ([0.32, 0.24, 0.33][lane] ?? 0.31);
         const x = this.roadX(panel.rect, position, y);
@@ -1013,6 +1033,16 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         root.setDepth(Math.floor(y) + 520);
         const monster = this.add.sprite(0, -6, enemySprite.texture, enemySprite.frame);
         monster.setScale(elite ? scale * 0.92 : scale * 0.78);
+        monster.play(enemySprite.anim);
+        this.tweens.add({
+          targets: monster,
+          angle: (lane % 2 === 0 ? 2.2 : -2.2),
+          y: -11,
+          duration: 360 + (enemyIndex % 3) * 70,
+          ease: 'Sine.easeInOut',
+          yoyo: true,
+          repeat: -1
+        });
         const barWidth = Math.max(78, panel.rect.width * 0.13);
         const barBack = this.add.rectangle(-barWidth / 2, -105, barWidth, 13, 0x1a2637, 0.92).setOrigin(0, 0.5);
         barBack.setStrokeStyle(2, 0xffffff, 0.65);
@@ -1044,12 +1074,16 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           elite,
           hp: gauge,
           maxHp: gauge,
-          correct: choice === problem.answer,
+          correct,
           defeated: false,
           root,
           choiceLabel,
           energyFill,
-          baseY: y
+          baseY: y,
+          swayAmplitude: correct ? 0.026 : 0.018,
+          swaySpeed: 1.15 + ((this.round + lane + panel.teamId) % 3) * 0.22,
+          phase: (this.round + lane * 1.37 + panel.teamId * 0.7) * Math.PI * 0.5,
+          speedMultiplier: 0.92 + ((this.round + lane + panel.teamId) % 4) * 0.055
         });
       });
     }
@@ -1077,6 +1111,29 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         aura.setAlpha(fastDrop ? 0.58 : 0.4);
         const body = this.add.sprite(0, 0, sprite.texture, sprite.frame);
         body.setScale(baseScale * sprite.scale);
+        this.tweens.add({
+          targets: body,
+          angle: fastDrop ? 3.2 : 2.1,
+          duration: fastDrop ? 280 : 430,
+          ease: 'Sine.easeInOut',
+          yoyo: true,
+          repeat: -1
+        });
+        this.tweens.add({
+          targets: body,
+          scaleX: baseScale * sprite.scale * 0.97,
+          scaleY: baseScale * sprite.scale * 1.035,
+          duration: fastDrop ? 240 : 380,
+          ease: 'Sine.easeInOut',
+          yoyo: true,
+          repeat: -1
+        });
+        this.tweens.add({
+          targets: aura,
+          angle: 360,
+          duration: fastDrop ? 1100 : 1800,
+          repeat: -1
+        });
         const barWidth = Math.max(132, panel.rect.width * 0.2);
         const barBack = this.add.rectangle(-barWidth / 2, -142, barWidth, 18, 0x21131b, 0.94).setOrigin(0, 0.5);
         barBack.setStrokeStyle(3, 0xfff0a8, 0.82);
@@ -1134,8 +1191,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const progress = clamp(this.roundElapsed / this.roundDuration, 0, 1);
       this.panels.forEach((panel) => {
         panel.targets.forEach((target) => {
-          const y = target.baseY + panel.rect.height * 0.24 * progress;
-          const x = this.roadX(panel.rect, target.position, y);
+          const wave = Math.sin(progress * Math.PI * 2 * target.swaySpeed + target.phase) * target.swayAmplitude;
+          const y = target.baseY + panel.rect.height * 0.29 * progress * target.speedMultiplier;
+          const position = clamp(target.position + wave, 0.09, 0.91);
+          const x = this.roadX(panel.rect, position, y);
           const root = target.root as any;
           root.setPosition(x, y);
           root.setScale(this.targetPerspectiveScale(panel.rect, y));
