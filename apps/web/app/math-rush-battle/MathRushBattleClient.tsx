@@ -1,19 +1,13 @@
 'use client';
 
 import {
-  ArrowLeft,
-  ArrowRight,
-  Crown,
   Play,
   RotateCcw,
-  Shield,
   Swords,
   Trophy,
-  UsersRound,
-  Zap
+  UsersRound
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
 import styles from './math-rush-battle.module.css';
 
 type PlayPhase = 'menu' | 'playing' | 'result';
@@ -45,7 +39,8 @@ type TeamStatus = {
   shield: number;
   rapidUntil: number;
   spreadUntil: number;
-  rocketShots: number;
+  missileUntil: number;
+  laserUntil: number;
   magnetPower: number;
 };
 
@@ -124,7 +119,7 @@ type PickupView = {
   root: unknown;
 };
 
-type PickupKind = 'rapid' | 'multi' | 'soldier' | 'shield' | 'rocket' | 'freeze' | 'heal' | 'magnet';
+type PickupKind = 'rapid' | 'multi' | 'soldier' | 'shield' | 'rocket' | 'freeze' | 'heal' | 'magnet' | 'laser' | 'drone' | 'bomb' | 'overdrive';
 
 type PanelView = {
   teamId: number;
@@ -141,7 +136,6 @@ type PanelView = {
 };
 
 const v2AssetBase = '/math-rush-battle-v2';
-const lanes = ['왼쪽', '가운데', '오른쪽'];
 const roadPerspective = {
   topY: 0.235,
   bottomY: 0.985,
@@ -150,16 +144,20 @@ const roadPerspective = {
   bottomLeft: -0.018,
   bottomRight: 1.018
 };
-const pickupKinds: PickupKind[] = ['rapid', 'multi', 'soldier', 'shield', 'rocket', 'freeze', 'heal', 'magnet'];
+const pickupKinds: PickupKind[] = ['rapid', 'multi', 'soldier', 'shield', 'rocket', 'freeze', 'heal', 'magnet', 'laser', 'drone', 'bomb', 'overdrive'];
 const pickupFrames: Record<PickupKind, number> = {
-  rapid: 8,
-  multi: 9,
-  soldier: 10,
-  shield: 11,
-  rocket: 12,
-  freeze: 13,
-  heal: 14,
-  magnet: 15
+  rapid: 10,
+  multi: 11,
+  soldier: 12,
+  shield: 13,
+  rocket: 14,
+  freeze: 15,
+  heal: 16,
+  magnet: 17,
+  laser: 18,
+  drone: 19,
+  bomb: 20,
+  overdrive: 21
 };
 
 const pickupLabels: Record<PickupKind, string> = {
@@ -170,8 +168,14 @@ const pickupLabels: Record<PickupKind, string> = {
   rocket: 'BOOM',
   freeze: 'ICE',
   heal: '+1',
-  magnet: 'MAG'
+  magnet: 'MAG',
+  laser: 'LASER',
+  drone: 'DRONE',
+  bomb: 'BLAST',
+  overdrive: 'MAX'
 };
+
+const enemyFrames = [0, 1, 2, 3, 4, 5, 6, 7, 9];
 
 const teamPalette: Record<TeamColor, { main: number; css: string }> = {
   blue: { main: 0x2d7cff, css: '#2d7cff' },
@@ -203,7 +207,8 @@ function createTeams(playerCount: number): TeamStatus[] {
     shield: 0,
     rapidUntil: 0,
     spreadUntil: 0,
-    rocketShots: 0,
+    missileUntil: 0,
+    laserUntil: 0,
     magnetPower: 0
   }));
 }
@@ -324,11 +329,6 @@ function nearestLane(position: number) {
   return clamp(Math.floor(clamp(position, 0, 0.999) * 3), 0, 2);
 }
 
-function positionLabel(position: number) {
-  const lane = nearestLane(position);
-  return `${lanes[lane]} ${Math.round(clamp(position, 0, 1) * 100)}%`;
-}
-
 function lerp(start: number, end: number, amount: number) {
   return start + (end - start) * amount;
 }
@@ -337,13 +337,11 @@ export default function MathRushBattleClient() {
   const [phase, setPhase] = useState<PlayPhase>('menu');
   const [playerCount, setPlayerCount] = useState(1);
   const [runId, setRunId] = useState(0);
-  const [teams, setTeams] = useState<TeamStatus[]>(() => createTeams(1));
   const [round, setRound] = useState<RoundInfo | null>(null);
   const [summary, setSummary] = useState<GameSummary | null>(null);
   const apiRef = useRef<GameApi | null>(null);
 
   const startGame = useCallback(() => {
-    setTeams(createTeams(playerCount));
     setRound(null);
     setSummary(null);
     setRunId((value) => value + 1);
@@ -357,7 +355,7 @@ export default function MathRushBattleClient() {
   }, []);
 
   const handleStats = useCallback((nextTeams: TeamStatus[]) => {
-    setTeams(nextTeams);
+    void nextTeams;
   }, []);
 
   const handleRound = useCallback((nextRound: RoundInfo) => {
@@ -366,7 +364,6 @@ export default function MathRushBattleClient() {
 
   const handleFinish = useCallback((nextSummary: GameSummary) => {
     setSummary(nextSummary);
-    setTeams(nextSummary.teams);
     setPhase('result');
   }, []);
 
@@ -427,22 +424,21 @@ export default function MathRushBattleClient() {
 
       {phase === 'playing' ? (
         <section className={styles.gameScreen}>
-          <div className={styles.topHud}>
-            <div className={styles.problemPanel}>
-              <span>{round?.mode === 'boss' ? 'BOSS ROUND' : round?.problem.unit ?? 'READY'}</span>
-              <strong>{round?.problem.prompt ?? '전투 준비 중...'}</strong>
-            </div>
-            <div className={styles.roundPanel}>
-              <span>ROUND</span>
-              <strong>{round?.number ?? 1}</strong>
-            </div>
-            <div className={styles.bossPanel}>
-              <span>{round?.mode === 'boss' ? 'BOSS HP' : 'MISSION'}</span>
-              <strong>{round?.mode === 'boss' ? `${Math.max(0, round.bossHp)} / ${round.bossMaxHp}` : round?.message ?? '배 숫자 정답 찾기'}</strong>
-            </div>
-          </div>
-
           <div className={styles.playField}>
+            <div className={styles.topHud}>
+              <div className={styles.problemPanel}>
+                <span>{round?.mode === 'boss' ? 'BOSS ROUND' : round?.problem.unit ?? 'READY'}</span>
+                <strong>{round?.problem.prompt ?? '전투 준비 중...'}</strong>
+              </div>
+              <div className={styles.roundPanel}>
+                <span>ROUND</span>
+                <strong>{round?.number ?? 1}</strong>
+              </div>
+              <div className={styles.bossPanel}>
+                <span>{round?.mode === 'boss' ? 'BOSS HP' : 'MISSION'}</span>
+                <strong>{round?.mode === 'boss' ? `${Math.max(0, round.bossHp)} / ${round.bossMaxHp}` : round?.message ?? '배 숫자 정답 찾기'}</strong>
+              </div>
+            </div>
             <PhaserSurface
               key={runId}
               onApi={handleApi}
@@ -452,60 +448,6 @@ export default function MathRushBattleClient() {
               playerCount={playerCount}
               runId={runId}
             />
-          </div>
-
-          <div className={styles.controlDeck}>
-            {teams.map((team) => (
-              <article
-                key={team.id}
-                className={`${styles.controlCard} ${styles[team.color]}`}
-                style={{ '--team': teamPalette[team.color].css } as CSSProperties}
-              >
-                <div className={styles.controlHeader}>
-                  <strong>{team.label} {team.teamName}</strong>
-                  <span>{team.score.toLocaleString()}점</span>
-                </div>
-                <div className={styles.quickStats}>
-                  <span><Shield size={15} /> {team.soldiers}</span>
-                  <span><Zap size={15} /> x{team.combo}</span>
-                  <span><Crown size={15} /> Lv.{team.weaponLevel}</span>
-                </div>
-                <div className={styles.laneControls}>
-                  <button
-                    aria-label={`${team.teamName} 왼쪽으로 계속 이동`}
-                    onClick={() => apiRef.current?.moveTeam(team.id, -1)}
-                    onPointerCancel={() => apiRef.current?.setTeamDirection(team.id, 0)}
-                    onPointerDown={() => apiRef.current?.setTeamDirection(team.id, -1)}
-                    onPointerLeave={() => apiRef.current?.setTeamDirection(team.id, 0)}
-                    onPointerUp={() => apiRef.current?.setTeamDirection(team.id, 0)}
-                    type="button"
-                  >
-                    <ArrowLeft size={24} />
-                  </button>
-                  <input
-                    aria-label={`${team.teamName} 조준 위치`}
-                    max={1}
-                    min={0}
-                    onChange={(event) => apiRef.current?.setTeamPosition(team.id, Number(event.target.value))}
-                    step={0.01}
-                    type="range"
-                    value={team.position}
-                  />
-                  <button
-                    aria-label={`${team.teamName} 오른쪽으로 계속 이동`}
-                    onClick={() => apiRef.current?.moveTeam(team.id, 1)}
-                    onPointerCancel={() => apiRef.current?.setTeamDirection(team.id, 0)}
-                    onPointerDown={() => apiRef.current?.setTeamDirection(team.id, 1)}
-                    onPointerLeave={() => apiRef.current?.setTeamDirection(team.id, 0)}
-                    onPointerUp={() => apiRef.current?.setTeamDirection(team.id, 0)}
-                    type="button"
-                  >
-                    <ArrowRight size={24} />
-                  </button>
-                </div>
-                <div className={styles.laneLabel}>{positionLabel(team.position)} · 키보드/드래그</div>
-              </article>
-            ))}
           </div>
         </section>
       ) : null}
@@ -664,7 +606,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.roundElapsed = 0;
       this.roundDuration = 10800;
       this.shootClock = 0;
-      this.shootInterval = 245;
+      this.shootInterval = 210;
       this.resolvedTeams = new Set();
       this.inputDirections = [0, 0, 0, 0];
       this.draggingTeamId = null;
@@ -680,6 +622,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         frameHeight: 256
       });
       this.load.spritesheet('runner-extra-atlas-v3', `${v2AssetBase}/assets/runner-extra-atlas-v3.png`, {
+        frameWidth: 256,
+        frameHeight: 256
+      });
+      this.load.spritesheet('runner-combat-atlas-v4', `${v2AssetBase}/assets/runner-combat-atlas-v4.png`, {
         frameWidth: 256,
         frameHeight: 256
       });
@@ -827,10 +773,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       }).setOrigin(1, 0);
       this.worldLayer.add(statLabel);
 
-      const boss = this.add.sprite(rect.x + rect.width * 0.5, rect.y + rect.height * 0.23, 'runner-atlas-v2', 7);
+      const boss = this.add.sprite(rect.x + rect.width * 0.5, rect.y + rect.height * 0.23, 'runner-combat-atlas-v4', 8);
       boss.setVisible(false);
       boss.setAlpha(0.72);
-      boss.setScale(Math.max(0.34, Math.min(0.78, rect.width / 920)));
+      boss.setScale(Math.max(0.34, Math.min(0.86, rect.width / 860)));
       this.worldLayer.add(boss);
 
       const bossHpText = this.add.text(rect.x + rect.width * 0.5, rect.y + rect.height * 0.12, '', {
@@ -1002,19 +948,19 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         const position = (lane + 0.5) / 3;
         const y = panel.rect.y + panel.rect.height * ([0.32, 0.24, 0.33][lane] ?? 0.31);
         const x = this.roadX(panel.rect, position, y);
-        const elite = mode === 'boss' || this.round >= 4 || (this.round + lane + panel.teamId) % 4 === 0;
-        const gauge = elite ? 42 + this.round * 5 + lane * 8 : 24 + this.round * 3 + lane * 5;
+        const enemyFrame = mode === 'boss'
+          ? 8
+          : enemyFrames[(this.round * 2 + lane + panel.teamId) % enemyFrames.length];
+        const heavyBonus = [0, 9, 4, 13, 7, 15, 5, 11, 18][enemyFrame % 9] ?? 0;
+        const elite = mode === 'boss' || this.round >= 4 || enemyFrame >= 4 || (this.round + lane + panel.teamId) % 4 === 0;
+        const gauge = elite
+          ? 42 + this.round * 5 + lane * 8 + heavyBonus
+          : 24 + this.round * 3 + lane * 5 + Math.floor(heavyBonus / 2);
         const root = this.add.container(x, y);
         root.setScale(this.targetPerspectiveScale(panel.rect, y));
         root.setDepth(Math.floor(y) + 520);
-        const monsterTexture = elite ? 'runner-extra-atlas-v3' : ((this.round + lane) % 2 === 0 ? 'runner-extra-atlas-v3' : 'runner-atlas-v2');
-        const monsterFrame = elite
-          ? 4 + ((this.round + lane + panel.teamId) % 4)
-          : monsterTexture === 'runner-extra-atlas-v3'
-            ? (this.round + lane + panel.teamId) % 4
-            : 4 + ((this.round + lane + panel.teamId) % 4);
-        const monster = this.add.sprite(0, -6, monsterTexture, monsterFrame);
-        monster.setScale(elite ? scale * 0.88 : scale * 0.74);
+        const monster = this.add.sprite(0, -6, 'runner-combat-atlas-v4', enemyFrame);
+        monster.setScale(elite ? scale * 0.92 : scale * 0.78);
         const barWidth = Math.max(78, panel.rect.width * 0.13);
         const barBack = this.add.rectangle(-barWidth / 2, -105, barWidth, 13, 0x1a2637, 0.92).setOrigin(0, 0.5);
         barBack.setStrokeStyle(2, 0xffffff, 0.65);
@@ -1061,11 +1007,11 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const kind = pickupKinds[(this.round + panel.teamId * 2) % pickupKinds.length];
       const position = ((this.round + panel.teamId + (this.round % 2)) % 3 + 0.5) / 3;
       const root = this.add.container(0, 0);
-      const glow = this.add.sprite(0, 0, 'runner-atlas-v2', 15);
-      glow.setScale(Math.max(0.14, Math.min(0.28, panel.rect.width / 1450)));
-      glow.setAlpha(0.86);
-      const item = this.add.sprite(0, 0, 'runner-extra-atlas-v3', pickupFrames[kind]);
-      item.setScale(Math.max(0.23, Math.min(0.42, panel.rect.width / 1080)));
+      const glow = this.add.sprite(0, 0, 'runner-combat-atlas-v4', 26);
+      glow.setScale(Math.max(0.2, Math.min(0.46, panel.rect.width / 1120)));
+      glow.setAlpha(0.36);
+      const item = this.add.sprite(0, 0, 'runner-combat-atlas-v4', pickupFrames[kind]);
+      item.setScale(Math.max(0.25, Math.min(0.5, panel.rect.width / 960)));
       const label = this.add.text(0, -2, pickupLabels[kind], {
         color: '#ffffff',
         fontFamily: 'Apple SD Gothic Neo, Noto Sans KR, Arial',
@@ -1213,8 +1159,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           this.setPanelVerdict(panel, 'SHIELD!');
           break;
         case 'rocket':
-          team.rocketShots = Math.min(12, team.rocketShots + 6);
-          this.setPanelVerdict(panel, 'ROCKETS!');
+          team.missileUntil = Math.max(team.missileUntil, this.roundElapsed + 6200);
+          team.weaponLevel = Math.min(5, team.weaponLevel + 1);
+          this.setPanelVerdict(panel, 'MISSILE RUSH!');
           break;
         case 'freeze':
           this.roundElapsed = Math.max(0, this.roundElapsed - 1800);
@@ -1228,7 +1175,54 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           team.magnetPower = Math.min(3, team.magnetPower + 2);
           this.setPanelVerdict(panel, 'MAGNET!');
           break;
+        case 'laser':
+          team.laserUntil = Math.max(team.laserUntil, this.roundElapsed + 5200);
+          this.setPanelVerdict(panel, 'LASER!');
+          break;
+        case 'drone':
+          team.soldiers = Math.min(16, team.soldiers + 1);
+          team.rapidUntil = Math.max(team.rapidUntil, this.roundElapsed + 3600);
+          this.setPanelVerdict(panel, 'DRONE JOIN!');
+          break;
+        case 'bomb':
+          this.blastTargets(panel, team, 34 + team.weaponLevel * 8);
+          this.setPanelVerdict(panel, 'BLAST!');
+          break;
+        case 'overdrive':
+          team.weaponLevel = Math.min(5, team.weaponLevel + 1);
+          team.missileUntil = Math.max(team.missileUntil, this.roundElapsed + 6200);
+          team.spreadUntil = Math.max(team.spreadUntil, this.roundElapsed + 4200);
+          team.rapidUntil = Math.max(team.rapidUntil, this.roundElapsed + 3200);
+          this.setPanelVerdict(panel, 'OVERDRIVE!');
+          break;
       }
+    }
+
+    blastTargets(panel: PanelView, team: TeamStatus, damage: number) {
+      panel.targets
+        .filter((target) => !target.defeated)
+        .forEach((target, index) => {
+          this.time.delayedCall(index * 55, () => this.hitTarget(panel, team, target, damage));
+        });
+
+      const burst = this.add.sprite(
+        panel.rect.x + panel.rect.width * 0.5,
+        panel.rect.y + panel.rect.height * 0.55,
+        'runner-combat-atlas-v4',
+        27
+      );
+      burst.setScale(Math.max(0.65, Math.min(1.4, panel.rect.width / 720)));
+      burst.setAlpha(0.78);
+      this.fxLayer.add(burst);
+      this.tweens.add({
+        targets: burst,
+        alpha: 0,
+        scale: burst.scale * 1.65,
+        duration: 420,
+        ease: 'Back.easeOut',
+        onComplete: () => burst.destroy()
+      });
+      this.cameras.main.shake(55, 0.0016);
     }
 
     shootAllTeams() {
@@ -1241,12 +1235,15 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           return;
         }
         panel.soldiers.forEach((soldier, index) => {
-          const offsets = team.spreadUntil > this.roundElapsed ? [-0.035, 0, 0.035] : [0];
+          const offsets = team.spreadUntil > this.roundElapsed ? [-0.045, 0, 0.045] : [0];
           offsets.forEach((offset, offsetIndex) => {
             this.time.delayedCall(index * 22 + offsetIndex * 12, () => this.fireSoldierBullet(panel, team, soldier, offset));
           });
           if (team.rapidUntil > this.roundElapsed) {
             this.time.delayedCall(index * 22 + 86, () => this.fireSoldierBullet(panel, team, soldier, 0));
+          }
+          if (team.laserUntil > this.roundElapsed) {
+            this.time.delayedCall(index * 22 + 46, () => this.fireSoldierBullet(panel, team, soldier, 0.018));
           }
         });
       });
@@ -1257,16 +1254,14 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         return;
       }
       const root = soldier.root as any;
-      const useRocket = team.rocketShots > 0;
-      if (useRocket) {
-        team.rocketShots -= 1;
-      }
-      const bulletFrame = useRocket || team.weaponLevel >= 3 ? 13 : 12;
+      const laserActive = team.laserUntil > this.roundElapsed;
+      const missileBoost = team.missileUntil > this.roundElapsed || team.weaponLevel >= 3;
+      const bulletFrame = laserActive ? 24 : missileBoost ? 23 : 22;
       const launchY = root.y - 22;
       const launchPosition = clamp(this.roadPositionFromX(panel.rect, root.x + 10, launchY) + roadOffset, 0.04, 0.96);
       const launchX = this.roadX(panel.rect, launchPosition, launchY);
-      const bullet = this.add.sprite(launchX, launchY, 'runner-atlas-v2', bulletFrame);
-      const scaleBase = Math.max(0.09, Math.min(0.2, panel.rect.width / 2200)) * (useRocket ? 1.55 : team.weaponLevel >= 3 ? 1.2 : 1);
+      const bullet = this.add.sprite(launchX, launchY, 'runner-combat-atlas-v4', bulletFrame);
+      const scaleBase = Math.max(0.1, Math.min(0.23, panel.rect.width / 2100)) * (laserActive ? 1.35 : missileBoost ? 1.24 : 1);
       bullet.setScale(scaleBase * this.projectilePerspectiveScale(panel.rect, launchY));
       bullet.setAlpha(0.95);
       bullet.rotation = -Math.PI / 2;
@@ -1276,9 +1271,13 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         root: bullet,
         panelId: panel.teamId,
         teamId: team.id,
-        damage: useRocket ? team.weaponLevel * 7 + 14 : team.weaponLevel * 3 + 4 + Math.ceil(team.soldiers / 5),
+        damage: laserActive
+          ? team.weaponLevel * 5 + 11 + Math.ceil(team.soldiers / 4)
+          : missileBoost
+            ? team.weaponLevel * 5 + 9 + Math.ceil(team.soldiers / 5)
+            : team.weaponLevel * 3 + 5 + Math.ceil(team.soldiers / 5),
         position: launchPosition,
-        speed: 0.78 + team.weaponLevel * 0.052 + (useRocket ? 0.1 : 0),
+        speed: 0.86 + team.weaponLevel * 0.055 + (laserActive ? 0.18 : missileBoost ? 0.08 : 0),
         scaleBase,
         alive: true
       });
@@ -1376,7 +1375,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         ease: 'Quad.easeOut',
         onComplete: () => damageText.destroy()
       });
-      const spark = this.add.sprite(root.x, root.y + 12, 'runner-atlas-v2', 14);
+      const spark = this.add.sprite(root.x, root.y + 12, 'runner-combat-atlas-v4', 26);
       spark.setScale(Math.max(0.18, Math.min(0.38, panel.rect.width / 1240)) * targetScale);
       spark.setAlpha(0.9);
       this.fxLayer.add(spark);
@@ -1407,7 +1406,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       target.defeated = true;
       const root = target.root as any;
       const targetScale = Math.max(0.72, Number(root.scaleX ?? 1));
-      const boom = this.add.sprite(root.x, root.y, 'runner-atlas-v2', 15);
+      const boom = this.add.sprite(root.x, root.y, 'runner-combat-atlas-v4', 27);
       boom.setScale(Math.max(0.34, Math.min(0.68, panel.rect.width / 860)) * targetScale);
       this.fxLayer.add(boom);
       this.tweens.add({
@@ -1600,7 +1599,14 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       }
 
       const statLabel = panel.statLabel as any;
-      statLabel.setText(`${team.score}점  인원 ${team.soldiers}  x${team.combo}`);
+      const boosts = [
+        team.missileUntil > this.roundElapsed ? '미사일' : '',
+        team.laserUntil > this.roundElapsed ? '레이저' : '',
+        team.rapidUntil > this.roundElapsed ? '연사' : '',
+        team.spreadUntil > this.roundElapsed ? '3WAY' : '',
+        team.magnetPower > 0 ? '자석' : ''
+      ].filter(Boolean).slice(0, 2).join(' ');
+      statLabel.setText(`${team.score}점  인원 ${team.soldiers}  Lv.${team.weaponLevel}  x${team.combo}${boosts ? `  ${boosts}` : ''}`);
       const bossHpText = panel.bossHpText as any;
       if (this.round >= this.bossStartRound) {
         bossHpText.setText(`HP ${Math.max(0, this.bossHp)} / ${this.bossMaxHp}`);
