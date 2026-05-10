@@ -639,9 +639,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.bossMaxHp = 70 + callbacks.playerCount * 18;
       this.bossHp = this.bossMaxHp;
       this.roundElapsed = 0;
-      this.roundDuration = 10800;
+      this.roundDuration = 12800;
       this.shootClock = 0;
-      this.shootInterval = 210;
+      this.shootInterval = 245;
       this.resolvedTeams = new Set();
       this.inputDirections = [0, 0, 0, 0];
       this.draggingTeamId = null;
@@ -708,6 +708,30 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           repeat: -1
         });
       });
+    }
+
+    teamThreatPressure(team: TeamStatus) {
+      const squadPressure = Math.pow(team.soldiers, 1.35) * 28;
+      const weaponPressure = team.weaponLevel * 34;
+      const boostPressure = [
+        team.rapidUntil > this.roundElapsed ? 34 : 0,
+        team.spreadUntil > this.roundElapsed ? 42 : 0,
+        team.missileUntil > this.roundElapsed ? 34 : 0,
+        team.laserUntil > this.roundElapsed ? 38 : 0
+      ].reduce((sum, value) => sum + value, 0);
+      return squadPressure + weaponPressure + boostPressure;
+    }
+
+    projectileDamage(team: TeamStatus, laserActive: boolean, missileBoost: boolean) {
+      const levelBonus = Math.max(0, team.weaponLevel - 1);
+      const squadBonus = Math.floor(Math.sqrt(team.soldiers));
+      if (laserActive) {
+        return 7 + levelBonus * 2 + squadBonus;
+      }
+      if (missileBoost) {
+        return 8 + levelBonus * 2 + squadBonus;
+      }
+      return 5 + Math.floor(levelBonus * 1.35) + Math.floor(Math.max(0, team.soldiers - 1) / 6);
     }
 
     update(_time: number, delta: number) {
@@ -943,6 +967,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       return lerp(0.58, 1.08, this.roadDepth(rect, y));
     }
 
+    projectileCeilingY(rect: Rect) {
+      return this.roadTopY(rect) + rect.height * 0.018;
+    }
+
     roadX(rect: Rect, position: number, y: number) {
       const edges = this.roadEdges(rect, y);
       return lerp(edges.left, edges.right, clamp(position, 0.04, 0.96));
@@ -1013,6 +1041,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     createTargets(panel: PanelView, problem: Problem, mode: RoundMode) {
+      const team = this.teams[panel.teamId];
+      const threatPressure = this.teamThreatPressure(team);
       const scale = Math.max(0.36, Math.min(0.82, panel.rect.width / 820));
       problem.choices.forEach((choice, lane) => {
         const correct = choice === problem.answer;
@@ -1025,9 +1055,11 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           : enemySprites[enemyIndex];
         const heavyBonus = [0, 9, 4, 13, 7, 15, 5, 11, 18, 6, 14, 10][enemyIndex] ?? 0;
         const elite = mode === 'boss' || this.round >= 4 || enemyIndex >= 4 || (this.round + lane + panel.teamId) % 4 === 0;
-        const gauge = elite
-          ? 132 + this.round * 14 + lane * 16 + heavyBonus
-          : 82 + this.round * 10 + lane * 10 + Math.floor(heavyBonus / 2);
+        const earlyEliteRelief = elite ? Math.max(0, 3 - this.round) * 24 : 0;
+        const rawGauge = elite
+          ? 210 + this.round * 28 + lane * 20 + heavyBonus + threatPressure * 0.5 - earlyEliteRelief
+          : 146 + this.round * 20 + lane * 15 + Math.floor(heavyBonus * 0.7) + threatPressure * 0.36;
+        const gauge = Math.floor(rawGauge * (correct ? 0.95 : 1.08) * (mode === 'boss' ? 1.12 : 1));
         const root = this.add.container(x, y);
         root.setScale(this.targetPerspectiveScale(panel.rect, y));
         root.setDepth(Math.floor(y) + 520);
@@ -1144,7 +1176,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         root.add([aura, body, barBack, energyFill, guardIcon]);
         this.worldLayer.add(root);
 
-        const hp = 180 + this.round * 32 + sprite.hpBoost + (fastDrop ? 38 : 0);
+        const team = this.teams[panel.teamId];
+        const hp = Math.floor(235 + this.round * 46 + sprite.hpBoost * 1.18 + this.teamThreatPressure(team) * 0.72 + (fastDrop ? 62 : 0));
         panel.blockers.push({
           position: startPosition,
           baseY,
@@ -1461,13 +1494,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         root: bullet,
         panelId: panel.teamId,
         teamId: team.id,
-        damage: laserActive
-          ? team.weaponLevel * 5 + 11 + Math.ceil(team.soldiers / 4)
-          : missileBoost
-            ? team.weaponLevel * 5 + 9 + Math.ceil(team.soldiers / 5)
-            : team.weaponLevel * 3 + 5 + Math.ceil(team.soldiers / 5),
+        damage: this.projectileDamage(team, laserActive, missileBoost),
         position: launchPosition,
-        speed: 0.86 + team.weaponLevel * 0.055 + (laserActive ? 0.18 : missileBoost ? 0.08 : 0),
+        speed: 0.78 + team.weaponLevel * 0.035 + (laserActive ? 0.14 : missileBoost ? 0.06 : 0),
         scaleBase,
         alive: true
       });
@@ -1506,7 +1535,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           return false;
         }
 
-        this.applyProjectilePerspective(panel, projectile, bullet.y - projectile.speed * delta);
+        const ceilingY = this.projectileCeilingY(panel.rect);
+        const nextY = Math.max(ceilingY, bullet.y - projectile.speed * delta);
+        this.applyProjectilePerspective(panel, projectile, nextY);
         const blocker = this.findProjectileBlockerHit(panel, bullet);
         if (blocker) {
           projectile.alive = false;
@@ -1523,7 +1554,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           return false;
         }
 
-        if (bullet.y < panel.rect.y + panel.rect.height * 0.11) {
+        if (bullet.y <= ceilingY) {
           bullet.destroy();
           return false;
         }
