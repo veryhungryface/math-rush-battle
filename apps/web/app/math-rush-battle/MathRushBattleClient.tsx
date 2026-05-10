@@ -101,6 +101,20 @@ type TargetView = {
   baseY: number;
 };
 
+type BlockerView = {
+  position: number;
+  baseY: number;
+  hp: number;
+  maxHp: number;
+  root: unknown;
+  energyFill: unknown;
+  defeated: boolean;
+  swayAmplitude: number;
+  swaySpeed: number;
+  phase: number;
+  speedMultiplier: number;
+};
+
 type ProjectileView = {
   root: unknown;
   panelId: number;
@@ -121,6 +135,7 @@ type PickupView = {
 
 type PickupKind = 'rapid' | 'multi' | 'soldier' | 'shield' | 'rocket' | 'freeze' | 'heal' | 'magnet' | 'laser' | 'drone' | 'bomb' | 'overdrive';
 type SpriteRef = { texture: string; frame: number };
+type BlockerSpriteRef = SpriteRef & { scale: number; hpBoost: number };
 
 type PanelView = {
   teamId: number;
@@ -128,6 +143,7 @@ type PanelView = {
   laneGlow: unknown;
   soldiers: SoldierView[];
   targets: TargetView[];
+  blockers: BlockerView[];
   pickup: PickupView | null;
   boss: unknown;
   bossHpText: unknown;
@@ -189,6 +205,14 @@ const enemySprites: SpriteRef[] = [
   { texture: 'runner-atlas-v2', frame: 5 },
   { texture: 'runner-atlas-v2', frame: 6 },
   { texture: 'runner-atlas-v2', frame: 7 }
+];
+
+const blockerSprites: BlockerSpriteRef[] = [
+  { texture: 'boss-math-sheet', frame: 1, scale: 1.08, hpBoost: 72 },
+  { texture: 'boss-math-sheet', frame: 2, scale: 1.14, hpBoost: 88 },
+  { texture: 'boss-math-sheet', frame: 3, scale: 1.2, hpBoost: 108 },
+  { texture: 'runner-extra-atlas-v3', frame: 5, scale: 1.22, hpBoost: 62 },
+  { texture: 'runner-extra-atlas-v3', frame: 7, scale: 1.18, hpBoost: 78 }
 ];
 
 const teamPalette: Record<TeamColor, { main: number; css: string }> = {
@@ -677,6 +701,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.statsPulse += delta;
       this.updateContinuousMovement(delta);
       this.updateTargetPositions();
+      this.updateBlockerPositions();
       this.updatePickupPositions();
       this.updateProjectiles(delta);
 
@@ -829,6 +854,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         laneGlow,
         soldiers: [],
         targets: [],
+        blockers: [],
         pickup: null,
         boss,
         bossHpText,
@@ -930,6 +956,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         this.clearProjectiles(panel.teamId);
         this.clearTargets(panel);
         this.createTargets(panel, this.problem as Problem, mode);
+        this.createBlockers(panel, mode);
         this.createPickup(panel);
       });
 
@@ -947,6 +974,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     clearTargets(panel: PanelView) {
       panel.targets.forEach((target) => (target.root as any).destroy());
       panel.targets = [];
+      panel.blockers.forEach((blocker) => (blocker.root as any).destroy());
+      panel.blockers = [];
       if (panel.pickup) {
         (panel.pickup.root as any).destroy();
         panel.pickup = null;
@@ -977,8 +1006,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         const heavyBonus = [0, 9, 4, 13, 7, 15, 5, 11, 18, 6, 14, 10][enemyIndex] ?? 0;
         const elite = mode === 'boss' || this.round >= 4 || enemyIndex >= 4 || (this.round + lane + panel.teamId) % 4 === 0;
         const gauge = elite
-          ? 42 + this.round * 5 + lane * 8 + heavyBonus
-          : 24 + this.round * 3 + lane * 5 + Math.floor(heavyBonus / 2);
+          ? 132 + this.round * 14 + lane * 16 + heavyBonus
+          : 82 + this.round * 10 + lane * 10 + Math.floor(heavyBonus / 2);
         const root = this.add.container(x, y);
         root.setScale(this.targetPerspectiveScale(panel.rect, y));
         root.setDepth(Math.floor(y) + 520);
@@ -1025,6 +1054,56 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       });
     }
 
+    createBlockers(panel: PanelView, mode: RoundMode) {
+      const correctTarget = panel.targets.find((target) => target.correct);
+      if (!correctTarget || this.round < 2) {
+        return;
+      }
+
+      const count = mode === 'boss' || this.round >= 5 ? 2 : 1;
+      const baseScale = Math.max(0.34, Math.min(0.78, panel.rect.width / 900));
+      Array.from({ length: count }).forEach((_, index) => {
+        const sprite = blockerSprites[(this.round + panel.teamId + index * 2) % blockerSprites.length];
+        const fastDrop = (this.round + panel.teamId + index) % 3 === 0;
+        const startPosition = clamp(correctTarget.position + (index === 0 ? -0.12 : 0.14), 0.17, 0.83);
+        const baseY = panel.rect.y + panel.rect.height * (0.28 + index * 0.1);
+        const x = this.roadX(panel.rect, startPosition, baseY);
+        const root = this.add.container(x, baseY);
+        root.setScale(this.targetPerspectiveScale(panel.rect, baseY));
+        root.setDepth(Math.floor(baseY) + 620);
+
+        const aura = this.add.sprite(0, 8, 'projectiles-fx-sheet', fastDrop ? 11 : 7);
+        aura.setScale(baseScale * sprite.scale * 0.85);
+        aura.setAlpha(fastDrop ? 0.58 : 0.4);
+        const body = this.add.sprite(0, 0, sprite.texture, sprite.frame);
+        body.setScale(baseScale * sprite.scale);
+        const barWidth = Math.max(132, panel.rect.width * 0.2);
+        const barBack = this.add.rectangle(-barWidth / 2, -142, barWidth, 18, 0x21131b, 0.94).setOrigin(0, 0.5);
+        barBack.setStrokeStyle(3, 0xfff0a8, 0.82);
+        const energyFill = this.add.rectangle(-barWidth / 2 + 3, -142, barWidth - 6, 12, fastDrop ? 0xff8b2d : 0xff4e6b, 1).setOrigin(0, 0.5);
+        const guardIcon = this.add.sprite(0, -169, 'gates-pickups-sheet', 3);
+        guardIcon.setScale(baseScale * 0.42);
+        guardIcon.setAlpha(0.92);
+        root.add([aura, body, barBack, energyFill, guardIcon]);
+        this.worldLayer.add(root);
+
+        const hp = 180 + this.round * 32 + sprite.hpBoost + (fastDrop ? 38 : 0);
+        panel.blockers.push({
+          position: startPosition,
+          baseY,
+          hp,
+          maxHp: hp,
+          root,
+          energyFill,
+          defeated: false,
+          swayAmplitude: 0.08 + index * 0.035,
+          swaySpeed: fastDrop ? 2.4 : 1.55,
+          phase: (this.round + panel.teamId * 1.7 + index * 1.2) * Math.PI * 0.45,
+          speedMultiplier: fastDrop ? 1.65 : 1.1
+        });
+      });
+    }
+
     createPickup(panel: PanelView) {
       const team = this.teams[panel.teamId];
       const kind = pickupKinds[(this.round + panel.teamId * 2) % pickupKinds.length];
@@ -1061,6 +1140,28 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           root.setPosition(x, y);
           root.setScale(this.targetPerspectiveScale(panel.rect, y));
           root.setDepth(Math.floor(y) + 520);
+        });
+      });
+    }
+
+    updateBlockerPositions() {
+      const progress = clamp(this.roundElapsed / this.roundDuration, 0, 1);
+      this.panels.forEach((panel) => {
+        panel.blockers.forEach((blocker) => {
+          if (blocker.defeated) {
+            return;
+          }
+          const wave = Math.sin(progress * Math.PI * 2 * blocker.swaySpeed + blocker.phase) * blocker.swayAmplitude;
+          const y = blocker.baseY + panel.rect.height * 0.34 * progress * blocker.speedMultiplier;
+          const position = clamp(blocker.position + wave, 0.12, 0.88);
+          const x = this.roadX(panel.rect, position, y);
+          const root = blocker.root as any;
+          root.setPosition(x, y);
+          root.setScale(this.targetPerspectiveScale(panel.rect, y) * 1.1);
+          root.setDepth(Math.floor(y) + 760);
+          if (progress > 0.9) {
+            root.setAlpha(lerp(1, 0.46, (progress - 0.9) / 0.1));
+          }
         });
       });
     }
@@ -1223,10 +1324,15 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     blastTargets(panel: PanelView, team: TeamStatus, damage: number) {
+      panel.blockers
+        .filter((blocker) => !blocker.defeated)
+        .forEach((blocker, index) => {
+          this.time.delayedCall(index * 45, () => this.hitBlocker(panel, team, blocker, Math.floor(damage * 1.35)));
+        });
       panel.targets
         .filter((target) => !target.defeated)
         .forEach((target, index) => {
-          this.time.delayedCall(index * 55, () => this.hitTarget(panel, team, target, damage));
+          this.time.delayedCall(index * 55 + 80, () => this.hitTarget(panel, team, target, damage));
         });
 
       const burst = this.add.sprite(
@@ -1342,6 +1448,14 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         }
 
         this.applyProjectilePerspective(panel, projectile, bullet.y - projectile.speed * delta);
+        const blocker = this.findProjectileBlockerHit(panel, bullet);
+        if (blocker) {
+          projectile.alive = false;
+          bullet.destroy();
+          this.hitBlocker(panel, team, blocker, projectile.damage);
+          return false;
+        }
+
         const target = this.findProjectileHit(panel, bullet);
         if (target) {
           projectile.alive = false;
@@ -1358,6 +1472,22 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       });
     }
 
+    findProjectileBlockerHit(panel: PanelView, bullet: { x: number; y: number }) {
+      const hitWidth = Math.max(52, panel.rect.width * 0.075);
+      const hitTop = panel.rect.height * 0.17;
+      const hitBottom = panel.rect.height * 0.14;
+      return panel.blockers
+        .filter((blocker) => {
+          if (blocker.defeated) {
+            return false;
+          }
+          const root = blocker.root as any;
+          const scale = Math.max(0.9, Number(root.scaleX ?? 1));
+          return Math.abs(bullet.x - root.x) <= hitWidth * scale && bullet.y >= root.y - hitTop * scale && bullet.y <= root.y + hitBottom * scale;
+        })
+        .sort((a, b) => Math.abs(((a.root as any).y ?? 0) - bullet.y) - Math.abs(((b.root as any).y ?? 0) - bullet.y))[0];
+    }
+
     findProjectileHit(panel: PanelView, bullet: { x: number; y: number }) {
       const hitWidth = Math.max(28, panel.rect.width * 0.04);
       const hitTop = panel.rect.height * 0.13;
@@ -1372,6 +1502,70 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           return Math.abs(bullet.x - root.x) <= hitWidth * scale && bullet.y >= root.y - hitTop * scale && bullet.y <= root.y + hitBottom * scale;
         })
         .sort((a, b) => Math.abs(((a.root as any).y ?? 0) - bullet.y) - Math.abs(((b.root as any).y ?? 0) - bullet.y))[0];
+    }
+
+    hitBlocker(panel: PanelView, team: TeamStatus, blocker: BlockerView, damage: number) {
+      if (blocker.defeated) {
+        return;
+      }
+      const root = blocker.root as any;
+      const energyFill = blocker.energyFill as any;
+      const blockerScale = Math.max(0.88, Number(root.scaleX ?? 1));
+      blocker.hp = Math.max(0, blocker.hp - damage);
+      energyFill.setScale(Math.max(0.02, blocker.hp / blocker.maxHp), 1);
+
+      const spark = this.add.sprite(root.x, root.y + 8, 'projectiles-fx-sheet', 4);
+      spark.setScale(Math.max(0.28, Math.min(0.58, panel.rect.width / 900)) * blockerScale);
+      spark.setAlpha(0.88);
+      this.fxLayer.add(spark);
+      this.tweens.add({
+        targets: spark,
+        alpha: 0,
+        scale: spark.scale * 1.55,
+        duration: 220,
+        ease: 'Quad.easeOut',
+        onComplete: () => spark.destroy()
+      });
+
+      this.tweens.add({
+        targets: root,
+        x: root.x + (Math.random() > 0.5 ? 7 : -7),
+        duration: 42,
+        yoyo: true,
+        repeat: 1
+      });
+
+      if (blocker.hp <= 0) {
+        this.destroyBlocker(panel, team, blocker);
+      }
+    }
+
+    destroyBlocker(panel: PanelView, team: TeamStatus, blocker: BlockerView) {
+      blocker.defeated = true;
+      const root = blocker.root as any;
+      const blockerScale = Math.max(0.88, Number(root.scaleX ?? 1));
+      const boom = this.add.sprite(root.x, root.y, 'projectiles-fx-sheet', 8);
+      boom.setScale(Math.max(0.48, Math.min(0.92, panel.rect.width / 650)) * blockerScale);
+      this.fxLayer.add(boom);
+      this.tweens.add({
+        targets: boom,
+        alpha: 0,
+        scale: boom.scale * 1.75,
+        duration: 520,
+        ease: 'Back.easeOut',
+        onComplete: () => boom.destroy()
+      });
+      this.tweens.add({
+        targets: root,
+        alpha: 0,
+        scale: root.scale * 0.72,
+        duration: 220,
+        onComplete: () => root.destroy()
+      });
+      team.score += 45;
+      this.refreshPanelStats(team.id);
+      callbacks.onStats(cloneTeams(this.teams));
+      this.cameras.main.shake(46, 0.0014);
     }
 
     hitTarget(panel: PanelView, team: TeamStatus, target: TargetView, damage: number) {
