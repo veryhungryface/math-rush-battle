@@ -7,20 +7,22 @@ import {
   Trophy,
   UsersRound
 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  allCurriculumProblems,
+  curriculumAreas,
+  curriculumGrades,
+  curriculumUnits,
+  getProblemPool,
+  type CurriculumAreaId,
+  type Problem
+} from './problemBank';
 import styles from './math-rush-battle.module.css';
 
 type PlayPhase = 'menu' | 'playing' | 'result';
 type TeamColor = 'blue' | 'red' | 'green' | 'purple';
 type RoundMode = 'targets' | 'boss';
 type ScenePhase = 'loading' | 'running' | 'between' | 'finished';
-
-type Problem = {
-  prompt: string;
-  answer: number;
-  choices: number[];
-  unit: string;
-};
 
 type TeamStatus = {
   id: number;
@@ -70,6 +72,7 @@ type GameApi = {
 
 type PhaserSurfaceProps = {
   playerCount: number;
+  problemPool: Problem[];
   runId: number;
   onApi: (api: GameApi | null) => void;
   onRound: (round: RoundInfo) => void;
@@ -230,6 +233,11 @@ const teamSeeds: Array<Pick<TeamStatus, 'label' | 'teamName' | 'color'>> = [
   { label: '3P', teamName: 'C팀', color: 'green' },
   { label: '4P', teamName: 'D팀', color: 'purple' }
 ];
+const allAreaIds = curriculumAreas.map((area) => area.id);
+const defaultSelectedGrades = [3, 4];
+const defaultSelectedUnitKeys = curriculumUnits
+  .filter((unit) => defaultSelectedGrades.includes(unit.grade))
+  .map((unit) => unit.key);
 
 function createTeams(playerCount: number): TeamStatus[] {
   return teamSeeds.slice(0, playerCount).map((seed, index) => ({
@@ -276,85 +284,16 @@ function shuffle<T>(items: T[]) {
   return next;
 }
 
-function uniqueChoices(answer: number, candidates: number[]) {
-  const values = [answer, ...candidates].filter((value, index, list) => list.indexOf(value) === index);
-  while (values.length < 3) {
-    values.push(answer + values.length + 3);
-  }
-  return shuffle(values.slice(0, 3));
+function visibleCurriculumUnits(selectedGrades: number[], selectedAreas: CurriculumAreaId[]) {
+  return curriculumUnits.filter((unit) => selectedGrades.includes(unit.grade) && selectedAreas.includes(unit.area));
 }
 
-function makeProblem(round: number, mode: RoundMode): Problem {
-  const pattern = round % 5;
-
-  if (mode === 'boss') {
-    const a = 7 + ((round * 2) % 6);
-    const b = 6 + ((round * 3) % 5);
-    const c = 8 + round;
-    const answer = a * b - c;
-    return {
-      prompt: `${a} × ${b} - ${c} = ?`,
-      answer,
-      choices: uniqueChoices(answer, [answer + 8, Math.max(8, answer - 6), a * b]),
-      unit: '보스 연산'
-    };
-  }
-
-  if (pattern === 0) {
-    const a = 4 + (round % 6);
-    const b = 5 + ((round * 2) % 6);
-    const answer = a * b;
-    return {
-      prompt: `${a} × ${b} = ?`,
-      answer,
-      choices: uniqueChoices(answer, [answer + a, Math.max(4, answer - b), (a + 1) * b]),
-      unit: '곱셈'
-    };
-  }
-
-  if (pattern === 1) {
-    const answer = 28 + round * 3;
-    const divisor = 4 + (round % 5);
-    return {
-      prompt: `${answer * divisor} ÷ ${divisor} = ?`,
-      answer,
-      choices: uniqueChoices(answer, [answer + 2, answer - 3, answer + divisor]),
-      unit: '나눗셈'
-    };
-  }
-
-  if (pattern === 2) {
-    const width = 4 + round;
-    const height = 3 + (round % 5);
-    const answer = width * height;
-    return {
-      prompt: `가로 ${width}, 세로 ${height} 직사각형의 넓이는?`,
-      answer,
-      choices: uniqueChoices(answer, [width + height, answer + width, width * 2 + height * 2]),
-      unit: '도형'
-    };
-  }
-
-  if (pattern === 3) {
-    const start = 14 + round * 2;
-    const step = 3 + (round % 4);
-    const answer = start + step * 3;
-    return {
-      prompt: `${start}, ${start + step}, ${start + step * 2}, ?`,
-      answer,
-      choices: uniqueChoices(answer, [answer + step, answer - step, answer + 2]),
-      unit: '규칙'
-    };
-  }
-
-  const first = 31 + round * 4;
-  const second = 18 + round * 2;
-  const answer = first + second;
+function makeProblem(round: number, mode: RoundMode, problemPool: Problem[]): Problem {
+  const pool = problemPool.length > 0 ? problemPool : allCurriculumProblems;
+  const source = pool[(round * 7 + (mode === 'boss' ? 11 : 0)) % pool.length];
   return {
-    prompt: `${first} + ${second} = ?`,
-    answer,
-    choices: uniqueChoices(answer, [answer + 9, answer - 8, answer + 12]),
-    unit: '덧셈'
+    ...source,
+    choices: shuffle(source.choices)
   };
 }
 
@@ -378,17 +317,27 @@ function lerp(start: number, end: number, amount: number) {
 export default function MathRushBattleClient() {
   const [phase, setPhase] = useState<PlayPhase>('menu');
   const [playerCount, setPlayerCount] = useState(1);
+  const [selectedGrades, setSelectedGrades] = useState<number[]>(defaultSelectedGrades);
+  const [selectedAreas, setSelectedAreas] = useState<CurriculumAreaId[]>(allAreaIds);
+  const [selectedUnitKeys, setSelectedUnitKeys] = useState<string[]>(defaultSelectedUnitKeys);
   const [runId, setRunId] = useState(0);
   const [round, setRound] = useState<RoundInfo | null>(null);
   const [summary, setSummary] = useState<GameSummary | null>(null);
   const apiRef = useRef<GameApi | null>(null);
+  const visibleUnits = useMemo(() => visibleCurriculumUnits(selectedGrades, selectedAreas), [selectedAreas, selectedGrades]);
+  const selectedVisibleUnitKeys = useMemo(() => {
+    const visibleKeys = new Set(visibleUnits.map((unit) => unit.key));
+    return selectedUnitKeys.filter((key) => visibleKeys.has(key));
+  }, [selectedUnitKeys, visibleUnits]);
+  const problemPool = useMemo(() => getProblemPool(selectedVisibleUnitKeys), [selectedVisibleUnitKeys]);
+  const selectedUnitKeySet = useMemo(() => new Set(selectedVisibleUnitKeys), [selectedVisibleUnitKeys]);
 
   const startGame = useCallback(() => {
     setRound(null);
     setSummary(null);
     setRunId((value) => value + 1);
     setPhase('playing');
-  }, [playerCount]);
+  }, [playerCount, problemPool]);
 
   const backToMenu = useCallback(() => {
     apiRef.current = null;
@@ -412,6 +361,70 @@ export default function MathRushBattleClient() {
   const handleApi = useCallback((api: GameApi | null) => {
     apiRef.current = api;
   }, []);
+
+  const toggleGrade = useCallback((grade: number) => {
+    setSelectedGrades((currentGrades) => {
+      const adding = !currentGrades.includes(grade);
+      if (!adding && currentGrades.length === 1) {
+        return currentGrades;
+      }
+      const nextGrades = adding
+        ? [...currentGrades, grade].sort((a, b) => a - b)
+        : currentGrades.filter((item) => item !== grade);
+      const nextVisibleUnits = visibleCurriculumUnits(nextGrades, selectedAreas);
+      setSelectedUnitKeys((currentKeys) => {
+        const allowed = new Set(nextVisibleUnits.map((unit) => unit.key));
+        const retained = currentKeys.filter((key) => allowed.has(key));
+        if (adding) {
+          const added = nextVisibleUnits.filter((unit) => unit.grade === grade).map((unit) => unit.key);
+          return Array.from(new Set([...retained, ...added]));
+        }
+        return retained.length > 0 ? retained : nextVisibleUnits.map((unit) => unit.key);
+      });
+      return nextGrades;
+    });
+  }, [selectedAreas]);
+
+  const toggleArea = useCallback((area: CurriculumAreaId) => {
+    setSelectedAreas((currentAreas) => {
+      const adding = !currentAreas.includes(area);
+      if (!adding && currentAreas.length === 1) {
+        return currentAreas;
+      }
+      const nextAreas = adding
+        ? [...currentAreas, area]
+        : currentAreas.filter((item) => item !== area);
+      const nextVisibleUnits = visibleCurriculumUnits(selectedGrades, nextAreas);
+      setSelectedUnitKeys((currentKeys) => {
+        const allowed = new Set(nextVisibleUnits.map((unit) => unit.key));
+        const retained = currentKeys.filter((key) => allowed.has(key));
+        if (adding) {
+          const added = nextVisibleUnits.filter((unit) => unit.area === area).map((unit) => unit.key);
+          return Array.from(new Set([...retained, ...added]));
+        }
+        return retained.length > 0 ? retained : nextVisibleUnits.map((unit) => unit.key);
+      });
+      return nextAreas;
+    });
+  }, [selectedGrades]);
+
+  const toggleUnit = useCallback((unitKey: string) => {
+    setSelectedUnitKeys((currentKeys) => {
+      const visibleKeys = new Set(visibleUnits.map((unit) => unit.key));
+      const selectedVisibleCount = currentKeys.filter((key) => visibleKeys.has(key)).length;
+      if (currentKeys.includes(unitKey)) {
+        if (selectedVisibleCount <= 1) {
+          return currentKeys;
+        }
+        return currentKeys.filter((key) => key !== unitKey);
+      }
+      return [...currentKeys, unitKey];
+    });
+  }, [visibleUnits]);
+
+  const selectAllVisibleUnits = useCallback(() => {
+    setSelectedUnitKeys(visibleUnits.map((unit) => unit.key));
+  }, [visibleUnits]);
 
   return (
     <main className={styles.shell}>
@@ -457,9 +470,70 @@ export default function MathRushBattleClient() {
             ))}
           </div>
 
+          <section className={styles.curriculumPanel} aria-label="문제 범위 선택">
+            <div className={styles.curriculumHeader}>
+              <span>문제 범위</span>
+              <strong>{problemPool.length.toLocaleString()}문항</strong>
+            </div>
+
+            <div className={styles.filterRow}>
+              <span>학년</span>
+              <div className={styles.filterChips}>
+                {curriculumGrades.map((grade) => (
+                  <button
+                    key={grade}
+                    aria-pressed={selectedGrades.includes(grade)}
+                    className={`${styles.filterChip} ${selectedGrades.includes(grade) ? styles.activeChip : ''}`}
+                    onClick={() => toggleGrade(grade)}
+                    type="button"
+                  >
+                    {grade}학년
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.filterRow}>
+              <span>영역</span>
+              <div className={styles.filterChips}>
+                {curriculumAreas.map((area) => (
+                  <button
+                    key={area.id}
+                    aria-pressed={selectedAreas.includes(area.id)}
+                    className={`${styles.filterChip} ${selectedAreas.includes(area.id) ? styles.activeChip : ''}`}
+                    onClick={() => toggleArea(area.id)}
+                    type="button"
+                  >
+                    {area.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.unitHeader}>
+              <span>단원</span>
+              <button onClick={selectAllVisibleUnits} type="button">현재 단원 전체</button>
+            </div>
+            <div className={styles.unitGrid}>
+              {visibleUnits.map((unit) => (
+                <button
+                  key={unit.key}
+                  aria-pressed={selectedUnitKeySet.has(unit.key)}
+                  className={`${styles.unitChip} ${selectedUnitKeySet.has(unit.key) ? styles.activeUnitChip : ''}`}
+                  onClick={() => toggleUnit(unit.key)}
+                  type="button"
+                >
+                  <span>{unit.grade}학년</span>
+                  <strong>{unit.label}</strong>
+                  <em>{unit.problems.length}문항</em>
+                </button>
+              ))}
+            </div>
+          </section>
+
           <button className={styles.startButton} onClick={startGame} type="button">
             <Play size={24} fill="currentColor" />
-            게임 시작
+            게임 시작 · {problemPool.length.toLocaleString()}문항
           </button>
         </section>
       ) : null}
@@ -488,6 +562,7 @@ export default function MathRushBattleClient() {
               onRound={handleRound}
               onStats={handleStats}
               playerCount={playerCount}
+              problemPool={problemPool}
               runId={runId}
             />
           </div>
@@ -554,7 +629,7 @@ export default function MathRushBattleClient() {
   );
 }
 
-function PhaserSurface({ playerCount, runId, onApi, onFinish, onRound, onStats }: PhaserSurfaceProps) {
+function PhaserSurface({ playerCount, problemPool, runId, onApi, onFinish, onRound, onStats }: PhaserSurfaceProps) {
   const mountRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -575,6 +650,7 @@ function PhaserSurface({ playerCount, runId, onApi, onFinish, onRound, onStats }
 
       game = createPhaserGame(Phaser, host, {
         playerCount,
+        problemPool,
         onApi,
         onFinish,
         onRound,
@@ -589,7 +665,7 @@ function PhaserSurface({ playerCount, runId, onApi, onFinish, onRound, onStats }
       onApi(null);
       game?.destroy(true);
     };
-  }, [onApi, onFinish, onRound, onStats, playerCount, runId]);
+  }, [onApi, onFinish, onRound, onStats, playerCount, problemPool, runId]);
 
   return <div className={styles.canvasMount} ref={mountRef} />;
 }
@@ -618,6 +694,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     worldLayer: any;
     fxLayer: any;
     problem: Problem | null;
+    problemPool: Problem[];
     phase: ScenePhase;
     round: number;
     maxRounds: number;
@@ -643,6 +720,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.worldLayer = null;
       this.fxLayer = null;
       this.problem = null;
+      this.problemPool = callbacks.problemPool.length > 0 ? callbacks.problemPool : allCurriculumProblems;
       this.phase = 'loading';
       this.round = 0;
       this.maxRounds = 9;
@@ -1047,7 +1125,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
 
       this.round += 1;
       const mode: RoundMode = this.round >= this.bossStartRound ? 'boss' : 'targets';
-      this.problem = makeProblem(this.round, mode);
+      this.problem = makeProblem(this.round, mode, this.problemPool);
       this.roundElapsed = 0;
       this.shootClock = 0;
       this.resolvedTeams.clear();
