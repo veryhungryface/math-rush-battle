@@ -6,5 +6,5 @@ dist
 .env.*
 .env.local
 .DS_Store
-apps/server/data
-reference/openclaw
+apps/web/tsconfig.tsbuildinfo
+tools/__pycache__

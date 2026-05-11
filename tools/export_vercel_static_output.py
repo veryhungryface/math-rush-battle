@@ -12,7 +12,7 @@ OUT = WEB / ".vercel/output"
 STATIC = OUT / "static"
 
 
-ROUTES = ["index", "math-rush-battle", "circle-battle", "fraction-target", "_not-found"]
+ROUTES = ["index", "math-rush-battle", "_not-found"]
 
 
 def copytree(src: Path, dst: Path) -> None:
@@ -51,8 +51,6 @@ def main() -> None:
         "version": 3,
         "routes": [
             {"src": "/math-rush-battle/?", "dest": "/math-rush-battle.html"},
-            {"src": "/circle-battle/?", "dest": "/circle-battle.html"},
-            {"src": "/fraction-target/?", "dest": "/fraction-target.html"},
             {"src": "/", "dest": "/index.html"},
             {"handle": "filesystem"},
             {"src": "/(.*)", "status": 404, "dest": "/404.html"},
