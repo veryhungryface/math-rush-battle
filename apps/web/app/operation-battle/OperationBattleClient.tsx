@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import styles from './operation-battle.module.css';
 
 type TeamId = 'blue' | 'red';
-type Phase = 'ready' | 'playing' | 'paused' | 'ended';
+type Phase = 'ready' | 'playing' | 'ended';
 type Reaction = 'ready' | 'cheer' | 'wrong' | 'boost' | 'victory' | 'tug';
 type EventKind = 'correct' | 'wrong' | 'reset';
 
@@ -217,6 +217,7 @@ export default function OperationBattleClient() {
   const scheduledFreezeIds = useRef<Set<number>>(new Set());
   const tugOffset = -(game.meter / MAX_METER) * 148;
   const pullSide = game.lastEvent.pullSide;
+  const gameResult = game.phase === 'ended' ? winnerOf(game) : null;
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -336,9 +337,14 @@ export default function OperationBattleClient() {
   const toggleGame = () => {
     if (game.phase === 'playing') {
       pauseBgm();
-    } else {
-      playBgm();
+      setGame((current) => ({
+        ...current,
+        phase: 'ended'
+      }));
+      return;
     }
+
+    playBgm();
 
     if (game.phase === 'ended' || game.timeLeft === 0) {
       setIceShot(null);
@@ -350,19 +356,10 @@ export default function OperationBattleClient() {
       return;
     }
 
-    setGame((current) => {
-      if (current.phase === 'playing') {
-        return {
-          ...current,
-          phase: 'paused'
-        };
-      }
-
-      return {
-        ...current,
-        phase: 'playing'
-      };
-    });
+    setGame((current) => ({
+      ...current,
+      phase: 'playing'
+    }));
   };
 
   const toggleMute = () => {
@@ -621,6 +618,7 @@ export default function OperationBattleClient() {
     const config = teamConfig[teamId];
     const style = { '--team': config.css } as CSSProperties;
     const reaction = reactionFor(team, game);
+    const showProblem = game.phase === 'playing';
 
     return (
       <section className={`${styles.playerPanel} ${styles[`${teamId}Panel`]}`} style={style}>
@@ -632,10 +630,12 @@ export default function OperationBattleClient() {
 
         <div className={styles.problemCard}>
           <img src={config.card} alt="" draggable={false} />
-          <div className={styles.problemText}>
-            <span>{team.problem.prompt}</span>
-            <b>= ?</b>
-          </div>
+          {showProblem ? (
+            <div className={styles.problemText}>
+              <span>{team.problem.prompt}</span>
+              <b>= ?</b>
+            </div>
+          ) : null}
         </div>
 
         <div className={styles.characterZone}>
@@ -734,6 +734,16 @@ export default function OperationBattleClient() {
               className={`${styles.pullFlash} ${styles[`${pullSide}PullFlash`]}`}
               aria-hidden="true"
             />
+          ) : null}
+          {gameResult ? (
+            <div
+              className={`${styles.winBanner} ${
+                gameResult === 'draw' ? styles.drawWinBanner : styles[`${gameResult}WinBanner`]
+              }`}
+              aria-live="polite"
+            >
+              {gameResult === 'draw' ? 'DRAW' : 'WIN'}
+            </div>
           ) : null}
           <div className={styles.itemLayer} aria-label="얼음 아이템">
             {renderIceItem('blue')}

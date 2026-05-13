@@ -40,8 +40,8 @@
   bottom: clamp(-48px, -3vw, -20px);
   left: 50%;
   z-index: 2;
-  width: clamp(260px, 33vw, 520px);
-  max-height: min(82vh, 720px);
+  width: clamp(338px, 43vw, 676px);
+  max-height: min(92vh, 936px);
   object-fit: contain;
   filter:
     drop-shadow(0 24px 28px rgba(0, 0, 0, 0.36))
@@ -600,6 +600,42 @@
   animation: pullFlashSweepRed 760ms ease-out both;
 }
 
+.winBanner {
+  pointer-events: none;
+  position: absolute;
+  top: 47%;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  width: 50%;
+  color: #ffffff;
+  font-size: clamp(76px, 10vw, 160px);
+  font-weight: 1000;
+  letter-spacing: 0;
+  line-height: 0.9;
+  text-shadow:
+    0 6px 0 rgba(23, 35, 51, 0.24),
+    0 18px 30px rgba(23, 35, 51, 0.34),
+    0 0 28px rgba(255, 255, 255, 0.9);
+  transform: translateY(-50%);
+  animation: winBannerPop 780ms cubic-bezier(0.16, 0.95, 0.26, 1) both;
+}
+
+.blueWinBanner {
+  left: 0;
+  color: #168dff;
+}
+
+.redWinBanner {
+  right: 0;
+  color: #ff4353;
+}
+
+.drawWinBanner {
+  left: 25%;
+  color: #26364a;
+}
+
 .itemLayer {
   pointer-events: none;
   position: absolute;
@@ -1000,6 +1036,23 @@
   100% {
     opacity: 0;
     transform: translate(-42vw, -21vh) scale(0.46) rotate(-34deg);
+  }
+}
+
+@keyframes winBannerPop {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.54) rotate(-5deg);
+  }
+
+  56% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.12) rotate(2deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1) rotate(0deg);
   }
 }
 
