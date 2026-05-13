@@ -29,11 +29,13 @@
 .menuScreen {
   position: relative;
   display: grid;
-  grid-template-rows: auto auto auto auto auto;
-  align-content: start;
-  gap: clamp(10px, 1.5vw, 18px);
-  padding: clamp(14px, 2.2vw, 28px);
-  overflow-y: auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  align-content: stretch;
+  gap: clamp(8px, 1.1vw, 14px);
+  height: 100vh;
+  max-height: 100vh;
+  padding: clamp(12px, 1.6vw, 22px) clamp(16px, 2vw, 32px);
+  overflow: hidden;
 }
 
 .menuBackdrop {
@@ -73,14 +75,14 @@
   z-index: 1;
   display: grid;
   justify-items: center;
-  gap: 10px;
+  gap: 0;
   text-align: center;
 }
 
 .titleBlock h1 {
   margin: 0;
   color: #fffdf3;
-  font-size: clamp(38px, 5.8vw, 72px);
+  font-size: clamp(42px, 5.2vw, 68px);
   font-weight: 950;
   line-height: 0.95;
   text-shadow:
@@ -116,21 +118,24 @@
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(4, minmax(130px, 1fr));
-  gap: clamp(12px, 2vw, 22px);
-  width: min(1080px, 100%);
+  gap: clamp(10px, 1.4vw, 18px);
+  width: min(980px, 100%);
   margin: 0 auto;
 }
 
 .playerCard {
   position: relative;
-  min-height: clamp(112px, 10vw, 142px);
+  min-height: clamp(76px, 7vw, 96px);
   display: grid;
+  grid-template-columns: auto auto;
   justify-items: center;
+  justify-content: center;
   align-content: center;
-  gap: 7px;
-  padding: 18px 14px;
+  align-items: center;
+  gap: clamp(8px, 1vw, 14px);
+  padding: 10px 12px;
   border: 3px solid rgba(255, 255, 255, 0.16);
-  border-radius: 18px;
+  border-radius: 15px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08)),
     rgba(15, 25, 42, 0.86);
@@ -159,8 +164,8 @@
 
 .cardGlow {
   position: absolute;
-  inset: 11px;
-  border-radius: 13px;
+  inset: 8px;
+  border-radius: 11px;
   background: radial-gradient(circle at 50% 18%, rgba(255, 212, 84, 0.2), transparent 54%);
   opacity: 0;
   transition: opacity 160ms ease;
@@ -172,7 +177,7 @@
 
 .playerCard img {
   position: relative;
-  width: min(38%, 72px);
+  width: clamp(44px, 4.4vw, 62px);
   aspect-ratio: 1;
   object-fit: contain;
   filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.28));
@@ -180,7 +185,7 @@
 
 .playerCard strong {
   position: relative;
-  font-size: clamp(27px, 2.8vw, 39px);
+  font-size: clamp(30px, 3vw, 42px);
   font-weight: 950;
   line-height: 1;
   text-shadow: 0 5px 0 rgba(0, 0, 0, 0.24);
@@ -229,8 +234,10 @@
   width: min(1480px, 100%);
   justify-self: center;
   display: grid;
-  gap: 9px;
-  padding: 12px;
+  align-self: stretch;
+  align-content: start;
+  gap: 7px;
+  padding: 10px;
   border: 2px solid rgba(255, 255, 255, 0.16);
   border-radius: 16px;
   background:
@@ -246,9 +253,9 @@
 .unitHeader,
 .filterRow {
   display: grid;
-  grid-template-columns: 98px 1fr;
+  grid-template-columns: 78px 1fr;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .curriculumHeader span,
@@ -261,21 +268,21 @@
 
 .curriculumHeader strong {
   justify-self: start;
-  min-height: 34px;
+  min-height: 30px;
   display: inline-flex;
   align-items: center;
-  padding: 0 14px;
+  padding: 0 12px;
   border-radius: 999px;
   background: rgba(255, 212, 84, 0.17);
   color: #fff5a8;
-  font-size: 19px;
+  font-size: 17px;
   font-weight: 950;
 }
 
 .filterChips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 7px;
 }
 
 .filterChip,
@@ -288,8 +295,8 @@
 }
 
 .filterChip {
-  min-height: 38px;
-  padding: 0 14px;
+  min-height: 33px;
+  padding: 0 12px;
   border-radius: 999px;
   font-size: 14px;
   font-weight: 950;
@@ -304,8 +311,8 @@
 
 .unitHeader button {
   justify-self: start;
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 31px;
+  padding: 0 11px;
   border-radius: 999px;
   color: #c5fff0;
   font-size: 13px;
@@ -315,33 +322,33 @@
 .unitGrid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  gap: 7px;
   max-height: none;
   overflow: visible;
   padding-right: 0;
 }
 
 .unitChip {
-  min-height: 64px;
+  min-height: 49px;
   display: grid;
   align-content: center;
-  gap: 3px;
-  padding: 9px 10px;
-  border-radius: 12px;
+  gap: 1px;
+  padding: 6px 9px;
+  border-radius: 10px;
   text-align: left;
 }
 
 .unitChip span,
 .unitChip em {
   color: rgba(255, 250, 242, 0.68);
-  font-size: 12px;
+  font-size: 11px;
   font-style: normal;
   font-weight: 900;
 }
 
 .unitChip strong {
   color: #fffef7;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 950;
   line-height: 1.14;
 }
@@ -358,16 +365,16 @@
   position: relative;
   z-index: 1;
   justify-self: center;
-  min-height: 62px;
+  min-height: 54px;
   display: inline-flex;
   align-items: center;
   gap: 14px;
-  padding: 0 38px;
+  padding: 0 34px;
   border: 0;
   border-radius: 999px;
   background: linear-gradient(180deg, #ffe983, #ffb32c);
   color: #1f1a10;
-  font-size: clamp(21px, 2.2vw, 30px);
+  font-size: clamp(20px, 2vw, 28px);
   font-weight: 950;
   box-shadow:
     0 9px 0 #b85d12,
@@ -472,25 +479,34 @@
   width: 100%;
   height: 100%;
   min-height: 100vh;
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
 }
 
 .canvasMount canvas {
   display: block;
   width: 100%;
   height: 100%;
+  touch-action: none;
 }
 
 .resultScreen {
   display: grid;
-  align-content: center;
-  gap: 28px;
-  padding: clamp(24px, 5vw, 64px);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  align-content: stretch;
+  gap: clamp(12px, 2vw, 22px);
+  height: 100vh;
+  max-height: 100vh;
+  padding: clamp(18px, 3vw, 38px);
+  overflow: hidden;
 }
 
 .resultHeader {
   display: grid;
   justify-items: center;
-  gap: 8px;
+  gap: 0;
   text-align: center;
 }
 
@@ -508,7 +524,7 @@
 
 .resultHeader h1 {
   color: #fffdf3;
-  font-size: clamp(42px, 7vw, 92px);
+  font-size: clamp(38px, 5.8vw, 74px);
   font-weight: 950;
   line-height: 0.96;
   text-shadow: 0 7px 0 rgba(0, 0, 0, 0.24);
@@ -516,13 +532,16 @@
 
 .resultGrid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(180px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 292px));
+  align-content: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 0;
 }
 
 .resultCard {
   --team: #2d7cff;
-  padding: 18px;
+  padding: 14px;
   border: 2px solid color-mix(in srgb, var(--team), white 28%);
   border-radius: 18px;
   background:
@@ -536,47 +555,47 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .resultCardTop strong {
-  font-size: 21px;
+  font-size: clamp(17px, 1.5vw, 21px);
   font-weight: 950;
 }
 
 .resultCardTop span {
   color: #fff5a8;
-  font-size: 22px;
+  font-size: clamp(18px, 1.6vw, 22px);
   font-weight: 950;
 }
 
 .resultCard dl {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 8px;
   margin: 0;
 }
 
 .resultCard dl div {
-  min-height: 74px;
+  min-height: clamp(48px, 6vh, 64px);
   display: grid;
   align-content: center;
   gap: 3px;
-  padding: 10px;
-  border-radius: 13px;
+  padding: 8px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.12);
 }
 
 .resultCard dt {
   color: rgba(255, 255, 255, 0.68);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
 }
 
 .resultCard dd {
   margin: 0;
   color: #fffef7;
-  font-size: 25px;
+  font-size: clamp(20px, 2vw, 25px);
   font-weight: 950;
 }
 
@@ -588,16 +607,16 @@
 }
 
 .resultActions button {
-  min-height: 58px;
+  min-height: 50px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 0 26px;
+  padding: 0 22px;
   border: 0;
   border-radius: 999px;
   background: #fffdf3;
   color: #172234;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 950;
   cursor: pointer;
   box-shadow: 0 8px 0 rgba(0, 0, 0, 0.22);

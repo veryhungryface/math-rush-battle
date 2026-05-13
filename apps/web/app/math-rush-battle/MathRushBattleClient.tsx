@@ -3,8 +3,6 @@
 import {
   Play,
   RotateCcw,
-  Swords,
-  Trophy,
   UsersRound
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -85,6 +83,14 @@ type Rect = {
   y: number;
   width: number;
   height: number;
+};
+
+type ScenePointer = {
+  x: number;
+  y: number;
+  id?: number;
+  pointerId?: number;
+  identifier?: number;
 };
 
 type SoldierView = {
@@ -198,7 +204,7 @@ const pickupLabels: Record<PickupKind, string> = {
   shield: 'SAFE',
   rocket: 'BOOM',
   freeze: 'ICE',
-  heal: '+1',
+  heal: '+HP',
   magnet: 'MAG',
   laser: 'LASER',
   drone: 'DRONE',
@@ -298,8 +304,9 @@ function makeProblem(round: number, mode: RoundMode, problemPool: Problem[]): Pr
 }
 
 function rankTeams(teams: TeamStatus[]) {
-  const topScore = Math.max(...teams.map((team) => team.score));
-  return teams.filter((team) => team.score === topScore);
+  const contenders = teams.some((team) => team.hp > 0) ? teams.filter((team) => team.hp > 0) : teams;
+  const topScore = Math.max(...contenders.map((team) => team.score));
+  return contenders.filter((team) => team.score === topScore);
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -437,12 +444,7 @@ export default function MathRushBattleClient() {
           </div>
 
           <div className={styles.titleBlock}>
-            <div className={styles.arcadeChip}>
-              <Swords size={18} />
-              RUNNER MATH SHOOTER
-            </div>
             <h1>수학 러시 배틀</h1>
-            <p>악당 배의 답 선지를 보고, 머리 위 에너지 바를 총알로 0까지 깎으세요.</p>
           </div>
 
           <div className={styles.playerGrid} aria-label="플레이 인원 선택">
@@ -456,17 +458,7 @@ export default function MathRushBattleClient() {
                 <span className={styles.cardGlow} />
                 <img alt="" src={`${v2AssetBase}/assets/frames/runner-asset-0${count - 1}.png`} />
                 <strong>{count}P</strong>
-                <span>{count === 1 ? '솔로 러시' : `${count}팀 배틀`}</span>
               </button>
-            ))}
-          </div>
-
-          <div className={styles.teamPreview}>
-            {createTeams(playerCount).map((team) => (
-              <span key={team.id} className={`${styles.teamBadge} ${styles[team.color]}`}>
-                <img alt="" src={`${v2AssetBase}/assets/frames/runner-asset-0${team.id}.png`} />
-                {team.label} {team.teamName}
-              </span>
             ))}
           </div>
 
@@ -572,9 +564,11 @@ export default function MathRushBattleClient() {
       {phase === 'result' && summary ? (
         <section className={styles.resultScreen}>
           <div className={styles.resultHeader}>
-            <Trophy size={44} />
-            <span>{summary.bossDefeated ? 'BOSS CLEAR' : 'TIME UP'}</span>
-            <h1>{summary.winners.map((team) => team.teamName).join(' · ')} 승리!</h1>
+            <h1>
+              {summary.teams.some((team) => team.hp > 0)
+                ? `${summary.winners.map((team) => team.teamName).join(' · ')} 승리!`
+                : '기지 방어 실패!'}
+            </h1>
           </div>
 
           <div className={styles.resultGrid}>
@@ -678,6 +672,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     height: Math.max(620, host.clientHeight || 720),
     backgroundColor: '#172234',
     transparent: false,
+    input: {
+      activePointers: Math.min(10, Math.max(4, callbacks.playerCount)),
+      windowEvents: true
+    },
     scale: {
       mode: Phaser.Scale.RESIZE,
       parent: host,
@@ -707,7 +705,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     shootInterval: number;
     resolvedTeams: Set<number>;
     inputDirections: number[];
-    draggingTeamId: number | null;
+    activePointerTeams: Map<number, number>;
+    teamActivePointers: Map<number, number>;
     inputKeys: Record<string, any>;
     statsPulse: number;
     movementDirty: boolean;
@@ -733,7 +732,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.shootInterval = 245;
       this.resolvedTeams = new Set();
       this.inputDirections = [0, 0, 0, 0];
-      this.draggingTeamId = null;
+      this.activePointerTeams = new Map();
+      this.teamActivePointers = new Map();
       this.inputKeys = {};
       this.statsPulse = 0;
       this.movementDirty = false;
@@ -878,33 +878,38 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     bindInput() {
-      this.input.on('pointerdown', (pointer: { x: number; y: number }) => {
+      this.input.mouse?.disableContextMenu();
+
+      this.input.on('pointerdown', (pointer: ScenePointer) => {
         const panel = this.panels.find((item) => {
           const { rect } = item;
           return pointer.x >= rect.x && pointer.x <= rect.x + rect.width && pointer.y >= rect.y && pointer.y <= rect.y + rect.height;
         });
-        if (!panel) {
+        const team = panel ? this.teams[panel.teamId] : undefined;
+        if (!panel || !this.isTeamActive(team)) {
           return;
         }
-        this.draggingTeamId = panel.teamId;
+        this.claimPointerForTeam(pointer, panel.teamId);
         this.setTeamPositionFromPointer(panel, pointer.x, true);
       });
 
-      this.input.on('pointermove', (pointer: { x: number }) => {
-        if (this.draggingTeamId === null) {
+      this.input.on('pointermove', (pointer: ScenePointer) => {
+        const panel = this.panelForPointer(pointer);
+        const team = panel ? this.teams[panel.teamId] : undefined;
+        if (!panel || !this.isTeamActive(team)) {
           return;
         }
-        const panel = this.panels[this.draggingTeamId];
-        if (panel) {
-          this.setTeamPositionFromPointer(panel, pointer.x, false);
-        }
+        this.setTeamPositionFromPointer(panel, pointer.x, false);
       });
 
-      this.input.on('pointerup', () => {
-        this.draggingTeamId = null;
+      this.input.on('pointerup', (pointer: ScenePointer) => {
+        this.releasePointer(pointer);
       });
-      this.input.on('pointerupoutside', () => {
-        this.draggingTeamId = null;
+      this.input.on('pointerupoutside', (pointer: ScenePointer) => {
+        this.releasePointer(pointer);
+      });
+      this.input.on('pointercancel', (pointer: ScenePointer) => {
+        this.releasePointer(pointer);
       });
 
       this.inputKeys = this.input.keyboard?.addKeys({
@@ -919,6 +924,34 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         p4Left: 'N',
         p4Right: 'M'
       }) ?? {};
+    }
+
+    pointerKey(pointer: ScenePointer) {
+      return pointer.id ?? pointer.pointerId ?? pointer.identifier ?? 0;
+    }
+
+    claimPointerForTeam(pointer: ScenePointer, teamId: number) {
+      const pointerId = this.pointerKey(pointer);
+      const previousPointerId = this.teamActivePointers.get(teamId);
+      if (previousPointerId !== undefined && previousPointerId !== pointerId) {
+        this.activePointerTeams.delete(previousPointerId);
+      }
+      this.activePointerTeams.set(pointerId, teamId);
+      this.teamActivePointers.set(teamId, pointerId);
+    }
+
+    panelForPointer(pointer: ScenePointer) {
+      const teamId = this.activePointerTeams.get(this.pointerKey(pointer));
+      return teamId === undefined ? null : this.panels[teamId] ?? null;
+    }
+
+    releasePointer(pointer: ScenePointer) {
+      const pointerId = this.pointerKey(pointer);
+      const teamId = this.activePointerTeams.get(pointerId);
+      this.activePointerTeams.delete(pointerId);
+      if (teamId !== undefined && this.teamActivePointers.get(teamId) === pointerId) {
+        this.teamActivePointers.delete(teamId);
+      }
     }
 
     rebuildArena() {
@@ -1118,8 +1151,47 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       return lerp(edges.left, edges.right, boundary / 3);
     }
 
+    isTeamActive(team: TeamStatus | undefined) {
+      return Boolean(team && team.hp > 0);
+    }
+
+    activeTeamCount() {
+      return this.teams.filter((team) => this.isTeamActive(team)).length;
+    }
+
+    allBasesDown() {
+      return this.activeTeamCount() === 0;
+    }
+
+    releasePointersForTeam(teamId: number) {
+      const pointerId = this.teamActivePointers.get(teamId);
+      if (pointerId !== undefined) {
+        this.activePointerTeams.delete(pointerId);
+        this.teamActivePointers.delete(teamId);
+      }
+      this.inputDirections[teamId] = 0;
+    }
+
+    disableTeamPanel(panel: PanelView, team: TeamStatus, message = 'BASE DOWN!') {
+      this.releasePointersForTeam(team.id);
+      this.clearProjectiles(team.id);
+      this.clearTargets(panel);
+      this.setPanelVerdict(panel, message);
+      const glow = panel.laneGlow as any;
+      glow.clear();
+      panel.soldiers.forEach((soldier) => {
+        const root = soldier.root as any;
+        root.setAlpha(0.28);
+      });
+      this.refreshPanelStats(team.id);
+    }
+
     startRound() {
       if (this.phase === 'finished') {
+        return;
+      }
+      if (this.allBasesDown()) {
+        this.finishGame();
         return;
       }
 
@@ -1132,6 +1204,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.phase = 'running';
 
       this.panels.forEach((panel) => {
+        const team = this.teams[panel.teamId];
         const boss = panel.boss as any;
         const bossHpText = panel.bossHpText as any;
         boss.setVisible(mode === 'boss');
@@ -1139,6 +1212,13 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         this.setPanelVerdict(panel, '');
         this.clearProjectiles(panel.teamId);
         this.clearTargets(panel);
+        if (!this.isTeamActive(team)) {
+          if (team) {
+            this.resolvedTeams.add(team.id);
+            this.disableTeamPanel(panel, team, 'BASE DOWN!');
+          }
+          return;
+        }
         this.createTargets(panel, this.problem as Problem, mode);
         this.createBlockers(panel, mode);
         this.createPickup(panel);
@@ -1179,6 +1259,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
 
     createTargets(panel: PanelView, problem: Problem, mode: RoundMode) {
       const team = this.teams[panel.teamId];
+      if (!this.isTeamActive(team)) {
+        return;
+      }
       const threatPressure = this.teamThreatPressure(team);
       const scale = Math.max(0.36, Math.min(0.82, panel.rect.width / 820));
       problem.choices.forEach((choice, lane) => {
@@ -1259,6 +1342,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     createBlockers(panel: PanelView, mode: RoundMode) {
+      const team = this.teams[panel.teamId];
+      if (!this.isTeamActive(team)) {
+        return;
+      }
       const correctTarget = panel.targets.find((target) => target.correct);
       if (!correctTarget || this.round < 2) {
         return;
@@ -1315,7 +1402,6 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         root.add([aura, body, barBack, energyFill, guardIcon]);
         this.worldLayer.add(root);
 
-        const team = this.teams[panel.teamId];
         const hp = Math.floor(235 + this.round * 46 + sprite.hpBoost * 1.18 + this.teamThreatPressure(team) * 0.72 + (fastDrop ? 62 : 0));
         panel.blockers.push({
           position: startPosition,
@@ -1336,7 +1422,19 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
 
     createPickup(panel: PanelView) {
       const team = this.teams[panel.teamId];
-      const kind = pickupKinds[(this.round + panel.teamId * 2) % pickupKinds.length];
+      if (!this.isTeamActive(team)) {
+        return;
+      }
+      const usableKinds = pickupKinds.filter((kind) => {
+        if (kind === 'soldier') {
+          return team.soldiers < 16;
+        }
+        if (kind === 'heal') {
+          return team.hp < team.maxHp || team.soldiers < 16;
+        }
+        return true;
+      });
+      const kind = usableKinds[(this.round + panel.teamId * 2) % usableKinds.length];
       const position = ((this.round + panel.teamId + (this.round % 2)) % 3 + 0.5) / 3;
       const pickupSprite = pickupSprites[kind];
       const root = this.add.container(0, 0);
@@ -1421,6 +1519,12 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       target.defeated = true;
       const root = target.root as any;
       const damage = target.correct ? 28 : target.elite ? 18 : 12;
+      if (!this.isTeamActive(team)) {
+        target.breached = true;
+        target.defeated = true;
+        root.destroy();
+        return;
+      }
       this.playBaseImpact(panel, root.x, root.y, damage);
       this.applyBaseDamage(panel, team, damage, target.correct ? '정답 악당 침입!' : 'BASE HIT!');
       this.tweens.add({
@@ -1448,6 +1552,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       blocker.defeated = true;
       const root = blocker.root as any;
       const damage = blocker.maxHp >= 420 ? 28 : 20;
+      if (!this.isTeamActive(team)) {
+        root.destroy();
+        return;
+      }
       this.playBaseImpact(panel, root.x, root.y, damage);
       this.applyBaseDamage(panel, team, damage, '방해몹 충돌!');
       this.tweens.add({
@@ -1512,7 +1620,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.refreshPanelStats(team.id);
       callbacks.onStats(cloneTeams(this.teams));
       if (team.hp <= 0) {
+        this.disableTeamPanel(panel, team, 'BASE DOWN!');
         this.resolveTeamMiss(panel, team, 'BASE DOWN!');
+        this.scheduleNextRound();
       }
     }
 
@@ -1522,7 +1632,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         this.updatePickupPosition(panel, progress);
         const pickup = panel.pickup;
         const team = this.teams[panel.teamId];
-        if (!pickup || pickup.collected || !team) {
+        if (!pickup || pickup.collected || !this.isTeamActive(team)) {
           return;
         }
         this.tryCollectPickup(panel, team);
@@ -1550,7 +1660,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
 
     tryCollectPickup(panel: PanelView, team: TeamStatus) {
       const pickup = panel.pickup;
-      if (!pickup || pickup.collected) {
+      if (!pickup || pickup.collected || !this.isTeamActive(team)) {
         return;
       }
       if (this.isPickupTouchingTeam(panel, team, pickup)) {
@@ -1571,15 +1681,15 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const pickupRoadPosition = this.roadPositionFromX(panel.rect, pickupX, pickupY);
       const troopFrontY = panel.rect.y + panel.rect.height * 0.765;
       const troopBackY = panel.rect.y + panel.rect.height * 0.91;
-      const roadCatchWidth = lerp(0.07, 0.12, pickupDepth) + (magnetBoost ? 0.13 : 0);
-      const roadCatchHeight = panel.rect.height * (magnetBoost ? 0.18 : 0.075);
+      const roadCatchWidth = lerp(0.095, 0.15, pickupDepth) + (magnetBoost ? 0.16 : 0);
+      const roadCatchHeight = panel.rect.height * (magnetBoost ? 0.2 : 0.095);
       const inTroopBand = pickupY >= troopFrontY - roadCatchHeight && pickupY <= troopBackY + roadCatchHeight;
       if (inTroopBand && Math.abs(pickupRoadPosition - team.position) <= roadCatchWidth) {
         return true;
       }
 
-      const pickupRadiusX = Math.max(46, panel.rect.width * lerp(0.05, 0.09, pickupDepth)) * (magnetBoost ? 1.85 : 1);
-      const pickupRadiusY = Math.max(44, panel.rect.height * lerp(0.045, 0.078, pickupDepth)) * (magnetBoost ? 1.75 : 1);
+      const pickupRadiusX = Math.max(56, panel.rect.width * lerp(0.06, 0.105, pickupDepth)) * (magnetBoost ? 1.95 : 1);
+      const pickupRadiusY = Math.max(52, panel.rect.height * lerp(0.052, 0.09, pickupDepth)) * (magnetBoost ? 1.85 : 1);
       return panel.soldiers.some((soldier) => {
         const soldierRoot = soldier.root as any;
         const soldierX = Number(soldierRoot.x ?? this.roadX(panel.rect, team.position, baseY));
@@ -1609,7 +1719,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         scale: 1.55,
         y: root.y - panel.rect.height * 0.08,
         duration: 420,
-        ease: 'Back.easeOut'
+        ease: 'Back.easeOut',
+        onComplete: () => root.destroy()
       });
       callbacks.onStats(cloneTeams(this.teams));
     }
@@ -1631,7 +1742,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           break;
         case 'shield':
           team.shield = Math.min(3, team.shield + 1);
-          this.setPanelVerdict(panel, 'SHIELD!');
+          team.hp = Math.min(team.maxHp, team.hp + 10);
+          this.setPanelVerdict(panel, 'SHIELD +HP!');
           break;
         case 'rocket':
           team.missileUntil = Math.max(team.missileUntil, this.roundElapsed + 6200);
@@ -1643,11 +1755,12 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           this.setPanelVerdict(panel, 'FREEZE!');
           break;
         case 'heal':
+          team.hp = Math.min(team.maxHp, team.hp + 30);
           team.soldiers = Math.min(16, team.soldiers + 1);
-          this.setPanelVerdict(panel, 'REPAIR!');
+          this.setPanelVerdict(panel, 'REPAIR +30!');
           break;
         case 'magnet':
-          team.magnetPower = Math.min(3, team.magnetPower + 2);
+          team.magnetPower = Math.min(4, team.magnetPower + 2);
           this.setPanelVerdict(panel, 'MAGNET!');
           break;
         case 'laser':
@@ -1666,6 +1779,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         case 'overdrive':
           team.weaponLevel = Math.min(5, team.weaponLevel + 1);
           team.missileUntil = Math.max(team.missileUntil, this.roundElapsed + 6200);
+          team.laserUntil = Math.max(team.laserUntil, this.roundElapsed + 3600);
           team.spreadUntil = Math.max(team.spreadUntil, this.roundElapsed + 4200);
           team.rapidUntil = Math.max(team.rapidUntil, this.roundElapsed + 3200);
           this.setPanelVerdict(panel, 'OVERDRIVE!');
@@ -1674,6 +1788,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     blastTargets(panel: PanelView, team: TeamStatus, damage: number) {
+      if (!this.isTeamActive(team)) {
+        return;
+      }
       panel.blockers
         .filter((blocker) => !blocker.defeated)
         .forEach((blocker, index) => {
@@ -1707,7 +1824,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
 
     shootAllTeams() {
       this.teams.forEach((team) => {
-        if (this.resolvedTeams.has(team.id)) {
+        if (!this.isTeamActive(team) || this.resolvedTeams.has(team.id)) {
           return;
         }
         const panel = this.panels[team.id];
@@ -1730,7 +1847,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     fireSoldierBullet(panel: PanelView, team: TeamStatus, soldier: SoldierView, roadOffset = 0) {
-      if (this.phase !== 'running') {
+      if (this.phase !== 'running' || !this.isTeamActive(team) || this.resolvedTeams.has(team.id)) {
         return;
       }
       const root = soldier.root as any;
@@ -1788,7 +1905,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         const bullet = projectile.root as any;
         const panel = this.panels[projectile.panelId];
         const team = this.teams[projectile.teamId];
-        if (!projectile.alive || !panel || !team || this.resolvedTeams.has(projectile.teamId)) {
+        if (!projectile.alive || !panel || !this.isTeamActive(team) || this.resolvedTeams.has(projectile.teamId)) {
           bullet?.destroy();
           return false;
         }
@@ -1853,7 +1970,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     hitBlocker(panel: PanelView, team: TeamStatus, blocker: BlockerView, damage: number) {
-      if (blocker.defeated) {
+      if (blocker.defeated || !this.isTeamActive(team)) {
         return;
       }
       const root = blocker.root as any;
@@ -1889,6 +2006,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     destroyBlocker(panel: PanelView, team: TeamStatus, blocker: BlockerView) {
+      if (!this.isTeamActive(team)) {
+        return;
+      }
       blocker.defeated = true;
       const root = blocker.root as any;
       const blockerScale = Math.max(0.88, Number(root.scaleX ?? 1));
@@ -1956,7 +2076,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     hitTarget(panel: PanelView, team: TeamStatus, target: TargetView, damage: number) {
-      if (target.defeated) {
+      if (target.defeated || !this.isTeamActive(team)) {
         return;
       }
       const root = target.root as any;
@@ -2044,7 +2164,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     resolveTeamSuccess(panel: PanelView, team: TeamStatus) {
-      if (!this.problem || this.resolvedTeams.has(team.id)) {
+      if (!this.problem || !this.isTeamActive(team) || this.resolvedTeams.has(team.id)) {
         return;
       }
       const bossMode = this.round >= this.bossStartRound;
@@ -2096,7 +2216,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
 
     resolveMissedTeams() {
       this.teams.forEach((team) => {
-        if (this.resolvedTeams.has(team.id)) {
+        if (!this.isTeamActive(team) || this.resolvedTeams.has(team.id)) {
           return;
         }
         const panel = this.panels[team.id];
@@ -2119,11 +2239,23 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       if (this.phase !== 'running') {
         return;
       }
+      if (this.allBasesDown()) {
+        this.phase = 'between';
+        this.time.delayedCall(520, () => {
+          if (this.phase === 'between') {
+            this.finishGame();
+          }
+        });
+        return;
+      }
       if (this.resolvedTeams.size < this.teams.length) {
         return;
       }
       this.phase = 'between';
       this.time.delayedCall(980, () => {
+        if (this.phase !== 'between') {
+          return;
+        }
         if (this.bossHp <= 0 || this.round >= this.maxRounds) {
           this.finishGame();
         } else {
@@ -2235,13 +2367,15 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         team.spreadUntil > this.roundElapsed ? '3WAY' : '',
         team.magnetPower > 0 ? '자석' : ''
       ].filter(Boolean).slice(0, 2).join(' ');
-      statLabel.setText(`${team.score}점  HP ${team.hp}/${team.maxHp}  인원 ${team.soldiers}  Lv.${team.weaponLevel}${boosts ? `  ${boosts}` : ''}`);
+      statLabel.setText(team.hp <= 0
+        ? `${team.score}점  BASE DOWN`
+        : `${team.score}점  HP ${team.hp}/${team.maxHp}  인원 ${team.soldiers}  Lv.${team.weaponLevel}${boosts ? `  ${boosts}` : ''}`);
       const hpRatio = clamp(team.hp / team.maxHp, 0, 1);
       const baseHpFill = panel.baseHpFill as any;
       const baseHpText = panel.baseHpText as any;
-      baseHpFill.setScale(Math.max(0.02, hpRatio), 1);
+      baseHpFill.setScale(hpRatio <= 0 ? 0 : Math.max(0.02, hpRatio), 1);
       baseHpFill.setFillStyle(hpRatio > 0.55 ? 0x5ff27a : hpRatio > 0.25 ? 0xffd75f : 0xff5d57, 1);
-      baseHpText.setText(`BASE HP ${team.hp} / ${team.maxHp}`);
+      baseHpText.setText(team.hp <= 0 ? 'BASE DOWN' : `BASE HP ${team.hp} / ${team.maxHp}`);
       const bossHpText = panel.bossHpText as any;
       if (this.round >= this.bossStartRound) {
         bossHpText.setText(`HP ${Math.max(0, this.bossHp)} / ${this.bossMaxHp}`);
@@ -2250,6 +2384,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
 
     updateContinuousMovement(delta: number) {
       this.teams.forEach((team) => {
+        if (!this.isTeamActive(team)) {
+          return;
+        }
         const keyboardDirection = this.getKeyboardDirection(team.id);
         const holdDirection = this.inputDirections[team.id] ?? 0;
         const direction = holdDirection || keyboardDirection;
@@ -2283,6 +2420,11 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     setTeamDirection(teamId: number, direction: -1 | 0 | 1) {
+      const team = this.teams[teamId];
+      if (!this.isTeamActive(team)) {
+        this.inputDirections[teamId] = 0;
+        return;
+      }
       this.inputDirections[teamId] = direction;
     }
 
@@ -2295,7 +2437,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
 
     moveTeam(teamId: number, delta: -1 | 1) {
       const team = this.teams[teamId];
-      if (!team) {
+      if (!this.isTeamActive(team)) {
         return;
       }
       this.setTeamPosition(teamId, team.position + delta * 0.085, true, true);
@@ -2304,7 +2446,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     setTeamPosition(teamId: number, position: number, animate: boolean, pushStats: boolean) {
       const team = this.teams[teamId];
       const panel = this.panels[teamId];
-      if (!team || !panel) {
+      if (!this.isTeamActive(team) || !panel) {
         return;
       }
 
