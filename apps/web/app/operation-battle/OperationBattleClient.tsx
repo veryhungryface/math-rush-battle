@@ -1,6 +1,6 @@
 'use client';
 
-import { Pause, Play } from 'lucide-react';
+import { Pause, Play, Volume2, VolumeX } from 'lucide-react';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import styles from './operation-battle.module.css';
 
@@ -58,6 +58,7 @@ type GameState = {
 };
 
 const ASSET_ROOT = '/operation-battle/assets';
+const BGM_ASSET = `${ASSET_ROOT}/audio/calculate-battle_bgm.mp3?v=1`;
 const ICE_ASSET = `${ASSET_ROOT}/items/ice.png?v=1`;
 const MAX_METER = 8;
 const DEFAULT_GAME_SECONDS = 90;
@@ -210,7 +211,9 @@ export default function OperationBattleClient() {
   const [game, setGame] = useState<GameState>(() => makeInitialGame());
   const [roundDuration, setRoundDuration] = useState(DEFAULT_GAME_SECONDS);
   const [introDone, setIntroDone] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const [iceShot, setIceShot] = useState<IceShot | null>(null);
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
   const scheduledFreezeIds = useRef<Set<number>>(new Set());
   const tugOffset = -(game.meter / MAX_METER) * 148;
   const pullSide = game.lastEvent.pullSide;
@@ -244,6 +247,21 @@ export default function OperationBattleClient() {
 
     return () => window.clearInterval(timer);
   }, [game.phase, introDone]);
+
+  useEffect(() => {
+    const audio = bgmRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.volume = 0.34;
+    audio.muted = isMuted;
+
+    if (game.phase !== 'playing' || isMuted) {
+      audio.pause();
+    }
+  }, [game.phase, isMuted]);
 
   useEffect(() => {
     (['blue', 'red'] as const).forEach((teamId) => {
@@ -299,7 +317,29 @@ export default function OperationBattleClient() {
     };
   };
 
+  const playBgm = () => {
+    const audio = bgmRef.current;
+
+    if (!audio || isMuted) {
+      return;
+    }
+
+    audio.volume = 0.34;
+    audio.muted = false;
+    void audio.play().catch(() => undefined);
+  };
+
+  const pauseBgm = () => {
+    bgmRef.current?.pause();
+  };
+
   const toggleGame = () => {
+    if (game.phase === 'playing') {
+      pauseBgm();
+    } else {
+      playBgm();
+    }
+
     if (game.phase === 'ended' || game.timeLeft === 0) {
       setIceShot(null);
       scheduledFreezeIds.current.clear();
@@ -322,6 +362,26 @@ export default function OperationBattleClient() {
         ...current,
         phase: 'playing'
       };
+    });
+  };
+
+  const toggleMute = () => {
+    setIsMuted((current) => {
+      const nextMuted = !current;
+      const audio = bgmRef.current;
+
+      if (audio) {
+        audio.muted = nextMuted;
+
+        if (nextMuted) {
+          audio.pause();
+        } else if (game.phase === 'playing') {
+          audio.volume = 0.34;
+          void audio.play().catch(() => undefined);
+        }
+      }
+
+      return nextMuted;
     });
   };
 
@@ -631,6 +691,7 @@ export default function OperationBattleClient() {
 
   return (
     <main className={styles.shell}>
+      <audio ref={bgmRef} src={BGM_ASSET} loop preload="auto" />
       <div className={styles.gameBoard}>
         {renderTeamPanel('blue')}
 
@@ -649,6 +710,15 @@ export default function OperationBattleClient() {
               <button className={styles.centerPlayButton} type="button" onClick={toggleGame}>
                 {game.phase === 'playing' ? <Pause size={21} aria-hidden="true" /> : <Play size={21} aria-hidden="true" />}
                 {game.phase === 'playing' ? '중지' : '시작'}
+              </button>
+              <button
+                className={styles.centerMuteButton}
+                type="button"
+                onClick={toggleMute}
+                aria-label={isMuted ? '배경음 켜기' : '배경음 끄기'}
+                title={isMuted ? '배경음 켜기' : '배경음 끄기'}
+              >
+                {isMuted ? <VolumeX size={24} aria-hidden="true" /> : <Volume2 size={24} aria-hidden="true" />}
               </button>
             </div>
 
