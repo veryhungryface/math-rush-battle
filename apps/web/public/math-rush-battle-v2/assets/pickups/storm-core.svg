@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <radialGradient id="stormGlow" cx="52%" cy="46%" r="62%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.32" stop-color="#82fbff"/>
+      <stop offset="0.68" stop-color="#4574ff"/>
+      <stop offset="1" stop-color="#3d1b92"/>
+    </radialGradient>
+    <linearGradient id="bolt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff7a8"/>
+      <stop offset="0.55" stop-color="#ffcf2e"/>
+      <stop offset="1" stop-color="#ff7a1a"/>
+    </linearGradient>
+  </defs>
+  <circle cx="128" cy="128" r="112" fill="url(#stormGlow)"/>
+  <circle cx="128" cy="128" r="98" fill="#121a3c" opacity="0.24"/>
+  <path d="M136 24c12 28 12 49 0 77 28-13 50-13 78 0-28 12-50 12-78 0 12 28 12 49 0 77-13-28-13-49 0-77-28 12-50 12-78 0 28-13 50-13 78 0-13-28-13-49 0-77Z" fill="#ffffff" opacity="0.38"/>
+  <path d="M125 40 72 136h45l-18 80 85-116h-51l23-60Z" fill="url(#bolt)" stroke="#632900" stroke-width="9" stroke-linejoin="round"/>
+  <g fill="#f5fbff" stroke="#2445a8" stroke-width="6" stroke-linejoin="round">
+    <path d="M47 82c30-8 56-3 79 15-31 7-57 2-79-15Z"/>
+    <path d="M131 182c31-9 58-4 80 14-31 8-57 3-80-14Z"/>
+  </g>
+  <g transform="translate(0 -2)" fill="#ff4c31" stroke="#ffffff" stroke-width="5" stroke-linejoin="round">
+    <path d="M50 171c18-10 35-13 52-8-11 15-27 24-49 27Z"/>
+    <path d="M168 65c18-10 35-13 52-8-11 15-27 24-49 27Z"/>
+  </g>
+</svg>

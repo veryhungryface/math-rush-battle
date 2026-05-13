@@ -1,6 +1,9 @@
 'use client';
 
 import {
+  Home,
+  Maximize2,
+  Minimize2,
   Play,
   RotateCcw,
   UsersRound
@@ -140,6 +143,7 @@ type ProjectileView = {
   position: number;
   speed: number;
   scaleBase: number;
+  kind: ProjectileKind;
   alive: boolean;
 };
 
@@ -150,10 +154,27 @@ type PickupView = {
   root: unknown;
 };
 
-type PickupKind = 'rapid' | 'multi' | 'soldier' | 'shield' | 'rocket' | 'freeze' | 'heal' | 'magnet' | 'laser' | 'drone' | 'bomb' | 'overdrive';
-type SpriteRef = { texture: string; frame: number };
-type EnemySpriteRef = SpriteRef & { anim: string };
-type BlockerSpriteRef = SpriteRef & { scale: number; hpBoost: number; anim: string };
+type PickupKind =
+  | 'rapid'
+  | 'multi'
+  | 'soldier'
+  | 'squad'
+  | 'shield'
+  | 'rocket'
+  | 'arsenal'
+  | 'freeze'
+  | 'heal'
+  | 'magnet'
+  | 'laser'
+  | 'drone'
+  | 'bomb'
+  | 'storm'
+  | 'overdrive';
+type ProjectileKind = 'basic' | 'missile' | 'laser';
+type RushSoundKind = ProjectileKind | 'hit' | 'heavyHit' | 'boom' | 'pickup';
+type SpriteRef = { texture: string; frame?: number };
+type EnemySpriteRef = { texture: string; frame: number; anim: string };
+type BlockerSpriteRef = EnemySpriteRef & { scale: number; hpBoost: number };
 
 type PanelView = {
   teamId: number;
@@ -173,6 +194,8 @@ type PanelView = {
 };
 
 const v2AssetBase = '/math-rush-battle-v2';
+const maxSoldiers = 20;
+let rushAudioContext: AudioContext | null = null;
 const roadPerspective = {
   topY: 0.235,
   bottomY: 0.985,
@@ -181,19 +204,38 @@ const roadPerspective = {
   bottomLeft: -0.018,
   bottomRight: 1.018
 };
-const pickupKinds: PickupKind[] = ['rapid', 'multi', 'soldier', 'shield', 'rocket', 'freeze', 'heal', 'magnet', 'laser', 'drone', 'bomb', 'overdrive'];
+const pickupKinds: PickupKind[] = [
+  'rapid',
+  'multi',
+  'soldier',
+  'squad',
+  'shield',
+  'rocket',
+  'arsenal',
+  'freeze',
+  'heal',
+  'magnet',
+  'laser',
+  'drone',
+  'bomb',
+  'storm',
+  'overdrive'
+];
 const pickupSprites: Record<PickupKind, SpriteRef> = {
   rapid: { texture: 'runner-extra-atlas-v3', frame: 8 },
   multi: { texture: 'runner-extra-atlas-v3', frame: 9 },
   soldier: { texture: 'runner-extra-atlas-v3', frame: 10 },
+  squad: { texture: 'pickup-squad-plus' },
   shield: { texture: 'runner-extra-atlas-v3', frame: 11 },
   rocket: { texture: 'runner-extra-atlas-v3', frame: 12 },
+  arsenal: { texture: 'pickup-arsenal' },
   freeze: { texture: 'runner-extra-atlas-v3', frame: 13 },
   heal: { texture: 'runner-extra-atlas-v3', frame: 14 },
   magnet: { texture: 'runner-extra-atlas-v3', frame: 15 },
   laser: { texture: 'projectiles-fx-sheet', frame: 3 },
   drone: { texture: 'gates-pickups-sheet', frame: 5 },
   bomb: { texture: 'projectiles-fx-sheet', frame: 4 },
+  storm: { texture: 'pickup-storm' },
   overdrive: { texture: 'gates-pickups-sheet', frame: 7 }
 };
 
@@ -201,14 +243,17 @@ const pickupLabels: Record<PickupKind, string> = {
   rapid: 'RAPID',
   multi: 'x3',
   soldier: '+2',
+  squad: '+4',
   shield: 'SAFE',
   rocket: 'BOOM',
+  arsenal: 'LV+',
   freeze: 'ICE',
   heal: '+HP',
   magnet: 'MAG',
   laser: 'LASER',
   drone: 'DRONE',
   bomb: 'BLAST',
+  storm: 'STORM',
   overdrive: 'MAX'
 };
 
@@ -225,6 +270,80 @@ const blockerSprites: BlockerSpriteRef[] = [
   { texture: 'enemy-walk-sheet-v1', frame: 1 * actionFrameCount, scale: 1.12, hpBoost: 84, anim: 'enemy-walk-1' },
   { texture: 'enemy-walk-sheet-v1', frame: 0, scale: 1.2, hpBoost: 72, anim: 'enemy-walk-0' }
 ];
+
+function getRushAudioContext() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  if (rushAudioContext) {
+    return rushAudioContext;
+  }
+
+  const AudioCtor = window.AudioContext ?? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!AudioCtor) {
+    return null;
+  }
+
+  rushAudioContext = new AudioCtor();
+  return rushAudioContext;
+}
+
+function unlockRushAudio() {
+  const context = getRushAudioContext();
+  if (!context) {
+    return;
+  }
+
+  if (context.state === 'suspended') {
+    void context.resume();
+  }
+}
+
+function playRushSound(kind: RushSoundKind, intensity = 1) {
+  const context = getRushAudioContext();
+  if (!context) {
+    return;
+  }
+
+  if (context.state === 'suspended') {
+    void context.resume();
+  }
+
+  const now = context.currentTime;
+  const output = context.createGain();
+  output.gain.setValueAtTime(0.0001, now);
+  output.gain.exponentialRampToValueAtTime(Math.max(0.018, 0.06 * intensity), now + 0.012);
+  output.gain.exponentialRampToValueAtTime(0.0001, now + (kind === 'laser' ? 0.18 : kind === 'boom' ? 0.28 : 0.11));
+  output.connect(context.destination);
+
+  const makeOscillator = (type: OscillatorType, start: number, end: number, duration: number, gain = 1) => {
+    const oscillator = context.createOscillator();
+    const localGain = context.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(start, now);
+    oscillator.frequency.exponentialRampToValueAtTime(Math.max(40, end), now + duration);
+    localGain.gain.setValueAtTime(gain, now);
+    oscillator.connect(localGain);
+    localGain.connect(output);
+    oscillator.start(now);
+    oscillator.stop(now + duration + 0.02);
+  };
+
+  if (kind === 'laser') {
+    makeOscillator('triangle', 920, 1420, 0.17, 0.78);
+    makeOscillator('sine', 460, 760, 0.16, 0.38);
+  } else if (kind === 'missile' || kind === 'boom') {
+    makeOscillator('sawtooth', kind === 'boom' ? 120 : 260, kind === 'boom' ? 48 : 86, kind === 'boom' ? 0.26 : 0.14, 0.8);
+    makeOscillator('square', kind === 'boom' ? 70 : 180, kind === 'boom' ? 42 : 70, kind === 'boom' ? 0.24 : 0.11, 0.35);
+  } else if (kind === 'hit' || kind === 'heavyHit') {
+    makeOscillator('triangle', kind === 'heavyHit' ? 220 : 380, kind === 'heavyHit' ? 70 : 140, kind === 'heavyHit' ? 0.13 : 0.08, 0.68);
+  } else if (kind === 'pickup') {
+    makeOscillator('sine', 620, 1040, 0.16, 0.62);
+    makeOscillator('triangle', 930, 1480, 0.13, 0.34);
+  } else {
+    makeOscillator('square', 520, 210, 0.09, 0.56);
+  }
+}
 
 const teamPalette: Record<TeamColor, { main: number; css: string }> = {
   blue: { main: 0x2d7cff, css: '#2d7cff' },
@@ -294,9 +413,12 @@ function visibleCurriculumUnits(selectedGrades: number[], selectedAreas: Curricu
   return curriculumUnits.filter((unit) => selectedGrades.includes(unit.grade) && selectedAreas.includes(unit.area));
 }
 
-function makeProblem(round: number, mode: RoundMode, problemPool: Problem[]): Problem {
+function makeProblem(problemPool: Problem[], recentPrompts: string[] = []): Problem {
   const pool = problemPool.length > 0 ? problemPool : allCurriculumProblems;
-  const source = pool[(round * 7 + (mode === 'boss' ? 11 : 0)) % pool.length];
+  const recent = new Set(recentPrompts);
+  const candidates = pool.filter((problem) => !recent.has(problem.prompt));
+  const sourcePool = candidates.length > 0 ? candidates : pool;
+  const source = sourcePool[Math.floor(Math.random() * sourcePool.length)];
   return {
     ...source,
     choices: shuffle(source.choices)
@@ -322,6 +444,7 @@ function lerp(start: number, end: number, amount: number) {
 }
 
 export default function MathRushBattleClient() {
+  const shellRef = useRef<HTMLElement | null>(null);
   const [phase, setPhase] = useState<PlayPhase>('menu');
   const [playerCount, setPlayerCount] = useState(1);
   const [selectedGrades, setSelectedGrades] = useState<number[]>(defaultSelectedGrades);
@@ -330,6 +453,7 @@ export default function MathRushBattleClient() {
   const [runId, setRunId] = useState(0);
   const [round, setRound] = useState<RoundInfo | null>(null);
   const [summary, setSummary] = useState<GameSummary | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const apiRef = useRef<GameApi | null>(null);
   const visibleUnits = useMemo(() => visibleCurriculumUnits(selectedGrades, selectedAreas), [selectedAreas, selectedGrades]);
   const selectedVisibleUnitKeys = useMemo(() => {
@@ -340,6 +464,7 @@ export default function MathRushBattleClient() {
   const selectedUnitKeySet = useMemo(() => new Set(selectedVisibleUnitKeys), [selectedVisibleUnitKeys]);
 
   const startGame = useCallback(() => {
+    unlockRushAudio();
     setRound(null);
     setSummary(null);
     setRunId((value) => value + 1);
@@ -350,6 +475,15 @@ export default function MathRushBattleClient() {
     apiRef.current = null;
     setPhase('menu');
     setRound(null);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen?.().catch(() => undefined);
+      return;
+    }
+
+    void (shellRef.current ?? document.documentElement).requestFullscreen?.({ navigationUI: 'hide' }).catch(() => undefined);
   }, []);
 
   const handleStats = useCallback((nextTeams: TeamStatus[]) => {
@@ -367,6 +501,13 @@ export default function MathRushBattleClient() {
 
   const handleApi = useCallback((api: GameApi | null) => {
     apiRef.current = api;
+  }, []);
+
+  useEffect(() => {
+    const syncFullscreen = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    syncFullscreen();
+    document.addEventListener('fullscreenchange', syncFullscreen);
+    return () => document.removeEventListener('fullscreenchange', syncFullscreen);
   }, []);
 
   const toggleGrade = useCallback((grade: number) => {
@@ -434,7 +575,7 @@ export default function MathRushBattleClient() {
   }, [visibleUnits]);
 
   return (
-    <main className={styles.shell}>
+    <main ref={shellRef} className={styles.shell}>
       {phase === 'menu' ? (
         <section className={styles.menuScreen}>
           <div className={styles.menuBackdrop}>
@@ -546,6 +687,19 @@ export default function MathRushBattleClient() {
                 <span>{round?.mode === 'boss' ? 'BOSS HP' : 'MISSION'}</span>
                 <strong>{round?.mode === 'boss' ? `${Math.max(0, round.bossHp)} / ${round.bossMaxHp}` : round?.message ?? '배 숫자 정답 찾기'}</strong>
               </div>
+            </div>
+            <div className={styles.gameControls} aria-label="게임 화면 도구">
+              <button aria-label="첫 화면으로 돌아가기" onClick={backToMenu} title="첫 화면" type="button">
+                <Home size={24} />
+              </button>
+              <button
+                aria-label={isFullscreen ? '전체 화면 닫기' : '전체 화면으로 플레이'}
+                onClick={toggleFullscreen}
+                title={isFullscreen ? '전체 화면 닫기' : '전체 화면'}
+                type="button"
+              >
+                {isFullscreen ? <Minimize2 size={24} /> : <Maximize2 size={24} />}
+              </button>
             </div>
             <PhaserSurface
               key={runId}
@@ -693,6 +847,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     fxLayer: any;
     problem: Problem | null;
     problemPool: Problem[];
+    recentProblemPrompts: string[];
     phase: ScenePhase;
     round: number;
     maxRounds: number;
@@ -710,6 +865,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     inputKeys: Record<string, any>;
     statsPulse: number;
     movementDirty: boolean;
+    nextShotSoundAt: number;
+    nextHitSoundAt: number;
 
     constructor() {
       super('rush-scene');
@@ -720,6 +877,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.fxLayer = null;
       this.problem = null;
       this.problemPool = callbacks.problemPool.length > 0 ? callbacks.problemPool : allCurriculumProblems;
+      this.recentProblemPrompts = [];
       this.phase = 'loading';
       this.round = 0;
       this.maxRounds = 9;
@@ -737,6 +895,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       this.inputKeys = {};
       this.statsPulse = 0;
       this.movementDirty = false;
+      this.nextShotSoundAt = 0;
+      this.nextHitSoundAt = 0;
     }
 
     preload() {
@@ -769,6 +929,9 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         frameWidth: 384,
         frameHeight: 384
       });
+      this.load.svg('pickup-squad-plus', `${v2AssetBase}/assets/pickups/squad-plus.svg`, { width: 256, height: 256 });
+      this.load.svg('pickup-arsenal', `${v2AssetBase}/assets/pickups/arsenal-core.svg`, { width: 256, height: 256 });
+      this.load.svg('pickup-storm', `${v2AssetBase}/assets/pickups/storm-core.svg`, { width: 256, height: 256 });
     }
 
     create() {
@@ -823,25 +986,38 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
     }
 
     teamThreatPressure(team: TeamStatus) {
-      const squadPressure = Math.pow(team.soldiers, 1.35) * 28;
-      const weaponPressure = team.weaponLevel * 34;
+      const squadPressure = Math.pow(team.soldiers, 1.12) * 14;
+      const weaponPressure = team.weaponLevel * 28;
       const boostPressure = [
-        team.rapidUntil > this.roundElapsed ? 34 : 0,
-        team.spreadUntil > this.roundElapsed ? 42 : 0,
-        team.missileUntil > this.roundElapsed ? 34 : 0,
-        team.laserUntil > this.roundElapsed ? 38 : 0
+        team.rapidUntil > this.roundElapsed ? 24 : 0,
+        team.spreadUntil > this.roundElapsed ? 34 : 0,
+        team.missileUntil > this.roundElapsed ? 32 : 0,
+        team.laserUntil > this.roundElapsed ? 34 : 0
       ].reduce((sum, value) => sum + value, 0);
       return squadPressure + weaponPressure + boostPressure;
     }
 
+    difficultyRatio() {
+      return clamp((this.round - 1) / Math.max(1, this.maxRounds - 1), 0, 1);
+    }
+
+    enemyHpScale(mode: RoundMode) {
+      const ratio = Math.pow(this.difficultyRatio(), 1.08);
+      return lerp(0.5, mode === 'boss' ? 1.18 : 1.16, ratio);
+    }
+
+    blockerHpScale() {
+      return lerp(0.66, 1.18, Math.pow(this.difficultyRatio(), 1.05));
+    }
+
     projectileDamage(team: TeamStatus, laserActive: boolean, missileBoost: boolean) {
       const levelBonus = Math.max(0, team.weaponLevel - 1);
-      const squadBonus = Math.floor(Math.sqrt(team.soldiers));
+      const squadBonus = Math.floor(Math.sqrt(team.soldiers) + Math.max(0, team.soldiers - 8) / 6);
       if (laserActive) {
-        return 7 + levelBonus * 2 + squadBonus;
+        return 10 + levelBonus * 2 + squadBonus;
       }
       if (missileBoost) {
-        return 8 + levelBonus * 2 + squadBonus;
+        return 11 + levelBonus * 2 + squadBonus;
       }
       return 5 + Math.floor(levelBonus * 1.35) + Math.floor(Math.max(0, team.soldiers - 1) / 6);
     }
@@ -1197,7 +1373,11 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
 
       this.round += 1;
       const mode: RoundMode = this.round >= this.bossStartRound ? 'boss' : 'targets';
-      this.problem = makeProblem(this.round, mode, this.problemPool);
+      this.problem = makeProblem(this.problemPool, this.recentProblemPrompts);
+      this.recentProblemPrompts = [this.problem.prompt, ...this.recentProblemPrompts].slice(
+        0,
+        Math.min(18, Math.max(3, this.problemPool.length - 1))
+      );
       this.roundElapsed = 0;
       this.shootClock = 0;
       this.resolvedTeams.clear();
@@ -1274,12 +1454,11 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           ? enemySprites[7]
           : enemySprites[enemyIndex];
         const heavyBonus = [0, 9, 4, 13, 7, 15, 5, 11, 18, 6, 14, 10][enemyIndex] ?? 0;
-        const elite = mode === 'boss' || this.round >= 4 || enemyIndex >= 4 || (this.round + lane + panel.teamId) % 4 === 0;
-        const earlyEliteRelief = elite ? Math.max(0, 3 - this.round) * 24 : 0;
+        const elite = mode === 'boss' || this.round >= 4 || (this.round >= 3 && (enemyIndex >= 4 || (this.round + lane + panel.teamId) % 4 === 0));
         const rawGauge = elite
-          ? 210 + this.round * 28 + lane * 20 + heavyBonus + threatPressure * 0.5 - earlyEliteRelief
+          ? 210 + this.round * 28 + lane * 20 + heavyBonus + threatPressure * 0.46
           : 146 + this.round * 20 + lane * 15 + Math.floor(heavyBonus * 0.7) + threatPressure * 0.36;
-        const gauge = Math.floor(rawGauge * (correct ? 0.95 : 1.08) * (mode === 'boss' ? 1.12 : 1));
+        const gauge = Math.floor(rawGauge * this.enemyHpScale(mode) * (correct ? 0.95 : 1.08) * (mode === 'boss' ? 1.12 : 1));
         const root = this.add.container(x, y);
         root.setScale(this.targetPerspectiveScale(panel.rect, y));
         root.setDepth(Math.floor(y) + 520);
@@ -1347,7 +1526,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         return;
       }
       const correctTarget = panel.targets.find((target) => target.correct);
-      if (!correctTarget || this.round < 2) {
+      if (!correctTarget || this.round < 3) {
         return;
       }
 
@@ -1402,7 +1581,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         root.add([aura, body, barBack, energyFill, guardIcon]);
         this.worldLayer.add(root);
 
-        const hp = Math.floor(235 + this.round * 46 + sprite.hpBoost * 1.18 + this.teamThreatPressure(team) * 0.72 + (fastDrop ? 62 : 0));
+        const rawHp = 235 + this.round * 46 + sprite.hpBoost * 1.18 + this.teamThreatPressure(team) * 0.68 + (fastDrop ? 62 : 0);
+        const hp = Math.floor(rawHp * this.blockerHpScale());
         panel.blockers.push({
           position: startPosition,
           baseY,
@@ -1426,15 +1606,33 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         return;
       }
       const usableKinds = pickupKinds.filter((kind) => {
-        if (kind === 'soldier') {
-          return team.soldiers < 16;
+        if (kind === 'soldier' || kind === 'squad' || kind === 'drone') {
+          return team.soldiers < maxSoldiers;
         }
         if (kind === 'heal') {
-          return team.hp < team.maxHp || team.soldiers < 16;
+          return team.hp < team.maxHp || team.soldiers < maxSoldiers;
+        }
+        if (kind === 'arsenal') {
+          return team.weaponLevel < 5 || team.missileUntil <= this.roundElapsed || team.laserUntil <= this.roundElapsed;
         }
         return true;
       });
-      const kind = usableKinds[(this.round + panel.teamId * 2) % usableKinds.length];
+      const pressurePicks: PickupKind[] = [];
+      if (this.round >= 3 && team.soldiers <= 6) {
+        pressurePicks.push('squad', 'soldier');
+      }
+      if (this.round >= 3 && team.weaponLevel <= 2) {
+        pressurePicks.push('arsenal', 'rocket', 'multi');
+      }
+      if (this.round >= 5) {
+        pressurePicks.push('storm', 'overdrive', 'laser');
+      }
+      if (team.hp <= 55) {
+        pressurePicks.push('heal', 'shield');
+      }
+      const supportPool = pressurePicks.filter((kind) => usableKinds.includes(kind));
+      const finalKinds = supportPool.length > 0 && (this.round + panel.teamId) % 2 === 0 ? supportPool : usableKinds;
+      const kind = finalKinds[(this.round * 2 + panel.teamId * 3) % finalKinds.length];
       const position = ((this.round + panel.teamId + (this.round % 2)) % 3 + 0.5) / 3;
       const pickupSprite = pickupSprites[kind];
       const root = this.add.container(0, 0);
@@ -1452,7 +1650,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         strokeThickness: 5
       }).setOrigin(0.5);
       root.add([glow, item, label]);
-      root.setVisible(team.soldiers < 16 || kind !== 'soldier');
+      root.setVisible(team.soldiers < maxSoldiers || (kind !== 'soldier' && kind !== 'squad' && kind !== 'drone'));
       this.worldLayer.add(root);
       panel.pickup = { position, kind, collected: false, root };
       this.updatePickupPosition(panel, 0);
@@ -1705,6 +1903,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
 
     collectPickup(panel: PanelView, team: TeamStatus, pickup: PickupView) {
       pickup.collected = true;
+      playRushSound('pickup', 0.85);
       if (pickup.kind !== 'magnet' && team.magnetPower > 0) {
         team.magnetPower = Math.max(0, team.magnetPower - 1);
       }
@@ -1737,8 +1936,13 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           this.setPanelVerdict(panel, 'TRIPLE SHOT!');
           break;
         case 'soldier':
-          team.soldiers = Math.min(16, team.soldiers + 2);
+          team.soldiers = Math.min(maxSoldiers, team.soldiers + 2);
           this.setPanelVerdict(panel, '+2 JOIN!');
+          break;
+        case 'squad':
+          team.soldiers = Math.min(maxSoldiers, team.soldiers + 4);
+          team.rapidUntil = Math.max(team.rapidUntil, this.roundElapsed + 2600);
+          this.setPanelVerdict(panel, '+4 SQUAD!');
           break;
         case 'shield':
           team.shield = Math.min(3, team.shield + 1);
@@ -1750,13 +1954,19 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           team.weaponLevel = Math.min(5, team.weaponLevel + 1);
           this.setPanelVerdict(panel, 'MISSILE RUSH!');
           break;
+        case 'arsenal':
+          team.weaponLevel = Math.min(5, team.weaponLevel + 2);
+          team.missileUntil = Math.max(team.missileUntil, this.roundElapsed + 7600);
+          team.laserUntil = Math.max(team.laserUntil, this.roundElapsed + 2800);
+          this.setPanelVerdict(panel, 'ARSENAL!');
+          break;
         case 'freeze':
           this.roundElapsed = Math.max(0, this.roundElapsed - 1800);
           this.setPanelVerdict(panel, 'FREEZE!');
           break;
         case 'heal':
           team.hp = Math.min(team.maxHp, team.hp + 30);
-          team.soldiers = Math.min(16, team.soldiers + 1);
+          team.soldiers = Math.min(maxSoldiers, team.soldiers + 1);
           this.setPanelVerdict(panel, 'REPAIR +30!');
           break;
         case 'magnet':
@@ -1768,7 +1978,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           this.setPanelVerdict(panel, 'LASER!');
           break;
         case 'drone':
-          team.soldiers = Math.min(16, team.soldiers + 1);
+          team.soldiers = Math.min(maxSoldiers, team.soldiers + 1);
           team.rapidUntil = Math.max(team.rapidUntil, this.roundElapsed + 3600);
           this.setPanelVerdict(panel, 'DRONE JOIN!');
           break;
@@ -1776,8 +1986,18 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
           this.blastTargets(panel, team, 34 + team.weaponLevel * 8);
           this.setPanelVerdict(panel, 'BLAST!');
           break;
+        case 'storm':
+          team.weaponLevel = Math.min(5, team.weaponLevel + 1);
+          team.soldiers = Math.min(maxSoldiers, team.soldiers + 3);
+          team.missileUntil = Math.max(team.missileUntil, this.roundElapsed + 7600);
+          team.laserUntil = Math.max(team.laserUntil, this.roundElapsed + 4200);
+          team.spreadUntil = Math.max(team.spreadUntil, this.roundElapsed + 5200);
+          this.blastTargets(panel, team, 48 + team.weaponLevel * 10);
+          this.setPanelVerdict(panel, 'FIRE STORM!');
+          break;
         case 'overdrive':
           team.weaponLevel = Math.min(5, team.weaponLevel + 1);
+          team.soldiers = Math.min(maxSoldiers, team.soldiers + 2);
           team.missileUntil = Math.max(team.missileUntil, this.roundElapsed + 6200);
           team.laserUntil = Math.max(team.laserUntil, this.roundElapsed + 3600);
           team.spreadUntil = Math.max(team.spreadUntil, this.roundElapsed + 4200);
@@ -1791,6 +2011,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       if (!this.isTeamActive(team)) {
         return;
       }
+      playRushSound('boom', 1.05);
       panel.blockers
         .filter((blocker) => !blocker.defeated)
         .forEach((blocker, index) => {
@@ -1853,18 +2074,36 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const root = soldier.root as any;
       const laserActive = team.laserUntil > this.roundElapsed;
       const missileBoost = team.missileUntil > this.roundElapsed || team.weaponLevel >= 3;
+      const projectileKind: ProjectileKind = laserActive ? 'laser' : missileBoost ? 'missile' : 'basic';
       const bulletTexture = laserActive ? 'projectiles-fx-sheet' : 'runner-atlas-v2';
       const bulletFrame = laserActive ? 2 : 13;
       const launchY = root.y - 22;
       const launchPosition = clamp(this.roadPositionFromX(panel.rect, root.x + 10, launchY) + roadOffset, 0.04, 0.96);
       const launchX = this.roadX(panel.rect, launchPosition, launchY);
       const bullet = this.add.sprite(launchX, launchY, bulletTexture, bulletFrame);
-      const scaleBase = Math.max(0.1, Math.min(0.23, panel.rect.width / 2100)) * (laserActive ? 1.3 : missileBoost ? 1.45 : 1.16);
+      const scaleBase = Math.max(0.1, Math.min(0.25, panel.rect.width / 2050)) * (laserActive ? 1.45 : missileBoost ? 1.58 : 1.16);
       bullet.setScale(scaleBase * this.projectilePerspectiveScale(panel.rect, launchY));
       bullet.setAlpha(0.95);
       bullet.rotation = -Math.PI / 2;
       bullet.setDepth(Math.floor(launchY) + 900);
       this.fxLayer.add(bullet);
+      if (this.roundElapsed >= this.nextShotSoundAt) {
+        playRushSound(projectileKind, clamp(0.65 + team.weaponLevel * 0.08 + team.soldiers * 0.01, 0.65, 1.18));
+        this.nextShotSoundAt = this.roundElapsed + (team.soldiers >= 14 ? 84 : 66);
+      }
+      const muzzle = this.add.sprite(launchX, launchY + 8, 'projectiles-fx-sheet', laserActive ? 3 : missileBoost ? 10 : 4);
+      muzzle.setScale(scaleBase * (laserActive ? 2.6 : missileBoost ? 2.2 : 1.6));
+      muzzle.setAlpha(0.84);
+      muzzle.setDepth(Math.floor(launchY) + 890);
+      this.fxLayer.add(muzzle);
+      this.tweens.add({
+        targets: muzzle,
+        alpha: 0,
+        scale: muzzle.scale * 1.8,
+        duration: laserActive ? 150 : 95,
+        ease: 'Quad.easeOut',
+        onComplete: () => muzzle.destroy()
+      });
       this.projectiles.push({
         root: bullet,
         panelId: panel.teamId,
@@ -1873,6 +2112,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         position: launchPosition,
         speed: 0.78 + team.weaponLevel * 0.035 + (laserActive ? 0.14 : missileBoost ? 0.06 : 0),
         scaleBase,
+        kind: projectileKind,
         alive: true
       });
       this.tweens.add({
@@ -1978,9 +2218,13 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const blockerScale = Math.max(0.88, Number(root.scaleX ?? 1));
       blocker.hp = Math.max(0, blocker.hp - damage);
       energyFill.setScale(Math.max(0.02, blocker.hp / blocker.maxHp), 1);
+      if (this.roundElapsed >= this.nextHitSoundAt) {
+        playRushSound('heavyHit', 0.9);
+        this.nextHitSoundAt = this.roundElapsed + 72;
+      }
 
       const spark = this.add.sprite(root.x, root.y + 8, 'projectiles-fx-sheet', 4);
-      spark.setScale(Math.max(0.28, Math.min(0.58, panel.rect.width / 900)) * blockerScale);
+      spark.setScale(Math.max(0.32, Math.min(0.68, panel.rect.width / 820)) * blockerScale);
       spark.setAlpha(0.88);
       this.fxLayer.add(spark);
       this.tweens.add({
@@ -2015,6 +2259,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const boom = this.add.sprite(root.x, root.y, 'projectiles-fx-sheet', 8);
       boom.setScale(Math.max(0.48, Math.min(0.92, panel.rect.width / 650)) * blockerScale);
       this.fxLayer.add(boom);
+      playRushSound('boom', 1);
       this.tweens.add({
         targets: boom,
         alpha: 0,
@@ -2084,6 +2329,10 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const targetScale = Math.max(0.72, Number(root.scaleX ?? 1));
       target.hp = Math.max(0, target.hp - damage);
       energyFill.setScale(Math.max(0.02, target.hp / target.maxHp), 1);
+      if (this.roundElapsed >= this.nextHitSoundAt) {
+        playRushSound(target.elite ? 'heavyHit' : 'hit', target.elite ? 0.92 : 0.72);
+        this.nextHitSoundAt = this.roundElapsed + 70;
+      }
       const bossMode = this.round >= this.bossStartRound;
       if (bossMode && target.correct) {
         this.damageBoss(panel, Math.max(1, Math.floor(damage * 0.9)));
@@ -2110,7 +2359,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
         onComplete: () => damageText.destroy()
       });
       const spark = this.add.sprite(root.x, root.y + 12, 'projectiles-fx-sheet', 4);
-      spark.setScale(Math.max(0.18, Math.min(0.38, panel.rect.width / 1240)) * targetScale);
+      spark.setScale(Math.max(0.22, Math.min(0.48, panel.rect.width / 1050)) * targetScale);
       spark.setAlpha(0.9);
       this.fxLayer.add(spark);
       this.tweens.add({
@@ -2143,6 +2392,7 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const boom = this.add.sprite(root.x, root.y, 'projectiles-fx-sheet', 8);
       boom.setScale(Math.max(0.34, Math.min(0.68, panel.rect.width / 860)) * targetScale);
       this.fxLayer.add(boom);
+      playRushSound(target.correct ? 'boom' : 'heavyHit', target.correct ? 0.95 : 0.78);
       this.tweens.add({
         targets: boom,
         alpha: 0,
@@ -2306,7 +2556,8 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       panel.soldiers.forEach((soldier, index) => {
         const root = soldier.root as any;
         const position = positions[index];
-        const scale = Math.max(0.66, Math.min(1.15, panel.rect.width / 960));
+        const formationScale = team.soldiers >= 17 ? 0.82 : team.soldiers >= 13 ? 0.9 : 1;
+        const scale = Math.max(0.58, Math.min(1.15, panel.rect.width / 960) * formationScale);
         root.setScale(scale);
         if (animate) {
           this.tweens.add({
@@ -2327,16 +2578,17 @@ function createPhaserGame(Phaser: Record<string, any>, host: HTMLDivElement, cal
       const baseY = panel.rect.y + panel.rect.height * 0.82;
       const centerX = this.roadX(panel.rect, team.position, baseY);
       const count = team.soldiers;
-      const rowSize = Math.min(4, Math.max(1, Math.ceil(Math.sqrt(count + 1))));
-      const gapX = Math.max(22, panel.rect.width * 0.038);
-      const gapY = Math.max(24, panel.rect.height * 0.048);
+      const rowSize = count >= 17 ? 5 : Math.min(4, Math.max(1, Math.ceil(Math.sqrt(count + 1))));
+      const rowCount = Math.max(1, Math.ceil(count / rowSize));
+      const gapX = Math.max(18, panel.rect.width * (count >= 17 ? 0.032 : 0.038));
+      const gapY = Math.max(20, panel.rect.height * (count >= 17 ? 0.038 : 0.048));
       return Array.from({ length: count }, (_, index) => {
         const row = Math.floor(index / rowSize);
         const col = index % rowSize;
         const itemsInRow = Math.min(rowSize, count - row * rowSize);
         return {
           x: centerX + (col - (itemsInRow - 1) / 2) * gapX,
-          y: baseY + row * gapY - Math.floor(count / 5) * gapY * 0.45
+          y: baseY + row * gapY - (rowCount - 1) * gapY * 0.45
         };
       });
     }

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <radialGradient id="arsenalGlow" cx="50%" cy="42%" r="60%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.34" stop-color="#ffe467"/>
+      <stop offset="1" stop-color="#ff6b1f"/>
+    </radialGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.4" stop-color="#7fe7ff"/>
+      <stop offset="1" stop-color="#3150a8"/>
+    </linearGradient>
+  </defs>
+  <circle cx="128" cy="128" r="112" fill="url(#arsenalGlow)"/>
+  <circle cx="128" cy="128" r="96" fill="#282447" opacity="0.32"/>
+  <g transform="rotate(-18 128 128)">
+    <path d="M71 132c25-46 68-75 124-85-10 56-39 99-85 124l-17-22Z" fill="url(#metal)" stroke="#f9fbff" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M147 68c18 7 29 18 36 36" fill="none" stroke="#203076" stroke-width="8" stroke-linecap="round"/>
+    <path d="M74 137 45 174l40-10Z" fill="#ffe260" stroke="#733700" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M105 170 85 213l43-23Z" fill="#ff8a2a" stroke="#733700" stroke-width="7" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(22 28) rotate(12 70 84)">
+    <path d="M35 74h75l17 20-17 20H35Z" fill="#263a75" stroke="#dff8ff" stroke-width="7" stroke-linejoin="round"/>
+    <rect x="109" y="84" width="42" height="20" rx="8" fill="#ffe260" stroke="#733700" stroke-width="6"/>
+    <path d="M52 74 38 48h34l13 26Z" fill="#6edbff" stroke="#dff8ff" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+  <path d="M169 183h-19v-19h-22v19h-19v22h19v19h22v-19h19Z" fill="#f9fbff" stroke="#21305e" stroke-width="8" stroke-linejoin="round"/>
+</svg>
