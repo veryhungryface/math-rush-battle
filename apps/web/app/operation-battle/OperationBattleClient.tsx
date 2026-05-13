@@ -1,6 +1,6 @@
 'use client';
 
-import { Pause, Play, Volume2, VolumeX } from 'lucide-react';
+import { Pause, Play, RotateCcw, Volume2, VolumeX } from 'lucide-react';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import styles from './operation-battle.module.css';
 
@@ -218,6 +218,15 @@ export default function OperationBattleClient() {
   const tugOffset = -(game.meter / MAX_METER) * 148;
   const pullSide = game.lastEvent.pullSide;
   const gameResult = game.phase === 'ended' ? winnerOf(game) : null;
+  const orientationNotice = (
+    <div className={styles.orientationNotice} role="alert" aria-live="assertive">
+      <div className={styles.orientationCard}>
+        <RotateCcw size={44} aria-hidden="true" />
+        <strong>가로모드로 전환해 주세요</strong>
+        <span>넓은 화면에서 양쪽 팀이 동시에 문제를 풀 수 있어요.</span>
+      </div>
+    </div>
+  );
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -678,6 +687,7 @@ export default function OperationBattleClient() {
   if (!introDone) {
     return (
       <main className={`${styles.shell} ${styles.introShell}`}>
+        {orientationNotice}
         <section className={styles.introScene} aria-label="연산 배틀 시작 연출">
           <div className={styles.introLessonTitle}>두자리 수 덧셈</div>
           <img className={`${styles.introCharacter} ${styles.introBlue}`} src={`${ASSET_ROOT}/intro/blue-character-crop.png`} alt="블루팀 남학생" draggable={false} />
@@ -691,6 +701,7 @@ export default function OperationBattleClient() {
 
   return (
     <main className={styles.shell}>
+      {orientationNotice}
       <audio ref={bgmRef} src={BGM_ASSET} loop preload="auto" />
       <div className={styles.gameBoard}>
         {renderTeamPanel('blue')}
