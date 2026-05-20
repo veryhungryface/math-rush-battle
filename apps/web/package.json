@@ -9,11 +9,14 @@
     "start": "next start -H 127.0.0.1 -p 3012"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "lucide-react": "^1.11.0",
     "next": "^15.1.7",
     "phaser": "^4.1.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",
