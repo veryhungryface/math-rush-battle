@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: '수학 러시 배틀',
-  description: '전자칠판용 초등 수학 러너 슈터 게임'
+  title: 'Cell Architecture Studio',
+  description: '교육용 3D 생명과학 탐색 스튜디오'
 };
 
 export default function RootLayout({
